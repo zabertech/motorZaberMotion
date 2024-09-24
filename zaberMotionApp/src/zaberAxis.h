@@ -16,6 +16,7 @@ public:
     asynStatus stop(double acceleration) override;
     asynStatus poll(bool *moving) override;
 private:
+    zaberBaseController* pC_;
     zaber::motion::ascii::Axis axis_;
 };
 

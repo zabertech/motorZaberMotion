@@ -18,6 +18,9 @@ public:
     static void callPoller(void*);
     static void callShutdown(void *ptr){((zaberBaseController*)ptr)->shutdown();};
     void shutdown();
+    // zaberAxis* getAxis(asynUser *pasynUser);
+    // zaberAxis* getAxis(int axisNo);
+
 private:
     friend zaberAxis;
 

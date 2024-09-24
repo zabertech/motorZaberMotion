@@ -1,4 +1,5 @@
 #include "zaberBaseController.h"
+#include "zaberAxis.h"
 
 #include <iostream>
 
@@ -12,33 +13,43 @@ zaberBaseController::zaberBaseController(const char *portName, int numAxes, cons
     : asynMotorController(portName, numAxes, 0, 0, 0, ASYN_CANBLOCK | ASYN_MULTIDEVICE, 1 /* autoconnect */, priority, stackSize)
 {
     (void)serialPort;
+    std::cout << "zaberBaseController: constructor called" << std::endl;
+    zaberAxis *pAxis = new zaberAxis(this, 0);
     connection_ = zaber::motion::ascii::Connection::openNetworkShare(std::string(serialPort), 11421);
 }
 
 void zaberBaseController::report(FILE *fp, int level) {
-    std::cout << "Report called" << std::endl;
+    std::cout << "zaberBaseController: Report called" << std::endl;
 }
 
 void zaberBaseController::zaberPoller() {
-    std::cout << "Poller called" << std::endl;
+    std::cout << "zaberBaseController: Poller called" << std::endl;
 }
 
 asynStatus zaberBaseController::startPoller(double movingPollPeriod, double idlePollPeriod, int forcedFastPolls) {
-    std::cout << "Poller started" << std::endl;
+    std::cout << "zaberBaseController: Poller started" << std::endl;
     return asynSuccess;
 }
 
 void zaberBaseController::callPoller(void*) {
-    std::cout << "Poller called" << std::endl;
+    std::cout << "zaberBaseController: Poller called" << std::endl;
 }
 
 void zaberBaseController::shutdown() {
-    std::cout << "Shutdown called" << std::endl;
+    std::cout << "zaberBaseController: Shutdown called" << std::endl;
 }
 
 zaber::motion::ascii::Axis zaberBaseController::getDeviceAxis(int axisNo) {
-    return device_.getAxis(axisNo);
+    return device_.getAxis(axisNo + 1);
 }
+
+// zaberAxis* zaberBaseController::getAxis(asynUser *pasynUser) {
+//     return static_cast<zaberAxis*>(asynMotorController::getAxis(pasynUser));
+// }
+
+// zaberAxis* zaberBaseController::getAxis(int axisNo) {
+//     return static_cast<zaberAxis*>(asynMotorController::getAxis(axisNo));
+// }
 
 /* Code for iocsh registration */
 
