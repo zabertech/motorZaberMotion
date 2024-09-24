@@ -1,6 +1,6 @@
 #include "zaberAxis.h"
 
-zaberAxis::zaberAxis(zaberBaseController *pC, int axisNo) {
+zaberAxis::zaberAxis(zaberBaseController *pC, int axisNo) : asynMotorAxis(pC, axisNo) {
     axis_ = pC->getDeviceAxis(axisNo);
 }
 

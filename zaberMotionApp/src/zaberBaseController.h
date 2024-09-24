@@ -11,7 +11,7 @@ class zaberAxis;
 
 class zaberBaseController : public asynMotorController {
 public:
-    zaberBaseController(const char *portName, int numAxes, int deviceId, int priority, int stackSize, int extMotorParams);
+    zaberBaseController(const char *portName, int numAxes, const char* serialPort, int deviceId, int priority, int stackSize, int extMotorParams);
     void report(FILE *fp, int level) override;
     void zaberPoller();
     asynStatus startPoller(double movingPollPeriod, double idlePollPeriod, int forcedFastPolls) override;
