@@ -9,14 +9,13 @@ include $(TOP)/configure/CONFIG
 
 DBD += zaberMotionSupport.dbd
 
-LIBRARY_IOC_DEFAULT += zaberMotion
+LIBRARY_IOC += ZaberMotion
 
 SRCS += zaberBaseController.cpp
 SRCS += zaberAxis.cpp
 
-zaberMotion_LIBS += motor
-zaberMotion_LIBS += asyn
-zaberMotion_LIBS += $(EPICS_BASE_IOC_LIBS)
+ZaberMotion_LIBS += motor asyn
+ZaberMotion_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 include $(TOP)/configure/RULES
 #----------------------------------------

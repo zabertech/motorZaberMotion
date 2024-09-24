@@ -12,7 +12,7 @@ zaberBaseController::zaberBaseController(const char *portName, int numAxes, cons
     : asynMotorController(portName, numAxes, 0, 0, 0, ASYN_CANBLOCK | ASYN_MULTIDEVICE, 1 /* autoconnect */, priority, stackSize)
 {
     (void)serialPort;
-    connection_ = zaber::motion::ascii::Connection::openNetworkShare("martin-pi", 11421);
+    connection_ = zaber::motion::ascii::Connection::openNetworkShare(std::string(serialPort), 11421);
 }
 
 void zaberBaseController::report(FILE *fp, int level) {
@@ -42,7 +42,7 @@ zaber::motion::ascii::Axis zaberBaseController::getDeviceAxis(int axisNo) {
 
 /* Code for iocsh registration */
 
-extern "C" int zaberMotionConfig(
+int zaberMotionCreateController(
     const char *portName,      /* ZaberMotion Motor Asyn Port name */
     int numAxes,               /* Number of axes this controller supports */
     const char *serialPortName,/* ZaberMotion Serial Asyn Port name */
@@ -57,7 +57,6 @@ extern "C" int zaberMotionConfig(
     return(asynSuccess);
 }
 
-extern "C" {
 /* zaberMotionConfig */
 static const iocshArg zaberMotionConfigArg0 = {"asyn motor port name", iocshArgString};
 static const iocshArg zaberMotionConfigArg1 = {"number of axes", iocshArgInt};
@@ -75,15 +74,16 @@ static const iocshArg * const zaberMotionConfigArgs[6] = {
     &zaberMotionConfigArg5
 };
 
-static const iocshFuncDef configZaberMotion = {"zaberMotionConfig", 6, zaberMotionConfigArgs };
+static const iocshFuncDef zaberMotionControllerDef = {"ZaberMotionCreateController", 6, zaberMotionConfigArgs };
 
-static void configZaberMotionCallFunc(const iocshArgBuf *args) {
-    zaberMotionConfig(args[0].sval, args[1].ival, args[2].sval, args[3].ival, args[4].ival, args[5].ival);
+static void zaberMotionCreateControllerCallFunc(const iocshArgBuf *args) {
+    zaberMotionCreateController(args[0].sval, args[1].ival, args[2].sval, args[3].ival, args[4].ival, args[5].ival);
 }
 
 static void zaberMotionAsynRegister(void) {
-    iocshRegister(&configZaberMotion, configZaberMotionCallFunc);
+    iocshRegister(&zaberMotionControllerDef, zaberMotionCreateControllerCallFunc);
 }
 
+extern "C" {
 epicsExportRegistrar(zaberMotionAsynRegister);
 }

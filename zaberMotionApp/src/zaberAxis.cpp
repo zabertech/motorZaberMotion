@@ -4,6 +4,8 @@ zaberAxis::zaberAxis(zaberBaseController *pC, int axisNo) : asynMotorAxis(pC, ax
     axis_ = pC->getDeviceAxis(axisNo);
 }
 
+zaberAxis::~zaberAxis() { }
+
 asynStatus zaberAxis::move(double position, int relative, double minVelocity, double maxVelocity, double acceleration) {
     (void)relative;
     (void)minVelocity;

@@ -1,4 +1,4 @@
-#!../../bin/linux-x86_64/zaberMotion
+#!../../bin/linux-aarch64/zaberMotion
 
 < envPaths
 
@@ -14,7 +14,7 @@ cd "${TOP}/iocBoot/${IOC}"
 dbLoadRecords("$(MOTOR)/db/motorUtil.db", "P=zaberMotion:")
 
 ## 
-< motor.cmd.mmc200
+< motor.cmd.zaber
 
 iocInit
 

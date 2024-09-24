@@ -24,15 +24,19 @@ zaberMotion_DBD += asyn.dbd
 zaberMotion_DBD += drvAsynSerialPort.dbd
 #endif
 zaberMotion_DBD += motorSupport.dbd
+zaberMotion_DBD += zaberMotionSupport.dbd
 
 # Add all the support libraries needed by this IOC
+zaberMotion_LIBS += ZaberMotion
 zaberMotion_LIBS += motor
 #ifdef ASYN
 zaberMotion_LIBS += asyn
 #endif
 #ifdef SNCSEQ
-zaberMotion_LIBS += seq pv
+# zaberMotion_LIBS += seq pv
 #endif
+
+PROD_SYS_LIBS += zaber-motion
 
 # zaberMotion_registerRecordDeviceDriver.cpp derives from zaberMotion.dbd
 zaberMotion_SRCS += zaberMotion_registerRecordDeviceDriver.cpp
