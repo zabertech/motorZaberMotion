@@ -1,9 +1,0 @@
-record(motor, "motor1") {
-    field(DESC, "Example Motor")
-    field(DTYP, "asynMotor")
-    field(OUT, "@asyn(mcc_1,0,0)")
-    field(VELO, "1.0")
-    field(ACCL, "0.5")
-    field(RBV, "0.0")
-    field(VAL, "0.0")
-}

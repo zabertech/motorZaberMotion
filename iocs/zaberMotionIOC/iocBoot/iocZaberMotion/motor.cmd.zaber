@@ -10,4 +10,4 @@ dbLoadTemplate("motor.substitutions.zaber")
 #    idle poll period (ms),
 #    ignore limit flag)
 ###
-ZaberMotionCreateController("mcc_1", 1, "sw-pumpkinpi.izaber.com", 1, 500, 0)
+ZaberMotionCreateController("mcc_1", 2, "sw-pumpkinpi.izaber.com", 1, 1000, 1000)

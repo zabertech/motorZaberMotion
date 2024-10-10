@@ -33,7 +33,7 @@ zaberMotion_LIBS += motor
 zaberMotion_LIBS += asyn
 #endif
 #ifdef SNCSEQ
-# zaberMotion_LIBS += seq pv
+zaberMotion_LIBS += seq pv
 #endif
 
 PROD_SYS_LIBS += zaber-motion

@@ -11,7 +11,7 @@ DBD += zaberMotionSupport.dbd
 
 LIBRARY_IOC += ZaberMotion
 
-SRCS += zaberBaseController.cpp
+SRCS += zaberController.cpp
 SRCS += zaberAxis.cpp
 
 ZaberMotion_LIBS += motor asyn
