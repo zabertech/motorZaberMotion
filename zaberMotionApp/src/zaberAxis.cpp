@@ -1,18 +1,20 @@
 #include "zaberAxis.h"
-
+#include "zaberController.h"
+#include "zaberUtils.h"
 #include <iostream>
+#include <string>
 #include <vector>
-
 #include <zaber/motion/ascii/axis_settings.h>
 #include <zaber/motion/dto/ascii/get_axis_setting.h>
 #include <zaber/motion/units.h>
 
-#include "zaberController.h"
-#include "zaberUtils.h"
-
 using namespace zaber::motion;
 
-zaberAxis::zaberAxis(zaberController *pC, int axisNo) : asynMotorAxis(pC, axisNo) {
+const char *ZABER_MAX_SPEED = "maxspeed";
+const char *ZABER_ACCEL = "acceleration";
+
+zaberAxis::zaberAxis(zaberController *pC, int axisNo) :
+        asynMotorAxis(pC, axisNo) {
     std::cout << "zaberAxis: constructor called" << std::endl;
     pC_ = pC;
     axis_ = pC->getDeviceAxis(axisNo);
@@ -21,63 +23,58 @@ zaberAxis::zaberAxis(zaberController *pC, int axisNo) : asynMotorAxis(pC, axisNo
 zaberAxis::~zaberAxis() {}
 
 asynStatus zaberAxis::move(double position, int relative, double minVelocity, double maxVelocity, double acceleration) {
-    (void)relative;
     (void)minVelocity;
-    (void)maxVelocity;
-    (void)acceleration;
 
-    try {
-        std::cout << "zaberAxis" << axisNo_ << "::move with position: " << position << std::endl;
-        axis_.moveAbsolute(position, zaber::motion::Units::LENGTH_MILLIMETRES, false);
-        pC_->wakeupPoller();
-    } catch (const std::exception &e) {
-        std::cerr << "zaberAxis::move failed: " << e.what() << std::endl;
-        return asynError;
+    asynStatus status = asynSuccess;
+    if(relative) {
+        status = doRelativeMove(position, maxVelocity, acceleration);
+    } else {
+        status = doAbsoluteMove(position, maxVelocity, acceleration);
     }
-    return asynSuccess;
+    pC_->wakeupPoller();
+    return status;
 }
 
 asynStatus zaberAxis::moveVelocity(double minVelocity, double maxVelocity, double acceleration) {
     (void)minVelocity;
-    (void)acceleration;
-
-    try {
+    std::function<asynStatus()> action = [this, maxVelocity, acceleration]() {
         std::cout << "zaberAxis::moveVelocity with maxVelocity: " << maxVelocity << std::endl;
-        axis_.moveVelocity(maxVelocity);
-    } catch (const std::exception &e) {
-        std::cerr << "zaberAxis::moveVelocity failed: " << e.what() << std::endl;
-    }
-
-    return asynSuccess;
+        ascii::Axis::MoveVelocityOptions options{
+            .acceleration = acceleration,
+            .accelerationUnit = Units::ACCELERATION_MILLIMETRES_PER_SECOND_SQUARED};
+        axis_.moveVelocity(maxVelocity, Units::VELOCITY_MILLIMETRES_PER_SECOND, options);
+        return asynSuccess;
+    };
+    asynStatus status = zaber::epics::performAction(action);
+    pC_->wakeupPoller();
+    return status;
 }
 
 asynStatus zaberAxis::home(double minVelocity, double maxVelocity, double acceleration, int forwards) {
+    (void)minVelocity;
     (void)forwards;
 
-    std::cout << "zaberAxis::home" << std::endl;
-    std::vector<ascii::GetAxisSettingResult> result =
-            axis_.getSettings().getMany(ascii::GetAxisSetting("maxspeed", Units::VELOCITY_MILLIMETRES_PER_SECOND),
-                    ascii::GetAxisSetting("acceleration", Units::ACCELERATION_MILLIMETRES_PER_SECOND_SQUARED));
-    const auto &maxSpeedIt = std::find_if(
-            result.begin(), result.end(), [](const ascii::GetAxisSettingResult &r) { return r.setting == "maxspeed"; });
-    if (maxSpeedIt != result.end() && (*maxSpeedIt).value != maxVelocity) {
-        axis_.getSettings().set("maxspeed", maxVelocity);
-    }
-    const auto &accelIt = std::find_if(result.begin(), result.end(),
-            [](const ascii::GetAxisSettingResult &r) { return r.setting == "acceleration"; });
-    if (accelIt != result.end() && (*accelIt).value != acceleration) {
-        axis_.getSettings().set("acceleration", acceleration);
-    }
-    axis_.home();
-    return asynSuccess;
+    std::function<asynStatus()> action = [this, minVelocity, maxVelocity, acceleration]() {
+        std::cout << "zaberAxis::home" << std::endl;
+        // checkUpdateSpeedParams(maxVelocity, acceleration);
+        axis_.home(false);
+        return asynSuccess;
+    };
+    asynStatus status = zaber::epics::performAction(action);
+    pC_->wakeupPoller();
+    return status;
 }
 
 asynStatus zaberAxis::stop(double acceleration) {
-    (void)acceleration;
-
-    std::cout << "zaberAxis::stop" << std::endl;
-    axis_.stop();
-    return asynSuccess;
+    std::function<asynStatus()> action = [this, acceleration]() {
+        std::cout << "zaberAxis::stop" << std::endl;
+        checkUpdateAccel(acceleration);
+        axis_.stop();
+        return asynSuccess;
+    };
+    asynStatus status = zaber::epics::performAction(action);
+    pC_->wakeupPoller();
+    return status;
 }
 
 /**
@@ -122,10 +119,72 @@ asynStatus zaberAxis::poll(bool *moving) {
         setIntegerParam(pC_->motorStatusProblem_, 1);
     };
 
-    asynStatus status = performAction(action, onError);
-    std::cout << "zaberAxis" << axisNo_ << "::poll -- moving: " << axis_.isBusy() << std::endl;
-    std::cout << "zaberAxis" << axisNo_ << "::poll -- position: " << axis_.getPosition(zaber::motion::Units::LENGTH_MILLIMETRES)
-              << std::endl;
+    asynStatus status = zaber::epics::performAction(action, onError);
     callParamCallbacks();
     return status;
+}
+
+/* Private member functions */
+
+asynStatus zaberAxis::doAbsoluteMove(double position, double velocity, double acceleration) {
+    std::function<asynStatus()> action = [this, position, velocity, acceleration]() {
+        std::cout << "zaberAxis" << axisNo_ << "::moveAbs with position: " << position << std::endl;
+        ascii::Axis::MoveAbsoluteOptions options{
+            .waitUntilIdle = false,
+            .velocity = velocity,
+            .velocityUnit = Units::VELOCITY_MILLIMETRES_PER_SECOND,
+            .acceleration = acceleration,
+            .accelerationUnit = Units::ACCELERATION_MILLIMETRES_PER_SECOND_SQUARED};
+        axis_.moveAbsolute(position, zaber::motion::Units::LENGTH_MILLIMETRES, options);
+        return asynSuccess;
+    };
+    return zaber::epics::performAction(action);
+}
+
+asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double acceleration) {
+    std::function<asynStatus()> action = [this, distance, velocity, acceleration]() {
+        std::cout << "zaberAxis" << axisNo_ << "::moveRel with distance: " << distance << std::endl;
+        ascii::Axis::MoveRelativeOptions options{
+            .waitUntilIdle = false,
+            .velocity = velocity,
+            .velocityUnit = Units::VELOCITY_MILLIMETRES_PER_SECOND,
+            .acceleration = acceleration,
+            .accelerationUnit = Units::ACCELERATION_MILLIMETRES_PER_SECOND_SQUARED};
+        axis_.moveRelative(distance, zaber::motion::Units::LENGTH_MILLIMETRES, options);
+        return asynSuccess;
+    };
+    return zaber::epics::performAction(action);
+}
+
+asynStatus zaberAxis::checkUpdateAccel(double acceleration) {
+    std::function<asynStatus()> action = [this, acceleration]() {
+        double result = axis_.getSettings().get(ZABER_ACCEL, Units::ACCELERATION_MILLIMETRES_PER_SECOND_SQUARED);
+        if(result != acceleration) {
+            axis_.getSettings().set(ZABER_ACCEL, acceleration);
+        }
+        return asynSuccess;
+    };
+    return zaber::epics::performAction(action);
+}
+
+asynStatus zaberAxis::checkUpdateSpeedParams(double maxVelocity, double acceleration) {
+    static bool (*maxSpeedPred)(const ascii::GetAxisSettingResult &) = [](const ascii::GetAxisSettingResult &r) { return r.setting == ZABER_MAX_SPEED; };
+    static bool (*accelPred)(const ascii::GetAxisSettingResult &) = [](const ascii::GetAxisSettingResult &r) { return r.setting == ZABER_ACCEL; };
+    
+    std::function<asynStatus()> action = [this, maxVelocity, acceleration]() {
+        ascii::GetAxisSetting getMaxSpeed(ZABER_MAX_SPEED, Units::VELOCITY_MILLIMETRES_PER_SECOND);
+        ascii::GetAxisSetting getAccel(ZABER_ACCEL, Units::ACCELERATION_MILLIMETRES_PER_SECOND_SQUARED);
+
+        std::vector<ascii::GetAxisSettingResult> result = axis_.getSettings().getMany(getMaxSpeed, getAccel);
+        const auto &maxSpeedIt = std::find_if(result.begin(), result.end(), maxSpeedPred);
+        if(maxSpeedIt != result.end() && (*maxSpeedIt).value != maxVelocity) {
+            axis_.getSettings().set(ZABER_MAX_SPEED, maxVelocity);
+        }
+        const auto &accelIt = std::find_if(result.begin(), result.end(), accelPred);
+        if(accelIt != result.end() && (*accelIt).value != acceleration) {
+            axis_.getSettings().set(ZABER_ACCEL, acceleration);
+        }
+        return asynSuccess;
+    };
+    return zaber::epics::performAction(action);
 }
