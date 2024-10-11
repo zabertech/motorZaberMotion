@@ -24,7 +24,7 @@ zaberController::zaberController(const char *portName, int numAxes, const char *
         device_.identify();
         std::cout << "Device identity: " << device_.getIdentity().toString() << std::endl;
         connection_.setDisconnectedCallback([](const std::shared_ptr<zaber::motion::exceptions::MotionLibException>&) {
-            std::cout << "zaberController: Connection lost" << std::endl;
+            std::cout << "zaberController: disconnected" << std::endl;
         });
     } catch (const std::exception &e) {
         std::cerr << "zaberController: Connection failed: " << e.what() << std::endl;
@@ -103,7 +103,7 @@ int zaberMotionCreateController(
     int priority = epicsThreadPriorityMedium;
     int stackSize = epicsThreadGetStackSize(epicsThreadStackMedium);
     zaberController *pController = new zaberController(portName, numAxes, serialPortName, deviceId, priority, stackSize, 0);
-    pController->startPoller((double)movingPollPeriod, (double)idlePollPeriod, 2);
+    pController->startPoller(100.0, static_cast<double>(idlePollPeriod), 2); // TODO: HERE
     return (asynSuccess);
 }
 
