@@ -13,9 +13,6 @@ cd "${TOP}/iocBoot/${IOC}"
 ## motorUtil (allstop & alldone)
 dbLoadRecords("$(MOTOR)/db/motorUtil.db", "P=zaberMotion:")
 
-## 
-< motor.cmd.zaber
-
 iocInit
 
 ## motorUtil (allstop & alldone)
