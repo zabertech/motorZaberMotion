@@ -7,13 +7,14 @@ include $(TOP)/configure/CONFIG
 # 
 #USR_CXXFLAGS += -DDEBUG
 
-DBD += zaberMotionSupport.dbd
-
 LIBRARY_IOC += ZaberMotion
 
+<<<<<<< HEAD
 SRCS += zaberController.cpp
 SRCS += zaberAxis.cpp
 
+=======
+>>>>>>> dev
 ZaberMotion_LIBS += motor asyn
 ZaberMotion_LIBS += $(EPICS_BASE_IOC_LIBS)
 
