@@ -19,11 +19,13 @@ class epicsShareClass zaberAxis : public asynMotorAxis {
     private:
     zaberController *pC_;
     zaber::motion::ascii::Axis axis_;
+    zaber::motion::Units lengthUnit_;
+    zaber::motion::Units velocityUnit_;
+    zaber::motion::Units accelUnit_;
 
     asynStatus doAbsoluteMove(double position, double velocity, double acceleration);
     asynStatus doRelativeMove(double distance, double velocity, double acceleration);
     asynStatus checkUpdateAccel(double acceleration);
-    asynStatus checkUpdateSpeedParams(double velocity, double acceleration);
 };
 
 #endif // ZABER_AXIS_H

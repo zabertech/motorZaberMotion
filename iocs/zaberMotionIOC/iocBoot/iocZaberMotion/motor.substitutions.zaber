@@ -2,6 +2,6 @@ file "$(MOTOR)/motorApp/Db/asyn_motor.db"
 {
   pattern
   {P,      N,     M,          DTYP,     PORT, ADDR,  DESC,     EGU,   DIR,   VELO,  VBAS, ACCL,  BDST, BVEL, BACC,   MRES, PREC,  DHLM, DLLM, INIT}
-  {ZABER:, 1, "axis$(N)", "asynMotor",  mcc_1,   0, "Axis1",    mm,   Pos,   20.0,   5.0,   .5,     0,    1,   .2,    1.0,    3,   100,    0,   ""}
-  {ZABER:, 2, "axis$(N)", "asynMotor",  mcc_1,   1, "Axis2",    mm,   Pos,   20.0,   5.0,   .5,     0,    1,   .2,    1.0,    3,   120,    0,   ""}
+  {ZABER:, 1, "axis$(N)", "asynMotor",  mcc_1,   0, "Axis1",    mm,   Pos,   20.0,   5.0,   .5,     0,    1,   .2,  0.001,    3,   100,    0,   ""}
+  {ZABER:, 2, "axis$(N)", "asynMotor",  mcc_1,   1, "Axis2",    mm,   Pos,   20.0,   5.0,   .5,     0,    1,   .2,  0.001,    3,   120,    0,   ""}
 }
