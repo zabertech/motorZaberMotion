@@ -8,7 +8,7 @@
 namespace zaber {
 namespace epics {
 
-inline asynStatus performAction(
+inline asynStatus handleException(
 	const std::function<asynStatus()> &action, const std::function<void()> &onError = nullptr) {
 	asynStatus status = asynSuccess;
 	try {

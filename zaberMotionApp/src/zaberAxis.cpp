@@ -63,7 +63,7 @@ asynStatus zaberAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
         axis_.moveVelocity(maxVelocity, velocityUnit_, options);
         return asynSuccess;
     };
-    asynStatus status = zaber::epics::performAction(action);
+    asynStatus status = zaber::epics::handleException(action);
     pC_->wakeupPoller();
     return status;
 }
@@ -77,7 +77,7 @@ asynStatus zaberAxis::home(double minVelocity, double maxVelocity, double accele
         axis_.home(false);
         return asynSuccess;
     };
-    asynStatus status = zaber::epics::performAction(action);
+    asynStatus status = zaber::epics::handleException(action);
     pC_->wakeupPoller();
     return status;
 }
@@ -89,7 +89,7 @@ asynStatus zaberAxis::stop(double acceleration) {
         axis_.stop();
         return asynSuccess;
     };
-    asynStatus status = zaber::epics::performAction(action);
+    asynStatus status = zaber::epics::handleException(action);
     pC_->wakeupPoller();
     return status;
 }
@@ -136,7 +136,7 @@ asynStatus zaberAxis::poll(bool *moving) {
         setIntegerParam(pC_->motorStatusProblem_, 1);
     };
 
-    asynStatus status = zaber::epics::performAction(action, onError);
+    asynStatus status = zaber::epics::handleException(action, onError);
     callParamCallbacks();
     return status;
 }
@@ -155,7 +155,7 @@ asynStatus zaberAxis::doAbsoluteMove(double position, double velocity, double ac
         axis_.moveAbsolute(position, lengthUnit_, options);
         return asynSuccess;
     };
-    return zaber::epics::performAction(action);
+    return zaber::epics::handleException(action);
 }
 
 asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double acceleration) {
@@ -170,7 +170,7 @@ asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double ac
         axis_.moveRelative(distance, lengthUnit_, options);
         return asynSuccess;
     };
-    return zaber::epics::performAction(action);
+    return zaber::epics::handleException(action);
 }
 
 asynStatus zaberAxis::checkUpdateAccel(double acceleration) {
@@ -181,6 +181,6 @@ asynStatus zaberAxis::checkUpdateAccel(double acceleration) {
         }
         return asynSuccess;
     };
-    return zaber::epics::performAction(action);
+    return zaber::epics::handleException(action);
 }
 
