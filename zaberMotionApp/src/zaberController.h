@@ -1,6 +1,8 @@
 #ifndef ZABER_BASE_CONTROLLER_H
 #define ZABER_BASE_CONTROLLER_H
 
+#include <memory>
+
 #include "zaberAxis.h"
 #include <asynMotorController.h>
 #include <zaber/motion/ascii/axis.h>
@@ -8,6 +10,8 @@
 #include <zaber/motion/ascii/device.h>
 
 class zaberAxis;
+
+using zml = zaber::motion;
 
 class epicsShareClass zaberController : public asynMotorController {
     public:
@@ -28,12 +32,11 @@ class epicsShareClass zaberController : public asynMotorController {
     asynStatus readbackProfile() override;
 
     private:
-    static int zaberTotalControllerNumber;
-    zaber::motion::ascii::Connection connection_;
-    zaber::motion::ascii::Device device_;
+    std::shared_ptr<zml::ascii::Connection> connection_;
+    zml::ascii::Device device_;
 
     friend zaberAxis;
-    zaber::motion::ascii::Axis getDeviceAxis(int axisNo);
+    zml::ascii::Axis getDeviceAxis(int axisNo);
 };
 
 #endif

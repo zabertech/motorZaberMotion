@@ -2,12 +2,11 @@ dbLoadTemplate("motor.substitutions.zaber")
 
 ###
 # ZaberMotionCreateController(
-#    motor port (will be created),
-#    device id,
-#    network share address,
+#    asyn motor port (will be created),
+#    connection,
 #    num axes,
 #    moving poll period (ms),
-#    idle poll period (ms),
-#    ignore limit flag)
+#    idle poll period (ms)
+# )
 ###
-ZaberMotionCreateController("mcc_1", "sw-pumpkinpi.izaber.com", 2, 100, 5000)
+ZaberMotionCreateController("mcc_1", 2, 100, 5000, "sw-pumpkinpi.izaber.com", 1)

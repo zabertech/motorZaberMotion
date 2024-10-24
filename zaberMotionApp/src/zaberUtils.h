@@ -9,25 +9,31 @@ namespace zaber {
 namespace epics {
 
 inline asynStatus handleException(
-	const std::function<asynStatus()> &action, const std::function<void()> &onError = nullptr) {
-	asynStatus status = asynSuccess;
-	try {
-		status = action();
-	} catch(const std::exception &e) {
-		std::cerr << "Zaber Motion Error: " << e.what() << std::endl;
-		status = asynError;
+    const std::function<asynStatus()> &action, const std::function<void()> &onError = nullptr) {
+    asynStatus status = asynSuccess;
+    try {
+        status = action();
+    } catch(const exceptions::MotionLibException &e) {
+        std::cerr << "Zaber Motion Lib Error: " << e.what() << std::endl;
+        status = asynError;
+    } catch(const std::exception &e) {
+        std::cerr << "Zaber Motion Motor Error: " << e.what() << std::endl;
+        status = asynError;
+    }
+
+	if (status == asynSuccess || !onError) {
+		return status;
 	}
 
-	if(status != asynSuccess && onError) {
-		try {
-			onError();
-		} catch(const std::exception &e) {
-			// if onError callback fails, do it silently (the user doesn't need to know)
-		}
+	try {
+		onError();
+	} catch(const std::exception &e) {
+		// if onError callback fails, do it silently (the user doesn't need to know)
 	}
-	return status;
+    return status;
 }
 
 } // namespace motion
 } // namespace zaber
+
 #endif

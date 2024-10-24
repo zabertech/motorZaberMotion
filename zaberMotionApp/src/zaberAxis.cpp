@@ -12,7 +12,7 @@
 using namespace zaber::motion;
 
 const char *ZABER_MAX_SPEED = "maxspeed";
-const char *ZABER_ACCEL = "acceleration";
+const char *ZABER_DECEL = "decelonly";
 
 zaberAxis::zaberAxis(zaberController *pC, int axisNo) :
         asynMotorAxis(pC, axisNo) {
@@ -86,7 +86,7 @@ asynStatus zaberAxis::stop(double acceleration) {
     std::function<asynStatus()> action = [this, acceleration]() {
         std::cout << "zaberAxis::stop" << std::endl;
         checkUpdateAccel(acceleration);
-        axis_.stop();
+        axis_.stop(acceleration);
         return asynSuccess;
     };
     asynStatus status = zaber::epics::handleException(action);
@@ -173,11 +173,11 @@ asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double ac
     return zaber::epics::handleException(action);
 }
 
-asynStatus zaberAxis::checkUpdateAccel(double acceleration) {
-    std::function<asynStatus()> action = [this, acceleration]() {
-        double result = axis_.getSettings().get(ZABER_ACCEL, accelUnit_);
-        if(result != acceleration) {
-            axis_.getSettings().set(ZABER_ACCEL, acceleration);
+asynStatus zaberAxis::updateDeceleration(double decel) {
+    std::function<asynStatus()> action = [this, decel]() {
+        double result = axis_.getSettings().get(ZABER_DECEL, accelUnit_);
+        if(result != decel) {
+            axis_.getSettings().set(ZABER_DECEL, decel);
         }
         return asynSuccess;
     };
