@@ -11,20 +11,16 @@
 
 class zaberAxis;
 
-using zml = zaber::motion;
+namespace zml = zaber::motion;
 
 class epicsShareClass zaberController : public asynMotorController {
     public:
-    zaberController(const char *portName, const char *serialPort, int numAxes,
-        double movingPollPeriod, double idlePollPeriod);
+    zaberController(const char *portName, int numAxes, double movingPollPeriod, double idlePollPeriod, const char *devicePort, int deviceNumber);
     void report(FILE *fp, int level) override;
 
     zaberAxis *getAxis(asynUser *pasynUser);
     zaberAxis *getAxis(int axisNo);
 
-    // TODO: Decide whether or not to implement profile moves
-    // you could set up PVT in this way, but the system seems to not allow users
-    // to add velocity or time information
     asynStatus initializeProfile(size_t maxPoints) override;
     asynStatus buildProfile() override;
     asynStatus executeProfile() override;

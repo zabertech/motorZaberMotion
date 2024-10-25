@@ -4,12 +4,15 @@
 #include <asynMotorAxis.h>
 #include <zaber/motion/ascii/axis.h>
 
+namespace zml = zaber::motion;
+
 class zaberController;
 
 class epicsShareClass zaberAxis : public asynMotorAxis {
     public:
     zaberAxis(zaberController *pC, int axisNo);
     ~zaberAxis();
+    void report(FILE *fp, int details) override;
     asynStatus move(double position, int relative, double minVelocity, double maxVelocity, double acceleration) override;
     asynStatus moveVelocity(double minVelocity, double maxVelocity, double acceleration) override;
     asynStatus home(double minVelocity, double maxVelocity, double acceleration, int forwards) override;
@@ -18,14 +21,13 @@ class epicsShareClass zaberAxis : public asynMotorAxis {
 
     private:
     zaberController *pC_;
-    zaber::motion::ascii::Axis axis_;
-    zaber::motion::Units lengthUnit_;
-    zaber::motion::Units velocityUnit_;
-    zaber::motion::Units accelUnit_;
+    zml::ascii::Axis axis_;
+    zml::Units lengthUnit_;
+    zml::Units velocityUnit_;
+    zml::Units accelUnit_;
 
     asynStatus doAbsoluteMove(double position, double velocity, double acceleration);
     asynStatus doRelativeMove(double distance, double velocity, double acceleration);
-    asynStatus checkUpdateAccel(double acceleration);
 };
 
 #endif // ZABER_AXIS_H

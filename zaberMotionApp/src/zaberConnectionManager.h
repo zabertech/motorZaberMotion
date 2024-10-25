@@ -10,16 +10,16 @@
 
 namespace zml = zaber::motion;
 
-class ZaberConnectionManager {
+class zaberConnectionManager {
 public:
-    static ZaberConnectionManager& singleton();
+    static zaberConnectionManager& singleton();
     std::shared_ptr<zml::ascii::Connection> tryGetConnection(const std::string& portName);
     void removeConnection(const std::string& portName, int interfaceId);
 
 private:
     std::mutex _mutex;
     std::unordered_map<std::string, std::weak_ptr<zml::ascii::Connection>> _connections;
-    ZaberConnectionManager() = default;
+    zaberConnectionManager() = default;
 
 };
 

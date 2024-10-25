@@ -5,6 +5,8 @@
 #include <functional>
 #include <iostream>
 
+namespace zml = zaber::motion;
+
 namespace zaber {
 namespace epics {
 
@@ -13,7 +15,7 @@ inline asynStatus handleException(
     asynStatus status = asynSuccess;
     try {
         status = action();
-    } catch(const exceptions::MotionLibException &e) {
+    } catch(const zml::exceptions::MotionLibException &e) {
         std::cerr << "Zaber Motion Lib Error: " << e.what() << std::endl;
         status = asynError;
     } catch(const std::exception &e) {

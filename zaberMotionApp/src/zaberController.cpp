@@ -7,8 +7,6 @@
 
 #include "zaberConnectionManager.h"
 
-int zaberController::zaberTotalControllerNumber = 0;
-
 /**
  * Creates a new zaberController object.
  * \param[in] portName          The name of the asyn port that will be created for this driver
@@ -21,10 +19,10 @@ int zaberController::zaberTotalControllerNumber = 0;
 zaberController::zaberController(const char *portName, int numAxes, double movingPollPeriod, double idlePollPeriod, const char *devicePort, int deviceNumber) :
         asynMotorController(portName, numAxes, 0, 0, 0, ASYN_CANBLOCK | ASYN_MULTIDEVICE, 1 /* autoconnect */, 0, 0) {
     try {
-        connection_ = zaberConnectionManager::singleton().tryGetConnection(serialPort, zaberConnectionManager::PortType::SERIAL);
-        device_ = connection_.getDevice(1);
+        connection_ = zaberConnectionManager::singleton().tryGetConnection(devicePort);
+        device_ = connection_->getDevice(deviceNumber);
         device_.identify();
-        connection_.setDisconnectedCallback([](const std::shared_ptr<zaber::motion::exceptions::MotionLibException> &) {
+        connection_->setDisconnectedCallback([](const std::shared_ptr<zml::exceptions::MotionLibException> &) {
             std::cout << "zaberController: disconnected" << std::endl;
         });
     } catch(const std::exception &e) {
@@ -34,44 +32,56 @@ zaberController::zaberController(const char *portName, int numAxes, double movin
         new zaberAxis(this, i);
     }
     startPoller(static_cast<double>(movingPollPeriod) / 1000.0, static_cast<double>(idlePollPeriod) / 1000.0, 2);
+    
+    // just in case you need to clean up resources
+    // epicsAtExit(zaberController::shutdown, this);
 }
 
-void zaberController::report(FILE *fp, int level) { std::cout << "zaberController: Report called" << std::endl; }
+void zaberController::report(FILE *fp, int level) {
+    zml::ascii::DeviceIdentity identity = device_.getIdentity();
 
-zaber::motion::ascii::Axis zaberController::getDeviceAxis(int axisNo) { return device_.getAxis(axisNo + 1); }
+    fprintf(fp, "Zaber Motion Controller: %s\n", this->portName);
+    fprintf(fp, "  Firmware: %s\n", identity.getFirmwareVersion().toString().c_str());
+    fprintf(fp, "  Device: %s\n", identity.getName().c_str());
+    fprintf(fp, "  Serial Number: %d\n", identity.getSerialNumber());
+    fprintf(fp, "  Num Axes: %d\n", numAxes_);
+
+    asynMotorController::report(fp, level);
+ }
+
+zml::ascii::Axis zaberController::getDeviceAxis(int axisNo) { return device_.getAxis(axisNo + 1); }
 
 zaberAxis *zaberController::getAxis(asynUser *pasynUser) {
     return static_cast<zaberAxis *>(asynMotorController::getAxis(pasynUser));
 }
 
 zaberAxis *zaberController::getAxis(int axisNo) {
-    return static_cast<zaberAxis *>(asynMotorController::getAxis(axisNo));
+    return static_cast<zaberAxis*>(asynMotorController::getAxis(axisNo));
 }
 
-/* Profile Moves -- TBD if we want these */
 asynStatus zaberController::initializeProfile(size_t maxPoints) {
-    std::cout << "zaberController: Profile initialized" << std::endl;
-    return asynSuccess;
+    std::cerr << "Zaber Motion Error: Profile moves not implemented for zaberController" << std::endl;
+    return asynError;
 }
 
 asynStatus zaberController::buildProfile() {
-    std::cout << "zaberController: Profile built" << std::endl;
-    return asynSuccess;
+    std::cerr << "Zaber Motion Error: Profile moves not implemented for zaberController" << std::endl;
+    return asynError;
 }
 
 asynStatus zaberController::executeProfile() {
-    std::cout << "zaberController: Profile executed" << std::endl;
-    return asynSuccess;
+    std::cerr << "Zaber Motion Error: Profile moves not implemented for zaberController" << std::endl;
+    return asynError;
 }
 
 asynStatus zaberController::abortProfile() {
-    std::cout << "zaberController: Profile aborted" << std::endl;
-    return asynSuccess;
+    std::cerr << "Zaber Motion Error: Profile moves not implemented for zaberController" << std::endl;
+    return asynError;
 }
 
 asynStatus zaberController::readbackProfile() {
-    std::cout << "zaberController: Profile readback" << std::endl;
-    return asynSuccess;
+    std::cerr << "Zaber Motion Error: Profile moves not implemented for zaberController" << std::endl;
+    return asynError;
 }
 
 /* Code for iocsh registration */
@@ -81,13 +91,13 @@ int zaberMotionCreateController(
         int numAxes, /* Number of axes this controller supports */
         int movingPollPeriod, /* Time to poll (msec) when an axis is in motion */
         int idlePollPeriod, /* Time to poll (msec) when an axis is idle. 0 for no polling */
-        const char *port, /* Zaber Device TCP address or serial port name */
-        int deviceNumber /* Zaber Device number on the port (1-indexed) */
+        const char *zaberPort, /* Zaber Device TCP address or serial port name */
+        int zaberDeviceNumber /* Zaber Device number on the port (1-indexed) */
     )
 {
     // int priority = epicsThreadPriorityMedium;
     // int stackSize = epicsThreadGetStackSize(epicsThreadStackMedium);
-    zaberController *pController = new zaberController(portName, serialPortName, numAxes, static_cast<double>(movingPollPeriod), static_cast<double>(idlePollPeriod));
+    zaberController *pController = new zaberController(portName, numAxes, static_cast<double>(movingPollPeriod), static_cast<double>(idlePollPeriod), zaberPort, zaberDeviceNumber);
     (void)pController;
     return (asynSuccess);
 }
@@ -97,8 +107,8 @@ static const iocshArg zaberMotionConfigArg0 = {"asyn motor port name", iocshArgS
 static const iocshArg zaberMotionConfigArg1 = {"number of axes", iocshArgInt};
 static const iocshArg zaberMotionConfigArg2 = {"moving poll rate", iocshArgInt};
 static const iocshArg zaberMotionConfigArg3 = {"idle poll rate", iocshArgInt};
-static const iocshArg zaberMotionConfigArg4 = {"serial/tcp port", iocshArgString};
-static const iocshArg zaberMotionConfigArg5 = {"device number", iocshArgInt};
+static const iocshArg zaberMotionConfigArg4 = {"zaber serial/tcp port", iocshArgString};
+static const iocshArg zaberMotionConfigArg5 = {"zaber device number", iocshArgInt};
 
 static const iocshArg *const zaberMotionConfigArgs[6] = {&zaberMotionConfigArg0, &zaberMotionConfigArg1,
     &zaberMotionConfigArg2, &zaberMotionConfigArg3, &zaberMotionConfigArg4, &zaberMotionConfigArg5};
