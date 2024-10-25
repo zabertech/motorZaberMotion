@@ -1,6 +1,8 @@
 #ifndef ZABER_AXIS_H
 #define ZABER_AXIS_H
 
+#include <unordered_set>
+
 #include <asynMotorAxis.h>
 #include <zaber/motion/ascii/axis.h>
 
@@ -28,6 +30,8 @@ class epicsShareClass zaberAxis : public asynMotorAxis {
 
     asynStatus doAbsoluteMove(double position, double velocity, double acceleration);
     asynStatus doRelativeMove(double distance, double velocity, double acceleration);
+    inline void checkAllFlags(std::unordered_set<std::string> flags);
+    inline void checkFlag(std::unordered_set<std::string> flags, const std::string &flag, const std::string &message);
 };
 
 #endif // ZABER_AXIS_H

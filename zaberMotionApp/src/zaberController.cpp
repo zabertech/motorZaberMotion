@@ -7,6 +7,8 @@
 
 #include "zaberConnectionManager.h"
 
+#define PROFILE_MOVE_ERR_STR "Zaber Motion Error: Profile moves not implemented for zaberController\n"
+
 /**
  * Creates a new zaberController object.
  * \param[in] portName          The name of the asyn port that will be created for this driver
@@ -22,11 +24,11 @@ zaberController::zaberController(const char *portName, int numAxes, double movin
         connection_ = zaberConnectionManager::singleton().tryGetConnection(devicePort);
         device_ = connection_->getDevice(deviceNumber);
         device_.identify();
-        connection_->setDisconnectedCallback([](const std::shared_ptr<zml::exceptions::MotionLibException> &) {
-            std::cout << "zaberController: disconnected" << std::endl;
+        connection_->setDisconnectedCallback([](const std::shared_ptr<zml::exceptions::MotionLibException>&) {
+            printf("zaberController: disconnected\n");
         });
     } catch(const std::exception &e) {
-        std::cerr << "zaberController: Connection failed: " << e.what() << std::endl;
+        printf("zaberController: Connection failed: %s\n", e.what());
     }
     for(int i = 0; i < numAxes; i++) {
         new zaberAxis(this, i);
@@ -60,27 +62,27 @@ zaberAxis *zaberController::getAxis(int axisNo) {
 }
 
 asynStatus zaberController::initializeProfile(size_t maxPoints) {
-    std::cerr << "Zaber Motion Error: Profile moves not implemented for zaberController" << std::endl;
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, PROFILE_MOVE_ERR_STR);
     return asynError;
 }
 
 asynStatus zaberController::buildProfile() {
-    std::cerr << "Zaber Motion Error: Profile moves not implemented for zaberController" << std::endl;
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, PROFILE_MOVE_ERR_STR);
     return asynError;
 }
 
 asynStatus zaberController::executeProfile() {
-    std::cerr << "Zaber Motion Error: Profile moves not implemented for zaberController" << std::endl;
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, PROFILE_MOVE_ERR_STR);
     return asynError;
 }
 
 asynStatus zaberController::abortProfile() {
-    std::cerr << "Zaber Motion Error: Profile moves not implemented for zaberController" << std::endl;
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, PROFILE_MOVE_ERR_STR);
     return asynError;
 }
 
 asynStatus zaberController::readbackProfile() {
-    std::cerr << "Zaber Motion Error: Profile moves not implemented for zaberController" << std::endl;
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, PROFILE_MOVE_ERR_STR);
     return asynError;
 }
 

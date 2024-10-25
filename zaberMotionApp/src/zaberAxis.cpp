@@ -1,15 +1,19 @@
 #include "zaberAxis.h"
-#include "zaberController.h"
-#include "zaberUtils.h"
+
 #include <iostream>
 #include <string>
 #include <vector>
 
 #include <zaber/motion/dto/ascii/axis_identity.h>
+#include <zaber/motion/ascii/warning_flags.h>
+#include <zaber/motion/ascii/warnings.h>
 #include <zaber/motion/ascii/axis_settings.h>
 #include <zaber/motion/dto/ascii/axis_type.h>
 #include <zaber/motion/dto/ascii/get_axis_setting.h>
 #include <zaber/motion/units.h>
+
+#include "zaberController.h"
+#include "zaberUtils.h"
 
 const char *ZABER_MAX_SPEED = "maxspeed";
 const char *ZABER_DECEL = "decelonly";
@@ -31,8 +35,8 @@ zaberAxis::zaberAxis(zaberController *pC, int axisNo) :
             accelUnit_ = zml::Units::ANGULAR_ACCELERATION_DEGREES_PER_SECOND_SQUARED;
             break;
         default:
-            std::cerr << "Zaber Motion Error: Unsupported axis type -- " << zml::ascii::AxisType_toString(axis_.getAxisType()) << std::endl;
-            std::cerr << "Please refer to the documentation on supported axis types" << std::endl;
+            printf("Zaber Motion Error: Unsupported axis type -- %s\n", zml::ascii::AxisType_toString(axis_.getAxisType()).c_str());
+            printf("Please refer to the documentation on supported axis types\n");
             break;
     }
 }
@@ -133,28 +137,28 @@ asynStatus zaberAxis::poll(bool *moving) {
     std::function<asynStatus(void)> action = [this, &moving]() {
         *moving = axis_.isBusy();
 
-        // check flags here and convert to appropriate error in EPICS
-
         double pos = axis_.getPosition(lengthUnit_);
         setDoubleParam(pC_->motorPosition_, pos);
 
         int i = static_cast<int>(!(*moving));
         setIntegerParam(pC_->motorStatusDone_, i);
+        setIntegerParam(pC_->motorStatusMoving_, static_cast<int>(*moving));
 
         i = static_cast<int>(axis_.isHomed());
-        // AtHome and Home cannot really be inferred from axis data
-        // setIntegerParam(pC_->motorStatusAtHome_, pos == 0. && static_cast<bool>(i));
-        // setIntegerParam(pC_->motorStatusHome_, pos == 0. && static_cast<bool>(i));
-        
         setIntegerParam(pC_->motorStatusHomed_, i);
-
-
-        setIntegerParam(pC_->motorStatusHighLimit_, 0);
-        setIntegerParam(pC_->motorStatusLowLimit_, 0);
-
-        setIntegerParam(pC_->motorStatusMoving_, static_cast<int>(*moving));
+        
+        // AtHome and Home cannot be inferred from axis state
+        setIntegerParam(pC_->motorStatusAtHome_, 0);
+        setIntegerParam(pC_->motorStatusHome_, 0);
+        
+        // no communication error
         setIntegerParam(pC_->motorStatusCommsError_, 0);
         setIntegerParam(pC_->motorStatusProblem_, 0);
+
+        // check all flags
+        zml::ascii::Warnings warnings = axis_.getWarnings();
+        std::unordered_set<std::string> flags = warnings.getFlags();
+        checkAllFlags(flags);
         return asynStatus::asynSuccess;
     };
     std::function<void()> onError = [this]() {
@@ -201,4 +205,43 @@ asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double ac
     return zaber::epics::handleException(action);
 }
 
+void zaberAxis::checkAllFlags(std::unordered_set<std::string> flags) {
+    checkFlag(flags, zml::ascii::warning_flags::CRITICAL_SYSTEM_ERROR, "Critical system error");
+    checkFlag(flags, zml::ascii::warning_flags::PERIPHERAL_NOT_SUPPORTED, "Peripheral not supported");
+    checkFlag(flags, zml::ascii::warning_flags::PERIPHERAL_INACTIVE, "Peripheral inactive");
+    checkFlag(flags, zml::ascii::warning_flags::HARDWARE_EMERGENCY_STOP, "Hardware emergency stop");
+    checkFlag(flags, zml::ascii::warning_flags::OVERVOLTAGE_OR_UNDERVOLTAGE, "Overvoltage or undervoltage");
+    checkFlag(flags, zml::ascii::warning_flags::DRIVER_DISABLED_NO_FAULT, "Driver disabled, no fault");
+    checkFlag(flags, zml::ascii::warning_flags::CURRENT_INRUSH_ERROR, "Current inrush error");
+    checkFlag(flags, zml::ascii::warning_flags::MOTOR_TEMPERATURE_ERROR, "Motor temperature error");
+    checkFlag(flags, zml::ascii::warning_flags::DRIVER_DISABLED, "Driver disabled");
+    checkFlag(flags, zml::ascii::warning_flags::ENCODER_ERROR, "Encoder error");
+    checkFlag(flags, zml::ascii::warning_flags::INDEX_ERROR, "Index error");
+    checkFlag(flags, zml::ascii::warning_flags::ANALOG_ENCODER_SYNC_ERROR, "Analog encoder sync error");
+    checkFlag(flags, zml::ascii::warning_flags::OVERDRIVE_LIMIT_EXCEEDED, "Overdrive limit exceeded");
+    checkFlag(flags, zml::ascii::warning_flags::STALLED_AND_STOPPED, "Stalled and stopped");
+    checkFlag(flags, zml::ascii::warning_flags::STREAM_BOUNDS_ERROR, "Stream bounds error");
+    checkFlag(flags, zml::ascii::warning_flags::INTERPOLATED_PATH_DEVIATION, "Interpolated path deviation");
+    checkFlag(flags, zml::ascii::warning_flags::LIMIT_ERROR, "Limit error");
+    checkFlag(flags, zml::ascii::warning_flags::EXCESSIVE_TWIST, "Excessive twist");
+    checkFlag(flags, zml::ascii::warning_flags::UNEXPECTED_LIMIT_TRIGGER, "Unexpected limit trigger");
+    checkFlag(flags, zml::ascii::warning_flags::VOLTAGE_OUT_OF_RANGE, "Voltage out of range");
+    checkFlag(flags, zml::ascii::warning_flags::CONTROLLER_TEMPERATURE_HIGH, "Controller temperature high");
+    checkFlag(flags, zml::ascii::warning_flags::STALLED_WITH_RECOVERY, "Stalled with recovery");
+    checkFlag(flags, zml::ascii::warning_flags::DISPLACED_WHEN_STATIONARY, "Displaced when stationary");
+    checkFlag(flags, zml::ascii::warning_flags::INVALID_CALIBRATION_TYPE, "Invalid calibration type");
+    checkFlag(flags, zml::ascii::warning_flags::NO_REFERENCE_POSITION, "No reference position");
+    checkFlag(flags, zml::ascii::warning_flags::DEVICE_NOT_HOMED, "Device not homed");
+    checkFlag(flags, zml::ascii::warning_flags::MANUAL_CONTROL, "Manual control");
+    checkFlag(flags, zml::ascii::warning_flags::MOVEMENT_INTERRUPTED, "Movement interrupted");
+    checkFlag(flags, zml::ascii::warning_flags::STREAM_DISCONTINUITY, "Stream discontinuity");
+    checkFlag(flags, zml::ascii::warning_flags::VALUE_ROUNDED, "Value rounded");
+    checkFlag(flags, zml::ascii::warning_flags::VALUE_TRUNCATED, "Value truncated");
+    checkFlag(flags, zml::ascii::warning_flags::SETTING_UPDATE_PENDING, "Setting update pending");
+}
 
+void zaberAxis::checkFlag(std::unordered_set<std::string> flags, const std::string &flag, const std::string &message) {
+    if(flags.find(flag) != flags.end()) {
+        printf("%s\n", message.c_str());
+    }
+}
