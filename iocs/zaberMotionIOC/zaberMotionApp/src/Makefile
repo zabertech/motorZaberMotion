@@ -36,8 +36,6 @@ zaberMotion_LIBS += asyn
 zaberMotion_LIBS += seq pv
 #endif
 
-PROD_SYS_LIBS += zaber-motion
-
 # zaberMotion_registerRecordDeviceDriver.cpp derives from zaberMotion.dbd
 zaberMotion_SRCS += zaberMotion_registerRecordDeviceDriver.cpp
 
