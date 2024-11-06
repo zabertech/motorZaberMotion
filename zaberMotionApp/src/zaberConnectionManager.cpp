@@ -58,7 +58,7 @@ void zaberConnectionManager::removeConnection(const std::string& port, int inter
     }
 
     if (std::shared_ptr<zml::ascii::Connection> connection = it->second.lock()) {
-        if (connection->getInterfaceId() != -1) {
+        if (connection->getInterfaceId() != interfaceId) {
             return;
         }
     }

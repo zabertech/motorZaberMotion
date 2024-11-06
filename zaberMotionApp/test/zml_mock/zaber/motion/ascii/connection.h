@@ -23,12 +23,10 @@ struct Connection {
     // static member function mocks
     static std::function<Connection(const std::string &)> openSerialPortMock;
     static std::function<Connection(const std::string &, int)> openTcpMock;
-
-    // std::function<void(const std::shared_ptr<zaber::motion::exceptions::MotionLibException> &)> setDisconnectedCallbackMock =
-    //     [](const std::shared_ptr<zaber::motion::exceptions::MotionLibException> &) {};
+    int interfaceId = 1;
 
     void identify() {}
-    int getInterfaceId() { return -1; }
+    int getInterfaceId() { return interfaceId; }
     void setDisconnectedCallback(const std::function<void(const std::shared_ptr<zaber::motion::exceptions::MotionLibException> &)> &callback) {
         (void)callback;
     }

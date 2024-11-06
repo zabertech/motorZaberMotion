@@ -11,7 +11,7 @@ void resetConnectionStatics() {
     zml::ascii::Connection::openTcpMock = [](const std::string &, int) { return zml::ascii::Connection(); };
 }
 
-TEST_CASE("zaberConnectionManager", "[unit]") {
+TEST_CASE("zaberConnectionManager test", "[unit]") {
     ze::zaberConnectionManager &manager = ze::zaberConnectionManager::singleton();
     manager.removeAllConnections();
 
@@ -193,4 +193,30 @@ TEST_CASE("zaberConnectionManager", "[unit]") {
 
         REQUIRE(connection1 == connection2);
     }
+
+    SECTION("removeConnection -- removes with same interface id") {
+        std::shared_ptr<zml::ascii::Connection> connection = manager.tryGetConnection("tcp://localhost");
+        connection->interfaceId = 1;
+        REQUIRE(manager.tryGetConnection("tcp://localhost") == connection);
+
+        manager.removeConnection("tcp://localhost", 1);
+        REQUIRE(manager.tryGetConnection("tcp://localhost") != connection);
+    }
+
+    SECTION("removeConnection -- does not remove with different interface id") {
+        std::shared_ptr<zml::ascii::Connection> connection = manager.tryGetConnection("tcp://localhost");
+        connection->interfaceId = 1;
+        REQUIRE(manager.tryGetConnection("tcp://localhost") == connection);
+
+        manager.removeConnection("tcp://localhost", 2);
+        REQUIRE(manager.tryGetConnection("tcp://localhost") == connection);
+    }
+
+    SECTION("removePrefix") {
+        REQUIRE(ze::zaberConnectionManager::removePrefix("tcp://", "tcp://localhost") == "localhost");
+        REQUIRE(ze::zaberConnectionManager::removePrefix("tcp://", "tcp://localhost:12345") == "localhost:12345");
+        REQUIRE(ze::zaberConnectionManager::removePrefix("serial://", "serial://COM1") == "COM1");
+    }
 }
+
+
