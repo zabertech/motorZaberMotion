@@ -9,6 +9,8 @@
 
 #define PROFILE_MOVE_ERR_STR "Zaber Motion Error: Profile moves not implemented for zaberController\n"
 
+namespace ze = zaber::epics;
+
 /**
  * Creates a new zaberController object.
  * \param[in] portName          The name of the asyn port that will be created for this driver
@@ -21,11 +23,11 @@
 zaberController::zaberController(const char *portName, int numAxes, double movingPollPeriod, double idlePollPeriod, const char *devicePort, int deviceNumber) :
         asynMotorController(portName, numAxes, 0, 0, 0, ASYN_CANBLOCK | ASYN_MULTIDEVICE, 1 /* autoconnect */, 0, 0) {
     try {
-        connection_ = zaberConnectionManager::singleton().tryGetConnection(devicePort);
+        connection_ = ze::zaberConnectionManager::singleton().tryGetConnection(devicePort);
         device_ = connection_->getDevice(deviceNumber);
         device_.identify();
     } catch(const std::exception &e) {
-        printf("zaberController: Connection failed: %s\n", e.what());
+        printf("zaberController: Connection failed\n\t%s\n", e.what());
     }
     for(int i = 0; i < numAxes; i++) {
         new zaberAxis(this, i);

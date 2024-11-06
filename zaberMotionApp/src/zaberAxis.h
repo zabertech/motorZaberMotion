@@ -2,6 +2,7 @@
 #define ZABER_AXIS_H
 
 #include <unordered_set>
+#include <functional>
 
 #include <asynMotorAxis.h>
 #include <zaber/motion/ascii/axis.h>
@@ -21,7 +22,6 @@ class epicsShareClass zaberAxis : public asynMotorAxis {
     asynStatus home(double minVelocity, double maxVelocity, double acceleration, int forwards) override;
     asynStatus stop(double acceleration) override;
     asynStatus poll(bool *moving) override;
-    asynStatus setDoubleParam(int index, double value) override;
 
     private:
     zaberController *pC_;
@@ -32,8 +32,9 @@ class epicsShareClass zaberAxis : public asynMotorAxis {
 
     asynStatus doAbsoluteMove(double position, double velocity, double acceleration);
     asynStatus doRelativeMove(double distance, double velocity, double acceleration);
-    inline void checkAllFlags(std::unordered_set<std::string> flags);
-    inline void checkFlag(std::unordered_set<std::string> flags, const std::string &flag, const std::string &message);
+    inline bool checkAllFlags(std::unordered_set<std::string> flags);
+    inline bool checkFlag(std::unordered_set<std::string> flags, const std::string &flag,
+        const std::string &message, std::function<void()> action = [](){});
     asynStatus checkUpdateDeviceSetting(double val, zml::Units units, const char* setting);
 };
 

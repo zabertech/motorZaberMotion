@@ -28,10 +28,8 @@ std::shared_ptr<zml::ascii::Connection> zaberConnectionManager::tryGetConnection
             if (!port.empty()) {
                 int portNumber = std::stoi(port); (void)portNumber;
                 connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openTcp(hostnameOrIp, portNumber));
-                // connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openNetworkShare(hostnameOrIp));
             } else {
                 connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openTcp(hostnameOrIp));
-                // connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openNetworkShare(hostnameOrIp));
             }
         } else {
             throw std::runtime_error("Invalid TCP address: " + port);
