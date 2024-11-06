@@ -63,6 +63,15 @@ void zaberAxis::report(FILE *fp, int details) {
     }
 }
 
+/**
+ * Perform relative or absolute move.
+ * 
+ * @param position The target position.
+ * @param relative If true, the move is relative.
+ * @param minVelocity This parameter is ignored.
+ * @param maxVelocity Corresponds to `maxspeed` setting in Zaber ASCII protocol.
+ * @param acceleration Corresponds to `accel` setting in Zaber ASCII protocol.
+ */
 asynStatus zaberAxis::move(double position, int relative, double minVelocity, double maxVelocity, double acceleration) {
     (void)minVelocity;
 
@@ -76,6 +85,13 @@ asynStatus zaberAxis::move(double position, int relative, double minVelocity, do
     return status;
 }
 
+/**
+ * Move the axis at velocity.
+ * 
+ * @param minVelocity This parameter is ignored.
+ * @param maxVelocity Corresponds to maxspeed setting in Zaber ASCII protocol.
+ * @param acceleration Corresponds to accel setting in Zaber ASCII protocol.
+ */
 asynStatus zaberAxis::moveVelocity(double minVelocity, double maxVelocity, double acceleration) {
     (void)minVelocity;
 
@@ -92,13 +108,20 @@ asynStatus zaberAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
     return status;
 }
 
+/**
+ * Home the axis.
+ * 
+ * Note that this function ignores the minVelocity, maxVelocity, and acceleration parameters.
+ * The homing velocity of a zaber axis is defined as the lesser of `limit.approach.maxspeed` and
+ * `maxspeed` settings. If you wish to modify these settings, please do so using Zaber Launcher.
+ */
 asynStatus zaberAxis::home(double minVelocity, double maxVelocity, double acceleration, int forwards) {
     (void)minVelocity;
     (void)maxVelocity;
     (void)acceleration;
     (void)forwards;
 
-    std::function<asynStatus()> action = [this, minVelocity, maxVelocity, acceleration]() {
+    std::function<asynStatus()> action = [this]() {
         std::cout << "zaberAxis::home" << std::endl;
         axis_.home(false);
         return asynSuccess;
@@ -108,6 +131,11 @@ asynStatus zaberAxis::home(double minVelocity, double maxVelocity, double accele
     return status;
 }
 
+/**
+ * Stop the axis with given deceleration.
+ * 
+ * @param acceleration Corresponds to accel setting in Zaber ASCII protocol.
+ */
 asynStatus zaberAxis::stop(double acceleration) {
     std::function<asynStatus()> action = [this, acceleration]() {
         std::cout << "zaberAxis::stop" << std::endl;
@@ -208,20 +236,6 @@ asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double ac
             .acceleration = acceleration,
             .accelerationUnit = accelUnit_};
         axis_.moveRelative(distance, lengthUnit_, options);
-        return asynSuccess;
-    };
-    return zaber::epics::handleException(action);
-}
-
-
-
-asynStatus zaberAxis::checkUpdateDeviceSetting(double val, zml::Units units, const char *setting) {
-    std::cout << "setting zaber axis setting: " << setting << " to " << val << std::endl;
-    std::function<asynStatus()> action = [=]() {
-        double result = axis_.getSettings().get(setting, units);
-        if(result != val) {
-            axis_.getSettings().set(setting, val);
-        }
         return asynSuccess;
     };
     return zaber::epics::handleException(action);

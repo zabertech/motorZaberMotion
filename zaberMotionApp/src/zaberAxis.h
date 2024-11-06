@@ -35,7 +35,6 @@ class epicsShareClass zaberAxis : public asynMotorAxis {
     inline bool checkAllFlags(std::unordered_set<std::string> flags);
     inline bool checkFlag(std::unordered_set<std::string> flags, const std::string &flag,
         const std::string &message, std::function<void()> action = [](){});
-    asynStatus checkUpdateDeviceSetting(double val, zml::Units units, const char* setting);
 };
 
 #endif // ZABER_AXIS_H
