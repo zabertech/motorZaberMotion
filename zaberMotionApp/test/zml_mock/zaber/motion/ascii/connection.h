@@ -1,15 +1,17 @@
 #ifndef CONNECTION_MOCK_H
 #define CONNECTION_MOCK_H
 
-#include <memory>
 #include <functional>
+#include <memory>
+
+#define DEFAULT_PORT 11421
 
 namespace zaber {
-namespace motion{
+namespace motion {
 
 namespace exceptions {
 class MotionLibException {
-public:
+    public:
     MotionLibException() {}
     virtual ~MotionLibException() {}
 };
@@ -17,22 +19,24 @@ public:
 
 namespace ascii {
 
-class Connection {
-public:
-    Connection() {}
-    ~Connection() {}
-    void identify() { }
+struct Connection {
+    // static member function mocks
+    static std::function<Connection(const std::string &)> openSerialPortMock;
+    static std::function<Connection(const std::string &, int)> openTcpMock;
+
+    // std::function<void(const std::shared_ptr<zaber::motion::exceptions::MotionLibException> &)> setDisconnectedCallbackMock =
+    //     [](const std::shared_ptr<zaber::motion::exceptions::MotionLibException> &) {};
+
+    void identify() {}
     int getInterfaceId() { return -1; }
-    void setDisconnectedCallback(const std::function<void(const std::shared_ptr<zaber::motion::exceptions::MotionLibException>&)>& callback) {
+    void setDisconnectedCallback(const std::function<void(const std::shared_ptr<zaber::motion::exceptions::MotionLibException> &)> &callback) {
         (void)callback;
     }
-    static Connection openSerialPort(const std::string& port) {
-        (void)port;
-        return Connection();
+    static Connection openSerialPort(const std::string &port) {
+        return openSerialPortMock(port);
     }
-    static Connection openNetworkShare(const std::string& hostnameOrIp) {
-        (void)hostnameOrIp;
-        return Connection();
+    static Connection openTcp(const std::string &hostnameOrIp, int port = DEFAULT_PORT) {
+        return openTcpMock(hostnameOrIp, port);
     }
 };
 

@@ -3,6 +3,8 @@
 #include <regex>
 #include <iostream>
 
+using namespace zaber::epics;
+
 zaberConnectionManager& zaberConnectionManager::singleton() {
     static zaberConnectionManager instance;
     return instance;
@@ -20,29 +22,26 @@ std::shared_ptr<zml::ascii::Connection> zaberConnectionManager::tryGetConnection
         std::string portSanitized = zaberConnectionManager::removePrefix("tcp://", port);
         std::regex tcpAddressRegex(R"((\[([a-fA-F0-9:]+)\]|([a-zA-Z0-9.-]+))(:(\d{1,5}))?)");
         std::smatch match;
-        if (std::regex_match(port, match, tcpAddressRegex)) {
+        if (std::regex_match(portSanitized, match, tcpAddressRegex)) {
             std::string hostnameOrIp = match[2].matched ? match[2].str() : match[3].str();
             std::string port = match[5].str();
-            std::cout << "hostnameOrIp: " << hostnameOrIp << " port: " << port << std::endl;
             if (!port.empty()) {
                 int portNumber = std::stoi(port); (void)portNumber;
-                // connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openTcp(hostnameOrIp, portNumber));
-                connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openNetworkShare(hostnameOrIp));
+                connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openTcp(hostnameOrIp, portNumber));
+                // connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openNetworkShare(hostnameOrIp));
             } else {
-                // connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openTcp(hostnameOrIp));
-                connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openNetworkShare(hostnameOrIp));
+                connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openTcp(hostnameOrIp));
+                // connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openNetworkShare(hostnameOrIp));
             }
         } else {
-            connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openSerialPort(port));
+            throw std::runtime_error("Invalid TCP address: " + port);
         }
     } else if (port.find("serial://") == 0) {
         std::string portSanitized = zaberConnectionManager::removePrefix("serial://", port);
         connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openSerialPort(portSanitized));
     } else {
-        std::cerr << "Unknown connection type: " << port << std::endl;
-        std::cerr << "Connection type must be prefixed with tcp:// or serial://" << std::endl;
+        throw std::runtime_error("Invalid port: " + port + "\n\tPort name must begin with tcp:// or serial://");
     }
-
 
     int id = connection->getInterfaceId();
     connection->setDisconnectedCallback([this, port, id](const std::shared_ptr<zml::exceptions::MotionLibException>&) {
@@ -64,6 +63,10 @@ void zaberConnectionManager::removeConnection(const std::string& port, int inter
         }
     }
     _connections.erase(port);
+}
+
+void zaberConnectionManager::removeAllConnections() {
+    _connections.clear();
 }
 
 std::string zaberConnectionManager::removePrefix(const std::string& prefix, const std::string& str) {

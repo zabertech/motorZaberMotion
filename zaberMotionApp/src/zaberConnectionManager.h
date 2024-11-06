@@ -10,11 +10,15 @@
 
 namespace zml = zaber::motion;
 
+namespace zaber {
+namespace epics {
+
 class zaberConnectionManager {
 public:
     static zaberConnectionManager& singleton();
     std::shared_ptr<zml::ascii::Connection> tryGetConnection(const std::string& portName);
     void removeConnection(const std::string& portName, int interfaceId);
+    void removeAllConnections();
     static std::string removePrefix(const std::string& prefix, const std::string& str);
 
 private:
@@ -22,5 +26,8 @@ private:
     std::unordered_map<std::string, std::weak_ptr<zml::ascii::Connection>> _connections;
     zaberConnectionManager() = default;
 };
+
+} // namespace epics
+} // namespace zaber
 
 #endif
