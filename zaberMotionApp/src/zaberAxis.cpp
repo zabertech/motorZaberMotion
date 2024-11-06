@@ -1,22 +1,19 @@
 #include "zaberAxis.h"
-
+#include "zaberController.h"
+#include "zaberUtils.h"
 #include <iostream>
 #include <string>
 #include <vector>
-
-#include <zaber/motion/dto/ascii/axis_identity.h>
+#include <zaber/motion/ascii/axis_settings.h>
 #include <zaber/motion/ascii/warning_flags.h>
 #include <zaber/motion/ascii/warnings.h>
-#include <zaber/motion/ascii/axis_settings.h>
+#include <zaber/motion/dto/ascii/axis_identity.h>
 #include <zaber/motion/dto/ascii/axis_type.h>
 #include <zaber/motion/dto/ascii/get_axis_setting.h>
 #include <zaber/motion/units.h>
 
-#include "zaberController.h"
-#include "zaberUtils.h"
-
 const char *ZABER_MAX_SPEED = "maxspeed";
-const char *ZABER_DECEL = "decelonly";
+const char *ZABER_ACCEL = "accel";
 
 zaberAxis::zaberAxis(zaberController *pC, int axisNo) :
         asynMotorAxis(pC, axisNo) {
@@ -46,11 +43,11 @@ zaberAxis::~zaberAxis() {}
 void zaberAxis::report(FILE *fp, int details) {
     fprintf(fp, "  Zaber Motion Axis: %d\n", axisNo_);
     zml::ascii::AxisIdentity identity = axis_.getIdentity();
-    if (!identity.getIsPeripheral()) {
+    if(!identity.getIsPeripheral()) {
         fprintf(fp, "    Peripheral Name: %s\n", identity.peripheralName.c_str());
         fprintf(fp, "    Type: %s\n", zml::ascii::AxisType_toString(identity.axisType).c_str());
     }
-    if (details > 0) {
+    if(details > 0) {
         double velocity, position, acceleration;
         pC_->lock();
         pC_->getDoubleParam(pC_->motorVelocity_, &velocity);
@@ -98,7 +95,6 @@ asynStatus zaberAxis::home(double minVelocity, double maxVelocity, double accele
 
     std::function<asynStatus()> action = [this, minVelocity, maxVelocity, acceleration]() {
         std::cout << "zaberAxis::home" << std::endl;
-        // update velocity here??
         axis_.home(false);
         return asynSuccess;
     };
@@ -140,17 +136,14 @@ asynStatus zaberAxis::poll(bool *moving) {
         double pos = axis_.getPosition(lengthUnit_);
         setDoubleParam(pC_->motorPosition_, pos);
 
-        int i = static_cast<int>(!(*moving));
-        setIntegerParam(pC_->motorStatusDone_, i);
+        setIntegerParam(pC_->motorStatusDone_, static_cast<int>(!*moving));
         setIntegerParam(pC_->motorStatusMoving_, static_cast<int>(*moving));
+        setIntegerParam(pC_->motorStatusHomed_, static_cast<int>(axis_.isHomed()));
 
-        i = static_cast<int>(axis_.isHomed());
-        setIntegerParam(pC_->motorStatusHomed_, i);
-        
         // AtHome and Home cannot be inferred from axis state
         setIntegerParam(pC_->motorStatusAtHome_, 0);
         setIntegerParam(pC_->motorStatusHome_, 0);
-        
+
         // no communication error
         setIntegerParam(pC_->motorStatusCommsError_, 0);
         setIntegerParam(pC_->motorStatusProblem_, 0);
@@ -171,12 +164,27 @@ asynStatus zaberAxis::poll(bool *moving) {
     return status;
 }
 
+/** Overridden to intercept accel and velocity values
+ *
+ * \param[in] function The function (parameter) number
+ * \param[in] value Value to set */
+asynStatus zaberAxis::setDoubleParam(int function, double value) {
+    asynStatus zaberStatus = asynSuccess;
+    if(function == pC_->motorAccel_) {
+        zaberStatus = checkUpdateDeviceSetting(value, accelUnit_, ZABER_ACCEL);
+    } else if(function == pC_->motorVelocity_) {
+        zaberStatus = checkUpdateDeviceSetting(value, velocityUnit_, ZABER_MAX_SPEED);
+    }
+    asynStatus baseStatus = asynMotorAxis::setDoubleParam(function, value);
+    return zaberStatus == asynSuccess ? baseStatus : zaberStatus;
+}
+
 /* Private member functions */
 
 asynStatus zaberAxis::doAbsoluteMove(double position, double velocity, double acceleration) {
     std::function<asynStatus()> action = [this, position, velocity, acceleration]() {
         std::cout << "zaberAxis" << axisNo_ << "::moveAbs with position: " << position;
-        std:: cout << " velocity: " << velocity << " " << getUnitLongName(velocityUnit_) << std::endl;
+        std::cout << " velocity: " << velocity << " " << getUnitLongName(velocityUnit_) << std::endl;
         zml::ascii::Axis::MoveAbsoluteOptions options{
             .waitUntilIdle = false,
             .velocity = velocity,
@@ -204,6 +212,21 @@ asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double ac
     };
     return zaber::epics::handleException(action);
 }
+
+
+
+asynStatus zaberAxis::checkUpdateDeviceSetting(double val, zml::Units units, const char *setting) {
+    std::cout << "setting zaber axis setting: " << setting << " to " << val << std::endl;
+    std::function<asynStatus()> action = [=]() {
+        double result = axis_.getSettings().get(setting, units);
+        if(result != val) {
+            axis_.getSettings().set(setting, val);
+        }
+        return asynSuccess;
+    };
+    return zaber::epics::handleException(action);
+}
+
 
 void zaberAxis::checkAllFlags(std::unordered_set<std::string> flags) {
     checkFlag(flags, zml::ascii::warning_flags::CRITICAL_SYSTEM_ERROR, "Critical system error");

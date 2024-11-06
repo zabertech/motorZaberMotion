@@ -24,9 +24,6 @@ zaberController::zaberController(const char *portName, int numAxes, double movin
         connection_ = zaberConnectionManager::singleton().tryGetConnection(devicePort);
         device_ = connection_->getDevice(deviceNumber);
         device_.identify();
-        connection_->setDisconnectedCallback([](const std::shared_ptr<zml::exceptions::MotionLibException>&) {
-            printf("zaberController: disconnected\n");
-        });
     } catch(const std::exception &e) {
         printf("zaberController: Connection failed: %s\n", e.what());
     }

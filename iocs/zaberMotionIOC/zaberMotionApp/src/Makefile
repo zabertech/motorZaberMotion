@@ -46,6 +46,12 @@ zaberMotion_SRCS_vxWorks += -nil-
 # Add support from base/src/vxWorks if needed
 #zaberMotion_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
 
+# Link to zaber motion library
+USR_SYS_LIBS += zaber-motion
+USR_INCLUDES += -I$(ZML_SUPPORT_INCLUDE)
+USR_LDFLAGS += -L$(ZML_SUPPORT_LIB)
+USR_LDFLAGS += -Wl,-rpath,$(ZML_SUPPORT_LIB)
+
 # Finally link to the EPICS Base libraries
 zaberMotion_LIBS += $(EPICS_BASE_IOC_LIBS)
 

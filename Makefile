@@ -4,13 +4,15 @@ include $(TOP)/configure/CONFIG
 
 # Directories to build, any order
 DIRS += configure
-DIRS += $(wildcard *Support)
+DIRS += zaberMotionSupport
 DIRS += $(wildcard *App)
 DIRS += $(wildcard *Top)
 DIRS += $(wildcard iocBoot)
+zaberMotionApp_DEPEND_DIRS += zaberMotionSupport
 
 ifeq ($(BUILD_IOCS), YES)
 DIRS += $(wildcard iocs)
+iocs_DEPEND_DIRS += zaberMotionApp
 endif
 
 # The build order is controlled by these dependency rules:
@@ -29,6 +31,7 @@ $(foreach dir, $(filter %Top, $(DIRS)), \
 
 # iocBoot depends on all *App dirs
 iocBoot_DEPEND_DIRS += $(filter %App,$(DIRS))
+iocBoot_DEPEND_DIRS += zaberMotionSupport
 
 # Add any additional dependency rules here:
 
