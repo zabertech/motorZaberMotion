@@ -14,6 +14,7 @@ void resetConnectionStatics() {
 TEST_CASE("zaberConnectionManager test", "[unit]") {
     ze::zaberConnectionManager &manager = ze::zaberConnectionManager::singleton();
     manager.removeAllConnections();
+    resetConnectionStatics();
 
     SECTION("tryGetConnection tcp -- 1-token url without port") {
         bool openSerialPortCalled = false;
