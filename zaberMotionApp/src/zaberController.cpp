@@ -90,7 +90,7 @@ int zaberMotionCreateController(
         int numAxes, /* Number of axes this controller supports */
         int movingPollPeriod, /* Time to poll (msec) when an axis is in motion */
         int idlePollPeriod, /* Time to poll (msec) when an axis is idle. 0 for no polling */
-        const char *zaberPort, /* Zaber Device TCP address or serial port name */
+        const char *zaberPort, /* Zaber Device TCP address or serial port name (prefixed with tcp:// or serial://) */
         int zaberDeviceNumber /* Zaber Device number on the port (1-indexed) */
     )
 {
