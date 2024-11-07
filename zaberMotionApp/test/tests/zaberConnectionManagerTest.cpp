@@ -48,6 +48,19 @@ TEST_CASE("zaberConnectionManager test", "[unit]") {
         REQUIRE(actualPort == 12345);
     }
 
+
+    SECTION("tryGetConnection tcp -- invalid port") {
+        bool openSerialPortCalled = false;
+        std::string actualPortName = "";
+        int actualPort = 0;
+        zml::ascii::Connection::openSerialPortMock =
+            [&](const std::string &) { openSerialPortCalled = true; return zml::ascii::Connection(); };
+        zml::ascii::Connection::openTcpMock =
+            [&](const std::string &port, int portNumber) { actualPortName = port; actualPort = portNumber; return zml::ascii::Connection(); };
+
+        CHECK_THROWS_WITH(manager.tryGetConnection("tcp://localhost:1234x"), "Invalid TCP address: tcp://localhost:1234x");
+    }
+
     SECTION("tryGetConnection tcp -- url without port") {
         bool openSerialPortCalled = false;
         std::string actualPortName = "";
@@ -57,10 +70,10 @@ TEST_CASE("zaberConnectionManager test", "[unit]") {
         zml::ascii::Connection::openTcpMock =
             [&](const std::string &port, int portNumber) { actualPortName = port; actualPort = portNumber; return zml::ascii::Connection(); };
 
-        std::shared_ptr<zml::ascii::Connection> connection = manager.tryGetConnection("tcp://my-big.domain.com");
+        std::shared_ptr<zml::ascii::Connection> connection = manager.tryGetConnection("tcp://my-super.domain.com");
 
         REQUIRE(openSerialPortCalled == false);
-        REQUIRE(actualPortName == "my-big.domain.com");
+        REQUIRE(actualPortName == "my-super.domain.com");
         REQUIRE(actualPort == DEFAULT_PORT);
     }
 
@@ -73,10 +86,10 @@ TEST_CASE("zaberConnectionManager test", "[unit]") {
         zml::ascii::Connection::openTcpMock =
             [&](const std::string &port, int portNumber) { actualPortName = port; actualPort = portNumber; return zml::ascii::Connection(); };
 
-        std::shared_ptr<zml::ascii::Connection> connection = manager.tryGetConnection("tcp://my-big.domain.com:12345");
+        std::shared_ptr<zml::ascii::Connection> connection = manager.tryGetConnection("tcp://my-super.domain.com:12345");
 
         REQUIRE(openSerialPortCalled == false);
-        REQUIRE(actualPortName == "my-big.domain.com");
+        REQUIRE(actualPortName == "my-super.domain.com");
         REQUIRE(actualPort == 12345);
     }
 
@@ -162,7 +175,7 @@ TEST_CASE("zaberConnectionManager test", "[unit]") {
             "Invalid TCP address: tcp://my_invalid.domain.com:12345");
     }
 
-    SECTION("tryGetConnection serial") {
+    SECTION("tryGetConnection serial - windows") {
         bool openTcpCalled = false;
         std::string actualPortName = "";
         zml::ascii::Connection::openSerialPortMock =
@@ -174,6 +187,34 @@ TEST_CASE("zaberConnectionManager test", "[unit]") {
 
         REQUIRE(openTcpCalled == false);
         REQUIRE(actualPortName == "COM1");
+    }
+
+    SECTION("tryGetConnection serial - linux") {
+        bool openTcpCalled = false;
+        std::string actualPortName = "";
+        zml::ascii::Connection::openSerialPortMock =
+            [&](const std::string &port) { actualPortName = port; return zml::ascii::Connection(); };
+        zml::ascii::Connection::openTcpMock =
+            [&](const std::string &, int) { openTcpCalled = true; return zml::ascii::Connection(); };
+
+        std::shared_ptr<zml::ascii::Connection> connection = manager.tryGetConnection("serial:///dev/ttyS0");
+
+        REQUIRE(openTcpCalled == false);
+        REQUIRE(actualPortName == "/dev/ttyS0");
+    }
+
+    SECTION("tryGetConnection serial - darwin") {
+        bool openTcpCalled = false;
+        std::string actualPortName = "";
+        zml::ascii::Connection::openSerialPortMock =
+            [&](const std::string &port) { actualPortName = port; return zml::ascii::Connection(); };
+        zml::ascii::Connection::openTcpMock =
+            [&](const std::string &, int) { openTcpCalled = true; return zml::ascii::Connection(); };
+
+        std::shared_ptr<zml::ascii::Connection> connection = manager.tryGetConnection("serial:///dev/tty.usbserial-AB0PG6A5");
+
+        REQUIRE(openTcpCalled == false);
+        REQUIRE(actualPortName == "/dev/tty.usbserial-AB0PG6A5");
     }
 
     SECTION("tryGetConnection -- invalid port type") {
