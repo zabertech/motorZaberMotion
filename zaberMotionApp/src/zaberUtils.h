@@ -37,7 +37,14 @@ inline asynStatus handleException(
     return status;
 }
 
-} // namespace motion
+class DeviceDbRegistrar {
+public:
+    DeviceDbRegistrar();
+private:
+    static DeviceDbRegistrar registrar;
+};
+
+} // namespace epics
 } // namespace zaber
 
 #endif

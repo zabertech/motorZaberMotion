@@ -12,6 +12,7 @@ LIBRARY_IOC += ZaberMotion
 SRCS += zaberController.cpp
 SRCS += zaberAxis.cpp
 SRCS += zaberConnectionManager.cpp
+SRCS += zaberUtils.cpp
 
 ZaberMotion_LIBS += motor asyn
 ZaberMotion_LIBS += $(EPICS_BASE_IOC_LIBS)
