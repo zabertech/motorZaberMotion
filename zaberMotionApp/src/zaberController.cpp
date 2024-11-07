@@ -33,9 +33,6 @@ zaberController::zaberController(const char *portName, int numAxes, double movin
         new zaberAxis(this, i);
     }
     startPoller(static_cast<double>(movingPollPeriod) / 1000.0, static_cast<double>(idlePollPeriod) / 1000.0, 2);
-    
-    // just in case you need to clean up resources
-    // epicsAtExit(zaberController::shutdown, this);
 }
 
 void zaberController::report(FILE *fp, int level) {
@@ -61,27 +58,27 @@ zaberAxis *zaberController::getAxis(int axisNo) {
 }
 
 asynStatus zaberController::initializeProfile(size_t maxPoints) {
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, PROFILE_MOVE_ERR_STR);
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_WARNING, PROFILE_MOVE_ERR_STR);
     return asynError;
 }
 
 asynStatus zaberController::buildProfile() {
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, PROFILE_MOVE_ERR_STR);
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_WARNING, PROFILE_MOVE_ERR_STR);
     return asynError;
 }
 
 asynStatus zaberController::executeProfile() {
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, PROFILE_MOVE_ERR_STR);
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_WARNING, PROFILE_MOVE_ERR_STR);
     return asynError;
 }
 
 asynStatus zaberController::abortProfile() {
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, PROFILE_MOVE_ERR_STR);
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_WARNING, PROFILE_MOVE_ERR_STR);
     return asynError;
 }
 
 asynStatus zaberController::readbackProfile() {
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, PROFILE_MOVE_ERR_STR);
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_WARNING, PROFILE_MOVE_ERR_STR);
     return asynError;
 }
 
@@ -96,8 +93,6 @@ int zaberMotionCreateController(
         int zaberDeviceNumber /* Zaber Device number on the port (1-indexed) */
     )
 {
-    // int priority = epicsThreadPriorityMedium;
-    // int stackSize = epicsThreadGetStackSize(epicsThreadStackMedium);
     zaberController *pController = new zaberController(portName, numAxes, static_cast<double>(movingPollPeriod), static_cast<double>(idlePollPeriod), zaberPort, zaberDeviceNumber);
     (void)pController;
     return (asynSuccess);

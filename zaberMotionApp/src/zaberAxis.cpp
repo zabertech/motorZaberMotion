@@ -254,8 +254,7 @@ asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double ac
  * motorStatusHomed_          -- HOMED: the motor has been homed.
  */
 bool zaberAxis::checkAllFlags(std::unordered_set<std::string> flags) {
-    bool fault = false;
-    fault |= checkFlag(flags, zml::ascii::warning_flags::CRITICAL_SYSTEM_ERROR, "Critical system error");
+    bool fault = checkFlag(flags, zml::ascii::warning_flags::CRITICAL_SYSTEM_ERROR, "Critical system error");
     fault |= checkFlag(flags, zml::ascii::warning_flags::PERIPHERAL_NOT_SUPPORTED, "Peripheral not supported");
     fault |= checkFlag(flags, zml::ascii::warning_flags::PERIPHERAL_INACTIVE, "Peripheral inactive");
     fault |= checkFlag(flags, zml::ascii::warning_flags::HARDWARE_EMERGENCY_STOP, "Hardware emergency stop");

@@ -12,9 +12,13 @@ zaberConnectionManager& zaberConnectionManager::singleton() {
 
 std::shared_ptr<zml::ascii::Connection> zaberConnectionManager::tryGetConnection(const std::string& port) {
     std::shared_ptr<zml::ascii::Connection> connection;
-    if (_connections.find(port) != _connections.end()) {
-        if (connection = _connections[port].lock()) {
-            return connection;
+
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        if (_connections.find(port) != _connections.end()) {
+            if (connection = _connections[port].lock()) {
+                return connection;
+            }
         }
     }
     
@@ -47,11 +51,17 @@ std::shared_ptr<zml::ascii::Connection> zaberConnectionManager::tryGetConnection
     connection->setDisconnectedCallback([this, port, id](const std::shared_ptr<zml::exceptions::MotionLibException>&) {
         removeConnection(port, id);
     });
-    _connections[port] = connection;
+
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        _connections[port] = connection;
+    }
+
     return connection;
 }
 
 void zaberConnectionManager::removeConnection(const std::string& port, int interfaceId) {
+    std::lock_guard<std::mutex> lock(_mutex);
     auto it = _connections.find(port);
     if (it == _connections.end() || interfaceId == -1) {
         return;
@@ -66,6 +76,7 @@ void zaberConnectionManager::removeConnection(const std::string& port, int inter
 }
 
 void zaberConnectionManager::removeAllConnections() {
+    std::lock_guard<std::mutex> lock(_mutex);
     _connections.clear();
 }
 
