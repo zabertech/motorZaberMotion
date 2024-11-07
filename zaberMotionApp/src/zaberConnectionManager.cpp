@@ -12,7 +12,6 @@ zaberConnectionManager& zaberConnectionManager::singleton() {
 
 std::shared_ptr<zml::ascii::Connection> zaberConnectionManager::tryGetConnection(const std::string& port) {
     std::shared_ptr<zml::ascii::Connection> connection;
-
     {
         std::lock_guard<std::mutex> lock(_mutex);
         if (_connections.find(port) != _connections.end()) {
