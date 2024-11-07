@@ -85,12 +85,12 @@ asynStatus zaberController::readbackProfile() {
 /* Code for iocsh registration */
 
 int zaberMotionCreateController(
-        const char *portName, /* ZaberMotion Motor Asyn Port name */
-        int numAxes, /* Number of axes this controller supports */
-        int movingPollPeriod, /* Time to poll (msec) when an axis is in motion */
-        int idlePollPeriod, /* Time to poll (msec) when an axis is idle. 0 for no polling */
-        const char *zaberPort, /* Zaber Device TCP address or serial port name (prefixed with tcp:// or serial://) */
-        int zaberDeviceNumber /* Zaber Device number on the port (1-indexed) */
+        const char *portName,   /* ZaberMotion Motor Asyn Port name */
+        int numAxes,            /* Number of axes this controller supports */
+        int movingPollPeriod,   /* Time to poll (msec) when an axis is in motion */
+        int idlePollPeriod,     /* Time to poll (msec) when an axis is idle. 0 for no polling */
+        const char *zaberPort,  /* Zaber Device TCP address or serial port name (prefixed with tcp:// or serial://) */
+        int zaberDeviceNumber   /* Zaber Device number on the port (1-indexed) */
     )
 {
     zaberController *pController = new zaberController(portName, numAxes, static_cast<double>(movingPollPeriod), static_cast<double>(idlePollPeriod), zaberPort, zaberDeviceNumber);
