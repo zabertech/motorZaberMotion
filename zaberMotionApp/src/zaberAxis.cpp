@@ -290,7 +290,7 @@ bool zaberAxis::checkFlag(std::unordered_set<std::string> flags, const std::stri
         asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR,
             "Zaber Motion Fault: %s - %s\n", flag.c_str(), message.c_str());
     } else {
-        asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR,
+        asynPrint(pC_->pasynUserSelf, ASYN_TRACE_WARNING,
             "Zaber Motion Warning: %s - %s\n", flag.c_str(), message.c_str());
     }
     action();
