@@ -20,22 +20,21 @@ class MotionLibException {
 namespace ascii {
 
 struct Connection {
+    int interfaceId = 1;
+
     // static member function mocks
     static std::function<Connection(const std::string &)> openSerialPortMock;
     static std::function<Connection(const std::string &, int)> openTcpMock;
-    int interfaceId = 1;
 
-    void identify() {}
-    int getInterfaceId() { return interfaceId; }
-    void setDisconnectedCallback(const std::function<void(const std::shared_ptr<zaber::motion::exceptions::MotionLibException> &)> &callback) {
-        (void)callback;
-    }
     static Connection openSerialPort(const std::string &port) {
         return openSerialPortMock(port);
     }
     static Connection openTcp(const std::string &hostnameOrIp, int port = DEFAULT_PORT) {
         return openTcpMock(hostnameOrIp, port);
     }
+    
+    int getInterfaceId() { return interfaceId; }
+    void setDisconnectedCallback(const std::function<void(const std::shared_ptr<zaber::motion::exceptions::MotionLibException> &)>&) { }
 };
 
 } // ascii

@@ -13,15 +13,15 @@ namespace zaber {
 namespace epics {
 
 inline asynStatus handleException(
-    const std::function<asynStatus()> &action, const std::function<void()> &onError = nullptr) {
+    asynUser *usr, const std::function<asynStatus()> &action, const std::function<void()> &onError = nullptr) {
     asynStatus status = asynSuccess;
     try {
         status = action();
     } catch(const zml::exceptions::MotionLibException &e) {
-        std::cerr << "Zaber Motion Library Error: " << e.what() << std::endl;
+        asynPrint(usr, ASYN_TRACE_ERROR, "Zaber Motion Library Error: %s", e.what());
         status = asynError;
     } catch(const std::exception &e) {
-        std::cerr << "Zaber Motion Motor Error: " << e.what() << std::endl;
+        asynPrint(usr, ASYN_TRACE_ERROR, "Zaber Motion Motor Error: %s", e.what());
         status = asynError;
     }
 

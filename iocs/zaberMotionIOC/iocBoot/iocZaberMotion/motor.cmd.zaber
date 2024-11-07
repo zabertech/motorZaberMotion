@@ -10,4 +10,6 @@ dbLoadTemplate("motor.substitutions.zaber")
 #    zaber device number (1-indexed)
 # )
 ###
-ZaberMotionCreateController("mcc_1", 2, 100, 5000, "tcp://sw-pumpkinpi.izaber.com", 1)
+ZaberMotionCreateController("XMCC2", 2, 100, 5000, "tcp://sw-pumpkinpi.izaber.com", 1)
+ZaberMotionCreateController("XLDQ",  1, 100, 5000, "tcp://sw-pumpkinpi.izaber.com", 2)
+ZaberMotionCreateController("XFWRE", 1, 100, 5000, "tcp://sw-pumpkinpi.izaber.com", 3)

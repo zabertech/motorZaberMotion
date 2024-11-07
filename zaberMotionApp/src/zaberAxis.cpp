@@ -96,14 +96,13 @@ asynStatus zaberAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
     (void)minVelocity;
 
     std::function<asynStatus()> action = [this, maxVelocity, acceleration]() {
-        std::cout << "zaberAxis::moveVelocity with maxVelocity: " << maxVelocity << " " << getUnitLongName(velocityUnit_) << std::endl;
         zml::ascii::Axis::MoveVelocityOptions options{
             .acceleration = acceleration,
             .accelerationUnit = accelUnit_};
         axis_.moveVelocity(maxVelocity, velocityUnit_, options);
         return asynSuccess;
     };
-    asynStatus status = zaber::epics::handleException(action);
+    asynStatus status = zaber::epics::handleException(pC_->pasynUserSelf, action);
     pC_->wakeupPoller();
     return status;
 }
@@ -122,11 +121,10 @@ asynStatus zaberAxis::home(double minVelocity, double maxVelocity, double accele
     (void)forwards;
 
     std::function<asynStatus()> action = [this]() {
-        std::cout << "zaberAxis::home" << std::endl;
         axis_.home(false);
         return asynSuccess;
     };
-    asynStatus status = zaber::epics::handleException(action);
+    asynStatus status = zaber::epics::handleException(pC_->pasynUserSelf, action);
     pC_->wakeupPoller();
     return status;
 }
@@ -138,14 +136,13 @@ asynStatus zaberAxis::home(double minVelocity, double maxVelocity, double accele
  */
 asynStatus zaberAxis::stop(double acceleration) {
     std::function<asynStatus()> action = [this, acceleration]() {
-        std::cout << "zaberAxis::stop" << std::endl;
         zml::ascii::Axis::MoveVelocityOptions options{
             .acceleration = acceleration,
             .accelerationUnit = accelUnit_};
         axis_.moveVelocity(0., velocityUnit_, options);
         return asynSuccess;
     };
-    asynStatus status = zaber::epics::handleException(action);
+    asynStatus status = zaber::epics::handleException(pC_->pasynUserSelf, action);
     pC_->wakeupPoller();
     return status;
 }
@@ -202,7 +199,7 @@ asynStatus zaberAxis::poll(bool *moving) {
         setIntegerParam(pC_->motorStatusProblem_, 1);
     };
 
-    asynStatus status = zaber::epics::handleException(action, onError);
+    asynStatus status = zaber::epics::handleException(pC_->pasynUserSelf, action, onError);
     callParamCallbacks();
     return status;
 }
@@ -211,8 +208,6 @@ asynStatus zaberAxis::poll(bool *moving) {
 
 asynStatus zaberAxis::doAbsoluteMove(double position, double velocity, double acceleration) {
     std::function<asynStatus()> action = [this, position, velocity, acceleration]() {
-        std::cout << "zaberAxis" << axisNo_ << "::moveAbs with position: " << position;
-        std::cout << " velocity: " << velocity << " " << getUnitLongName(velocityUnit_) << std::endl;
         zml::ascii::Axis::MoveAbsoluteOptions options{
             .waitUntilIdle = false,
             .velocity = velocity,
@@ -222,13 +217,11 @@ asynStatus zaberAxis::doAbsoluteMove(double position, double velocity, double ac
         axis_.moveAbsolute(position, lengthUnit_, options);
         return asynSuccess;
     };
-    return zaber::epics::handleException(action);
+    return zaber::epics::handleException(pC_->pasynUserSelf, action);
 }
 
 asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double acceleration) {
     std::function<asynStatus()> action = [this, distance, velocity, acceleration]() {
-        std::cout << "zaberAxis" << axisNo_ << "::moveRel with distance: " << distance;
-        std::cout << " velocity: " << velocity << " " << getUnitLongName(velocityUnit_) << std::endl;
         zml::ascii::Axis::MoveRelativeOptions options{
             .waitUntilIdle = false,
             .velocity = velocity,
@@ -238,7 +231,7 @@ asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double ac
         axis_.moveRelative(distance, lengthUnit_, options);
         return asynSuccess;
     };
-    return zaber::epics::handleException(action);
+    return zaber::epics::handleException(pC_->pasynUserSelf, action);
 }
 
 /**
@@ -293,10 +286,13 @@ bool zaberAxis::checkFlag(std::unordered_set<std::string> flags, const std::stri
     if(flags.find(flag) == flags.end()) {
         return false;
     }
+
     if(flag[0] == 'F') {
-        printf("Zaber Motion Fault Detected: %s - %s\n", flag.c_str(), message.c_str());
+        asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR,
+            "Zaber Motion Fault: %s - %s\n", flag.c_str(), message.c_str());
     } else {
-        printf("Zaber Motion Warning Detected: %s - %s\n", flag.c_str(), message.c_str());
+        asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR,
+            "Zaber Motion Warning: %s - %s\n", flag.c_str(), message.c_str());
     }
     action();
     return true;
