@@ -48,7 +48,6 @@ int zaberMotionSetDbPath(const char *dbPath) {
     } catch (const std::runtime_error &e) {
         printf("Zaber Motion Error: Failed to set device DB source to %s\n", dbPath);
         printf("\tFailed with error: %s\n\n", e.what());
-        printf("Please check that ZABER_DEVICE_DB_PATH is set to the correct db path\n");
     }
     return (asynSuccess);
 }
