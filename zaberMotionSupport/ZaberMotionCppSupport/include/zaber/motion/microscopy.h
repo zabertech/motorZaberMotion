@@ -11,6 +11,7 @@
 #include "zaber/motion/dto/microscopy/includes.h"
 
 #include "zaber/motion/microscopy/autofocus.h"
+#include "zaber/motion/microscopy/camera_trigger.h"
 #include "zaber/motion/microscopy/filter_changer.h"
 #include "zaber/motion/microscopy/illuminator.h"
 #include "zaber/motion/microscopy/illuminator_channel.h"

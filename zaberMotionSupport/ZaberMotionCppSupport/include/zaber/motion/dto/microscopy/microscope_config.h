@@ -8,6 +8,7 @@
 
 #include "zaber/motion/dto/serializable.h"
 #include "zaber/motion/dto/axis_address.h"
+#include "zaber/motion/dto/channel_address.h"
 
 namespace zaber {
 namespace motion {
@@ -26,6 +27,7 @@ public:
     std::optional<int> filterChanger;
     std::optional<int> objectiveChanger;
     std::optional<int> autofocus;
+    std::optional<ChannelAddress> cameraTrigger;
 
     MicroscopeConfig();
 
@@ -36,7 +38,8 @@ public:
         std::optional<int> p_illuminator,
         std::optional<int> p_filterChanger,
         std::optional<int> p_objectiveChanger,
-        std::optional<int> p_autofocus
+        std::optional<int> p_autofocus,
+        std::optional<ChannelAddress> p_cameraTrigger
     );
 
     bool operator==(const MicroscopeConfig& other) const;
@@ -86,6 +89,12 @@ public:
      */
     std::optional<int> getAutofocus() const;
     void setAutofocus(std::optional<int> p_autofocus);
+
+    /**
+     * Camera trigger digital output address.
+     */
+    std::optional<ChannelAddress> const& getCameraTrigger() const;
+    void setCameraTrigger(std::optional<ChannelAddress> p_cameraTrigger);
 
     /**
      * Convert object to human-readable string format
