@@ -37,13 +37,6 @@ inline asynStatus handleException(
     return status;
 }
 
-class DeviceDbRegistrar {
-public:
-    DeviceDbRegistrar();
-private:
-    static DeviceDbRegistrar registrar;
-};
-
 } // namespace epics
 } // namespace zaber
 
