@@ -11,6 +11,8 @@ include $(TOP)/configure/CONFIG
 #=============================
 # Build the IOC application
 
+USR_CXXFLAGS += -std=c++17
+
 PROD_IOC = zaberMotion
 # zaberMotion.dbd will be created and installed
 DBD += zaberMotion.dbd

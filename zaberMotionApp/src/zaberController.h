@@ -18,8 +18,8 @@ class epicsShareClass zaberController : public asynMotorController {
     zaberController(const char *portName, int numAxes, double movingPollPeriod, double idlePollPeriod, const char *devicePort, int deviceNumber);
     void report(FILE *fp, int level) override;
 
-    zaberAxis *getAxis(asynUser *pasynUser);
-    zaberAxis *getAxis(int axisNo);
+    zaberAxis *getAxis(asynUser *pasynUser) override;
+    zaberAxis *getAxis(int axisNo) override;
 
     asynStatus initializeProfile(size_t maxPoints) override;
     asynStatus buildProfile() override;

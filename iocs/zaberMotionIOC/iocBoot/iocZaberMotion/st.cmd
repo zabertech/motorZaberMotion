@@ -1,4 +1,11 @@
-#!../../bin/linux-aarch64/zaberMotion
+#!../../bin/darwin-aarch64/zaberMotion
+
+# supported architectures
+##!../../bin/darwin-aarch64/zaberMotion
+##!../../bin/linux-aarch64/zaberMotion
+##!../../bin/linux-arm/zaberMotion
+##!../../bin/linux-x86_64/zaberMotion
+##!../../bin/darwin-x86/zaberMotion
 
 < envPaths
 
@@ -13,7 +20,7 @@ dbLoadRecords("$(MOTOR)/db/motorUtil.db", "P=zaberMotion:")
 
 cd "${TOP}/iocBoot/${IOC}"
 
-## 
+##
 < dbPath.cmd.zaber
 < motor.cmd.zaber
 

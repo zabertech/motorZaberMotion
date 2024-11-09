@@ -6,7 +6,7 @@
 #include <mutex>
 #include <unordered_map>
 
-#include <zaber/motion/ascii/connection.h>
+#include "zaber/motion/ascii/connection.h"
 
 namespace zml = zaber::motion;
 
