@@ -4,10 +4,10 @@ import { promises as fsp } from 'fs';
 const ZML_VERSION = '7.2.0';
 
 const exec = (command) => new Promise((resolve, reject) => {
-    const child = childProcess.exec(command, undefined, err => err ? reject(err) : resolve());
-    child.stdout?.pipe(process.stdout);
-    child.stderr?.pipe(process.stderr);
-  });
+  const child = childProcess.exec(command, undefined, err => err ? reject(err) : resolve());
+  child.stdout?.pipe(process.stdout);
+  child.stderr?.pipe(process.stderr);
+});
 
 export const update_support_package = async () => {
   const localDestination = `zaberMotionSupport/ZaberMotionCppSupport-${ZML_VERSION}.zip`;
