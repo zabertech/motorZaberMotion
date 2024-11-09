@@ -20,7 +20,7 @@ int zaberMotionCreateController(
 {
     zaberController *pController = new zaberController(portName, numAxes, static_cast<double>(movingPollPeriod), static_cast<double>(idlePollPeriod), zaberPort, zaberDeviceNumber);
     (void)pController;
-    return (asynSuccess);
+    return (asynError);
 }
 
 /* zaberMotionConfig */
@@ -48,6 +48,7 @@ int zaberMotionSetDbPath(const char *dbPath) {
     } catch (const std::runtime_error &e) {
         printf("Zaber Motion Error: Failed to set device DB source to %s\n", dbPath);
         printf("\tFailed with error: %s\n\n", e.what());
+        return (asynError);
     }
     return (asynSuccess);
 }

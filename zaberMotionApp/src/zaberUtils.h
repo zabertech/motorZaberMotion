@@ -4,7 +4,6 @@
 #include <asynDriver.h>
 #include <functional>
 #include <iostream>
-
 #include <zaber/motion/exceptions/motion_lib_exception.h>
 
 namespace zml = zaber::motion;
@@ -17,23 +16,21 @@ inline asynStatus handleException(
     asynStatus status = asynSuccess;
     try {
         status = action();
-    } catch(const zml::exceptions::MotionLibException &e) {
+    } catch (const zml::exceptions::MotionLibException &e) {
         asynPrint(usr, ASYN_TRACE_ERROR, "Zaber Motion Library Error: %s", e.what());
         status = asynError;
-    } catch(const std::exception &e) {
+    } catch (const std::exception &e) {
         asynPrint(usr, ASYN_TRACE_ERROR, "Zaber Motion Motor Error: %s", e.what());
         status = asynError;
     }
 
-	if (status == asynSuccess || !onError) {
-		return status;
-	}
-
-	try {
-		onError();
-	} catch(const std::exception &e) {
-		// if onError callback throws exception, do it silently (the user doesn't need to know)
-	}
+    if (status != asynSuccess && onError) {
+        try {
+            onError();
+        } catch (const std::exception &e) {
+            // if onError callback throws exception, do it silently (the user doesn't need to know)
+        }
+    }
     return status;
 }
 

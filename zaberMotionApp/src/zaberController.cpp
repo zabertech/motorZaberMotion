@@ -36,13 +36,9 @@ zaberController::zaberController(const char *portName, int numAxes, double movin
 }
 
 void zaberController::report(FILE *fp, int level) {
-    zml::ascii::DeviceIdentity identity = device_.getIdentity();
-
     fprintf(fp, "Zaber Motion Controller: %s\n", this->portName);
-    fprintf(fp, "  Firmware: %s\n", identity.getFirmwareVersion().toString().c_str());
-    fprintf(fp, "  Device: %s\n", identity.getName().c_str());
-    fprintf(fp, "  Serial Number: %d\n", identity.getSerialNumber());
-    fprintf(fp, "  Num Axes: %d\n", numAxes_);
+    fprintf(fp, "  Zaber Device Info: %s\n", device_.toString().c_str());
+    fprintf(fp, "  EPICS Num Axes: %d\n", numAxes_);
 
     asynMotorController::report(fp, level);
  }

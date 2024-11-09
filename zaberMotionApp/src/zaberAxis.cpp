@@ -44,11 +44,8 @@ zaberAxis::~zaberAxis() {}
 
 void zaberAxis::report(FILE *fp, int details) {
     fprintf(fp, "  Zaber Motion Axis: %d\n", axisNo_);
-    zml::ascii::AxisIdentity identity = axis_.getIdentity();
-    if(!identity.getIsPeripheral()) {
-        fprintf(fp, "    Peripheral Name: %s\n", identity.peripheralName.c_str());
-        fprintf(fp, "    Type: %s\n", zml::ascii::AxisType_toString(identity.axisType).c_str());
-    }
+    fprintf(fp, "    %s\n", axis_.toString().c_str());
+
     if(details > 0) {
         double velocity, position, acceleration;
         pC_->lock();
@@ -65,7 +62,7 @@ void zaberAxis::report(FILE *fp, int details) {
 
 /**
  * Perform relative or absolute move.
- * 
+ *
  * @param position The target position.
  * @param relative If true, the move is relative.
  * @param minVelocity This parameter is ignored.
@@ -87,7 +84,7 @@ asynStatus zaberAxis::move(double position, int relative, double minVelocity, do
 
 /**
  * Move the axis at velocity.
- * 
+ *
  * @param minVelocity This parameter is ignored.
  * @param maxVelocity Corresponds to maxspeed setting in Zaber ASCII protocol.
  * @param acceleration Corresponds to accel setting in Zaber ASCII protocol.
@@ -109,7 +106,7 @@ asynStatus zaberAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
 
 /**
  * Home the axis.
- * 
+ *
  * Note that this function ignores the minVelocity, maxVelocity, and acceleration parameters.
  * The homing velocity of a zaber axis is defined as the lesser of `limit.approach.maxspeed` and
  * `maxspeed` settings. If you wish to modify these settings, please do so using Zaber Launcher.
@@ -131,7 +128,7 @@ asynStatus zaberAxis::home(double minVelocity, double maxVelocity, double accele
 
 /**
  * Stop the axis with given deceleration.
- * 
+ *
  * @param acceleration Corresponds to accel setting in Zaber ASCII protocol.
  */
 asynStatus zaberAxis::stop(double acceleration) {
@@ -149,7 +146,7 @@ asynStatus zaberAxis::stop(double acceleration) {
 
 /**
  * Here are the axis status flags which can be set (comment for internal review only):
- * 
+ *
  * motorStatusDirection_      -- DIRECTION: last raw direction; (0:Negative, 1:Positive)
  * motorStatusDone_           -- DONE: motion is complete.
  * motorStatusHighLimit_      -- PLUS_LS: plus limit switch has been hit.
@@ -236,7 +233,7 @@ asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double ac
 
 /**
  * Here are the axis status flags which can be set (comment for internal review only):
- * 
+ *
  * motorStatusDirection_      -- DIRECTION: last raw direction; (0:Negative, 1:Positive)
  * motorStatusDone_           -- DONE: motion is complete.
  * motorStatusHighLimit_      -- PLUS_LS: plus limit switch has been hit.
@@ -281,7 +278,7 @@ bool zaberAxis::checkAllFlags(std::unordered_set<std::string> flags) {
 
 bool zaberAxis::checkFlag(std::unordered_set<std::string> flags, const std::string &flag,
     const std::string &message, std::function<void()> action) {
-    
+
     if(flags.find(flag) == flags.end()) {
         return false;
     }
