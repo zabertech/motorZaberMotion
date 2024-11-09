@@ -4,6 +4,7 @@
 #pragma once
 
 #include "zaber/motion/dto/axis_address.h"
+#include "zaber/motion/dto/channel_address.h"
 #include "zaber/motion/dto/device_db_source_type.h"
 #include "zaber/motion/dto/firmware_version.h"
 #include "zaber/motion/dto/log_output_mode.h"

@@ -1,7 +1,7 @@
 import childProcess from 'child_process';
 import { promises as fsp } from 'fs';
 
-const ZML_VERSION = '7.1.2';
+const ZML_VERSION = '7.2.0';
 
 const exec = (command) => new Promise((resolve, reject) => {
     const child = childProcess.exec(command, undefined, err => err ? reject(err) : resolve());

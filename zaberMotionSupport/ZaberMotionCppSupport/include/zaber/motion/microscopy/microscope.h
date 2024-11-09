@@ -17,6 +17,7 @@
 #include "zaber/motion/microscopy/objective_changer.h"
 #include "zaber/motion/microscopy/filter_changer.h"
 #include "zaber/motion/microscopy/autofocus.h"
+#include "zaber/motion/microscopy/camera_trigger.h"
 
 namespace zaber {
 namespace motion {
@@ -128,6 +129,11 @@ public:
      */
     std::optional<Autofocus> getAutofocus() const;
 
+    /**
+     * The camera trigger.
+     */
+    std::optional<CameraTrigger> getCameraTrigger() const;
+
 protected:
     MicroscopeConfig getConfig() const;
 
@@ -141,6 +147,7 @@ protected:
     std::optional<ObjectiveChanger> _objectiveChanger;
     std::optional<FilterChanger> _filterChanger;
     std::optional<Autofocus> _autofocus;
+    std::optional<CameraTrigger> _cameraTrigger;
 };
 
 

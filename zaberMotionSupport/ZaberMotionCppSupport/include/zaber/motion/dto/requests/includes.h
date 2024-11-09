@@ -119,6 +119,7 @@
 #include "zaber/motion/dto/requests/microscope_empty_request.h"
 #include "zaber/motion/dto/requests/microscope_find_request.h"
 #include "zaber/motion/dto/requests/microscope_init_request.h"
+#include "zaber/motion/dto/requests/microscope_trigger_camera_request.h"
 #include "zaber/motion/dto/requests/objective_changer_change_request.h"
 #include "zaber/motion/dto/requests/objective_changer_create_response.h"
 #include "zaber/motion/dto/requests/objective_changer_get_current_response.h"
