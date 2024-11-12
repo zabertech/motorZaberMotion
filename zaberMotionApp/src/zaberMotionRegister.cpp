@@ -20,7 +20,7 @@ int zaberMotionCreateController(
 {
     zaberController *pController = new zaberController(portName, numAxes, static_cast<double>(movingPollPeriod), static_cast<double>(idlePollPeriod), zaberPort, zaberDeviceNumber);
     (void)pController;
-    return (asynError);
+    return (asynSuccess);
 }
 
 /* zaberMotionConfig */

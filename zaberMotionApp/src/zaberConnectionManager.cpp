@@ -15,12 +15,12 @@ std::shared_ptr<zml::ascii::Connection> zaberConnectionManager::tryGetConnection
     {
         std::lock_guard<std::mutex> lock(_mutex);
         if (_connections.find(port) != _connections.end()) {
-            if (connection = _connections[port].lock()) {
+            if ((connection = _connections[port].lock())) {
                 return connection;
             }
         }
     }
-    
+
     if (port.find("tcp://") == 0) {
         std::string portSanitized = zaberConnectionManager::removePrefix("tcp://", port);
         std::regex tcpAddressRegex(R"((\[([a-fA-F0-9:]+)\]|([a-zA-Z0-9.-]+))(:(\d{1,5}))?)");
@@ -43,7 +43,8 @@ std::shared_ptr<zml::ascii::Connection> zaberConnectionManager::tryGetConnection
         std::string portSanitized = zaberConnectionManager::removePrefix("serial://", port);
         connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openSerialPort(portSanitized));
     } else {
-        throw std::runtime_error("Invalid port: " + port + "\n\tPort name must begin with tcp:// or serial://");
+        // default to serial port if no prefix is provided
+        connection = std::make_shared<zml::ascii::Connection>(zml::ascii::Connection::openSerialPort(port));
     }
 
     int id = connection->getInterfaceId();

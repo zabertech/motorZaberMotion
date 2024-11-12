@@ -281,8 +281,9 @@ bool zaberAxis::checkAllFlags(std::unordered_set<std::string> flags) {
         }
 
         if (flag[0] == 'F') {
-            if (ZML_FAULT_TO_MESSAGE.find(flag) != ZML_FAULT_TO_MESSAGE.end()) {
-                message = ZML_FAULT_TO_MESSAGE.at(flag);
+            auto it = ZML_FAULT_TO_MESSAGE.find(flag);
+            if (it != ZML_FAULT_TO_MESSAGE.end()) {
+                message = it->second;
             } else {
                 message = "Unrecognized fault";
             }
