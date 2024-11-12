@@ -204,7 +204,7 @@ asynStatus zaberAxis::poll(bool *moving) {
         std::unordered_set<std::string> flags = warnings.getFlags();
         warnings.clearFlags();
 
-        if(checkAllFlags(flags)) {
+        if (checkAllFlags(flags)) {
             setIntegerParam(pC_->motorStatusProblem_, 1);
             return asynError;
         }

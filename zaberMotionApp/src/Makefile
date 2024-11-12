@@ -17,7 +17,7 @@ SRCS += zaberMotionRegister.cpp
 ZaberMotion_LIBS += motor asyn
 ZaberMotion_LIBS += $(EPICS_BASE_IOC_LIBS)
 
-DBD  += zaberMotionSupport.dbd
+DBD += zaberMotionSupport.dbd
 
 USR_SYS_LIBS += zaber-motion
 USR_INCLUDES += -I$(ZML_SUPPORT_INCLUDE)
