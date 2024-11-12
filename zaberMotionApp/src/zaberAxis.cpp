@@ -17,6 +17,27 @@
 #define ZABER_MAX_SPEED = "maxspeed";
 #define ZABER_ACCEL = "accel";
 
+const std::unordered_map<std::string, std::string> zaberAxis::ZML_FAULT_TO_MESSAGE = {
+    {zml::ascii::warning_flags::CRITICAL_SYSTEM_ERROR, "Critical system error"},
+    {zml::ascii::warning_flags::PERIPHERAL_NOT_SUPPORTED, "Peripheral not supported"},
+    {zml::ascii::warning_flags::PERIPHERAL_INACTIVE, "Peripheral inactive"},
+    {zml::ascii::warning_flags::HARDWARE_EMERGENCY_STOP, "Hardware emergency stop"},
+    {zml::ascii::warning_flags::OVERVOLTAGE_OR_UNDERVOLTAGE, "Overvoltage or undervoltage"},
+    {zml::ascii::warning_flags::DRIVER_DISABLED_NO_FAULT, "Driver disabled, no fault"},
+    {zml::ascii::warning_flags::CURRENT_INRUSH_ERROR, "Current inrush error"},
+    {zml::ascii::warning_flags::MOTOR_TEMPERATURE_ERROR, "Motor temperature error"},
+    {zml::ascii::warning_flags::DRIVER_DISABLED, "Driver disabled"},
+    {zml::ascii::warning_flags::ENCODER_ERROR, "Encoder error"},
+    {zml::ascii::warning_flags::INDEX_ERROR, "Index error"},
+    {zml::ascii::warning_flags::ANALOG_ENCODER_SYNC_ERROR, "Analog encoder sync error"},
+    {zml::ascii::warning_flags::OVERDRIVE_LIMIT_EXCEEDED, "Overdrive limit exceeded"},
+    {zml::ascii::warning_flags::STALLED_AND_STOPPED, "Stalled and stopped"},
+    {zml::ascii::warning_flags::STREAM_BOUNDS_ERROR, "Stream bounds error"},
+    {zml::ascii::warning_flags::INTERPOLATED_PATH_DEVIATION, "Interpolated path deviation"},
+    {zml::ascii::warning_flags::LIMIT_ERROR, "Limit error"},
+    {zml::ascii::warning_flags::EXCESSIVE_TWIST, "Excessive twist"},
+};
+
 zaberAxis::zaberAxis(zaberController *pC, int axisNo) :
         asynMotorAxis(pC, axisNo) {
     pC_ = pC;
@@ -251,45 +272,40 @@ asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double ac
  * motorStatusHomed_          -- HOMED: the motor has been homed.
  */
 bool zaberAxis::checkAllFlags(std::unordered_set<std::string> flags) {
-    bool fault = checkFlag(flags, zml::ascii::warning_flags::CRITICAL_SYSTEM_ERROR, "Critical system error");
-    fault |= checkFlag(flags, zml::ascii::warning_flags::PERIPHERAL_NOT_SUPPORTED, "Peripheral not supported");
-    fault |= checkFlag(flags, zml::ascii::warning_flags::PERIPHERAL_INACTIVE, "Peripheral inactive");
-    fault |= checkFlag(flags, zml::ascii::warning_flags::HARDWARE_EMERGENCY_STOP, "Hardware emergency stop");
-    fault |= checkFlag(flags, zml::ascii::warning_flags::OVERVOLTAGE_OR_UNDERVOLTAGE, "Overvoltage or undervoltage");
-    fault |= checkFlag(flags, zml::ascii::warning_flags::DRIVER_DISABLED_NO_FAULT, "Driver disabled, no fault");
-    fault |= checkFlag(flags, zml::ascii::warning_flags::CURRENT_INRUSH_ERROR, "Current inrush error");
-    fault |= checkFlag(flags, zml::ascii::warning_flags::MOTOR_TEMPERATURE_ERROR, "Motor temperature error");
-    fault |= checkFlag(flags, zml::ascii::warning_flags::DRIVER_DISABLED, "Driver disabled");
-    fault |= checkFlag(flags, zml::ascii::warning_flags::ENCODER_ERROR, "Encoder error");
-    fault |= checkFlag(flags, zml::ascii::warning_flags::INDEX_ERROR, "Index error");
-    fault |= checkFlag(flags, zml::ascii::warning_flags::ANALOG_ENCODER_SYNC_ERROR, "Analog encoder sync error");
-    fault |= checkFlag(flags, zml::ascii::warning_flags::OVERDRIVE_LIMIT_EXCEEDED, "Overdrive limit exceeded");
-    fault |= checkFlag(flags, zml::ascii::warning_flags::STALLED_AND_STOPPED, "Stalled and stopped",
-        [this]() { pC_->setIntegerParam(pC_->motorStatusFollowingError_, 1); });
-    fault |= checkFlag(flags, zml::ascii::warning_flags::STREAM_BOUNDS_ERROR, "Stream bounds error");
-    fault |= checkFlag(flags, zml::ascii::warning_flags::INTERPOLATED_PATH_DEVIATION, "Interpolated path deviation",
-        [this]() { pC_->setIntegerParam(pC_->motorStatusFollowingError_, 1); });
-    fault |= checkFlag(flags, zml::ascii::warning_flags::LIMIT_ERROR, "Limit error",
-        [this]() { pC_->setIntegerParam(pC_->motorStatusLowLimit_, 1); pC_->setIntegerParam(pC_->motorStatusHighLimit_, 1); });
-    fault |= checkFlag(flags, zml::ascii::warning_flags::EXCESSIVE_TWIST, "Excessive twist");
-    fault |= checkFlag(flags, zml::ascii::warning_flags::UNEXPECTED_LIMIT_TRIGGER, "Unexpected limit trigger");
+    bool fault = false;
+    std::string message = "";
+
+    for (const std::string &flag : flags) {
+        if (flag.length() == 0) {
+            continue;
+        }
+
+        if (flag[0] == 'F') {
+            if (ZML_FAULT_TO_MESSAGE.find(flag) != ZML_FAULT_TO_MESSAGE.end()) {
+                message = ZML_FAULT_TO_MESSAGE.at(flag);
+            } else {
+                message = "Unrecognized fault";
+            }
+
+            fault = true;
+            asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR, "Zaber Motion Fault -- %s: %s\n", flag.c_str(), message.c_str());
+        } else if (flag == zml::ascii::warning_flags::UNEXPECTED_LIMIT_TRIGGER) {
+            fault = true;
+            asynPrint(pC_->pasynUserSelf, ASYN_TRACE_WARNING, "Zaber Motion Warning -- %s: %s\n", flag.c_str(), "Limit warning");
+        }
+
+        updateStatusFromFlag(flag);
+    }
     return fault;
 }
 
-bool zaberAxis::checkFlag(std::unordered_set<std::string> flags, const std::string &flag,
-    const std::string &message, std::function<void()> action) {
-
-    if(flags.find(flag) == flags.end()) {
-        return false;
+void zaberAxis::updateStatusFromFlag(const std::string& flag) {
+    if (flag == zml::ascii::warning_flags::STALLED_AND_STOPPED) {
+        pC_->setIntegerParam(pC_->motorStatusFollowingError_, 1);
+    } else if (flag == zml::ascii::warning_flags::INTERPOLATED_PATH_DEVIATION) {
+        pC_->setIntegerParam(pC_->motorStatusFollowingError_, 1);
+    } else if (flag == zml::ascii::warning_flags::LIMIT_ERROR) {
+        pC_->setIntegerParam(pC_->motorStatusLowLimit_, 1);
+        pC_->setIntegerParam(pC_->motorStatusHighLimit_, 1);
     }
-
-    if(flag[0] == 'F') {
-        asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR,
-            "Zaber Motion Fault: %s - %s\n", flag.c_str(), message.c_str());
-    } else {
-        asynPrint(pC_->pasynUserSelf, ASYN_TRACE_WARNING,
-            "Zaber Motion Warning: %s - %s\n", flag.c_str(), message.c_str());
-    }
-    action();
-    return true;
 }

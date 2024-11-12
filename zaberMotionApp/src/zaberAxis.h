@@ -2,6 +2,7 @@
 #define ZABER_AXIS_H
 
 #include <unordered_set>
+#include <unordered_map>
 #include <functional>
 
 #include <asynMotorAxis.h>
@@ -24,6 +25,7 @@ class epicsShareClass zaberAxis : public asynMotorAxis {
     asynStatus poll(bool *moving) override;
 
     private:
+    static const std::unordered_map<std::string, std::string> ZML_FAULT_TO_MESSAGE;
     zaberController *pC_;
     zml::ascii::Axis axis_;
     zml::Units lengthUnit_;
@@ -33,8 +35,7 @@ class epicsShareClass zaberAxis : public asynMotorAxis {
     asynStatus doAbsoluteMove(double position, double velocity, double acceleration);
     asynStatus doRelativeMove(double distance, double velocity, double acceleration);
     inline bool checkAllFlags(std::unordered_set<std::string> flags);
-    inline bool checkFlag(std::unordered_set<std::string> flags, const std::string &flag,
-        const std::string &message, std::function<void()> action = [](){});
+    inline void updateStatusFromFlag(const std::string& flag);
 };
 
 #endif // ZABER_AXIS_H
