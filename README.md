@@ -80,4 +80,4 @@ The following is an overview of which status flags are set during polling, and w
 
 
 ### zaberController
-Please note that zaberController has not implemented profile moves.
+Please note that profile moves have not been implemented for `zaberController`.

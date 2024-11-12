@@ -252,25 +252,6 @@ asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double ac
     return zaber::epics::handleException(pC_->pasynUserSelf, action);
 }
 
-/**
- * Here are the axis status flags which can be set (comment for internal review only):
- *
- * motorStatusDirection_      -- DIRECTION: last raw direction; (0:Negative, 1:Positive)
- * motorStatusDone_           -- DONE: motion is complete.
- * motorStatusHighLimit_      -- PLUS_LS: plus limit switch has been hit.
- * motorStatusAtHome_         -- HOMELS: state of the home limit switch.
- * motorStatusSlip_           -- Unused
- * motorStatusPowerOn_        -- POSITION: closed-loop position control is enabled.
- * motorStatusFollowingError_ -- SLIP_STALL: Slip/Stall detected (eg. fatal following error)
- * motorStatusHome_           -- HOME: if at home position.
- * motorStatusHasEncoder_     -- PRESENT: encoder is present.
- * motorStatusProblem_        -- PROBLEM: driver stopped polling, or hardware problem
- * motorStatusMoving_         -- MOVING: non-zero velocity present.
- * motorStatusGainSupport_    -- GAIN_SUPPORT: motor supports closed-loop position control.
- * motorStatusCommsError_     -- COMM_ERR: Controller communication error.
- * motorStatusLowLimit_       -- MINUS_LS: minus limit switch has been hit.
- * motorStatusHomed_          -- HOMED: the motor has been homed.
- */
 bool zaberAxis::checkAllFlags(std::unordered_set<std::string> flags) {
     bool fault = false;
     std::string message = "";
