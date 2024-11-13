@@ -10,13 +10,13 @@ motorZaberMotion can also be built outside of motor by copying it's ``EXAMPLE_RE
 
 motorZaberMotion contains an example IOC that is built if ``CONFIG_SITE.local`` sets ``BUILD_IOCS = YES``.  The example IOC can be built outside of driver module.
 
-motorZaberMotion makes use of [zaber motion library](https://software.zaber.com/motion-library/docs), which requires c++17 or greater. For this reason, any epics IOC which uses this motor module must also be compiled with at least c++17.
-
 ## Documentation
+
+This module makes use of [Zaber Motion Library](https://software.zaber.com/motion-library/docs) (ZML), which requires c++17 or greater. For this reason, any epics IOC which uses this motor module must also be compiled with at least c++17.
 
 ### ZML Device Database
 
-Typically, ZML requires internet connectivity to identify devices--when identifying a device it will query a database service to retrieve important information such as device names, settings and conversion factors between device native units and real world units. If you would prefer that your IOC not be connected to the internet, this module exposes an ioc shell function for configuring a local copy of this db (more on this in ioc shell function section below).
+Typically, ZML requires internet connectivity to identify devices: when identifying a device it will query a database service to retrieve important information such as device names, settings and conversion factors between device native units and real world units. If you would prefer that your IOC not be connected to the internet, this module exposes an ioc shell function for setting a local copy of the db (more on this in the ioc shell function section below).
 
 ### Officially supported systems and architectures:
 While ZML itself supports windows, linux and macOS, this module only officially supports linux and maxOS, specifically:
@@ -26,7 +26,7 @@ While ZML itself supports windows, linux and macOS, this module only officially 
 - darwin-aarch64
 - darwin-x86
 
-While windows is not officially supported, we include our windows dlls in `zaberMotionSupport/ZaberMotionCppSupport` just in case. If you would like us to add official support for Windows, please let us know!
+Even though Windows is not officially supported, we include our Windows dlls in `zaberMotionSupport/ZaberMotionCppSupport` just in case. If you would like us to add official support for Windows, please let us know!
 
 ## Documentation
 
@@ -81,3 +81,6 @@ The following is an overview of which status flags are set during polling, and w
 
 ### zaberController
 Please note that profile moves have not been implemented for `zaberController`.
+
+### Contact
+For any comments or concerns, please contact us at `software@zaber.com`
