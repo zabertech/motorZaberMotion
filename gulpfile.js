@@ -23,11 +23,10 @@ export const update_support_package = async () => {
 
 const update_release_for_module = async modulePath => {
   const releasePath = `${modulePath}/configure/RELEASE`;
-  console.log('updating file with release path: ', releasePath);
   const releaseContents = await fsp.readFile(releasePath, 'utf8');
   const newContents = releaseContents
-    .replace(/^SUPPORT *=.*$/m, `SUPPORT = ${EPICS_SUPPORT}`)
-    .replace(/^EPICS_BASE *=.*$/m, `EPICS_BASE = ${EPICS_BASE}`);
+    .replace(/^#? *SUPPORT *=.*$/m, `SUPPORT = ${EPICS_SUPPORT}`)
+    .replace(/^#? *EPICS_BASE *=.*$/m, `EPICS_BASE = ${EPICS_BASE}`);
   await fsp.writeFile(releasePath, newContents);
 }
 
@@ -36,17 +35,26 @@ export const update_epics_configs = async () => {
   await update_release_for_module(`${EPICS_SUPPORT}/sequencer`);
   await update_release_for_module(`${EPICS_SUPPORT}/motor`);
 
+  // asyn-specific changes for linux
+  if (process.platform === 'linux') {
+    const asynPath = '/Users/colby.sparks/EPICS/support/asyn/configure/CONFIG_SITE';
+    console.log('updating file with asyn path: ', asynPath);
+    const asynContents = await fsp.readFile(asynPath, 'utf8');
+    const newContents = asynContents.replace(/^#? *TIRPC *=.*/m, `TIRPC = YES`);
+    await fsp.writeFile(asynPath, newContents);
+  }
+
   // motor-specific changes
   const releasePath = `${EPICS_SUPPORT}/motor/configure/RELEASE`;
   const releaseContents = await fsp.readFile(releasePath, 'utf8');
   const newContents = releaseContents
-    .replace(/^ASYN *=.*/, `ASYN=${EPICS_SUPPORT}/asyn`)
-    .replace(/^SNCSEQ *=.*/, `SNCSEQ=${EPICS_SUPPORT}/sequencer`);
+    .replace(/^#? *ASYN *=.*/m, `ASYN=${EPICS_SUPPORT}/asyn`)
+    .replace(/^#? *SNCSEQ *=.*/m, `SNCSEQ=${EPICS_SUPPORT}/sequencer`);
+  await fsp.writeFile(releasePath, newContents);
 
   // run make in all support modules
   await exec(`make -C ${EPICS_SUPPORT}/asyn`);
   await exec(`make -C ${EPICS_SUPPORT}/sequencer`);
   await exec(`make -C ${EPICS_SUPPORT}/motor`);
-  await fsp.writeFile(releasePath, newContents);
 }
 
