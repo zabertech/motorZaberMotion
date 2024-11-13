@@ -1,5 +1,6 @@
 import childProcess from 'child_process';
 import { promises as fsp } from 'fs';
+import os from 'os';
 
 const ZML_VERSION = '7.2.0';
 
@@ -69,3 +70,15 @@ export const build = async () => {
   await exec(`make -C ${EPICS_SUPPORT}/motor`);
 }
 
+export const test = async () => {
+  const zaberMotionTestPath = `${EPICS_SUPPORT}/motor/modules/motorZaberMotion/zaberMotionApp/test`;
+  await fsp.rm(`${zaberMotionTestPath}/build`, { recursive: true }).catch(() => false);
+  await fsp.mkdir(`${zaberMotionTestPath}/build`, { recursive: true });
+
+  await exec(`
+    cd ${zaberMotionTestPath}/build \
+    && cmake ../ \
+    && make -j${os.cpus().length} \
+    && ctest --verbose
+  `);
+}

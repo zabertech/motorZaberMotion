@@ -1,0 +1,15 @@
+build_linux_amd64:
+  stage: build
+  interruptible: true
+  image: registry.izaber.com/software-public/zaber-motion-epics/linux_amd64
+  script:
+    - mkdir -p $HOME/EPICS/support/motor/modules/motorZaberMotion
+    - mv * $HOME/EPICS/support/motor/modules/motorZaberMotion
+    - cd $HOME/EPICS/support/motor/modules/motorZaberMotion
+    - npm install
+    - echo "===== Running build"
+    - npm exec gulp -- build
+    - echo "===== Running test"
+    - npm exec gulp -- test
+  tags:
+  - docker-executor-multicore

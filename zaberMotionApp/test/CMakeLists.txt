@@ -1,5 +1,6 @@
 cmake_minimum_required( VERSION 3.14 )
 project( zaber_test LANGUAGES CXX )
+set( CMAKE_CXX_STANDARD 17 )
 
 file(GLOB ZML_TEST_SRC
   tests/*.cpp
@@ -22,3 +23,6 @@ else()
     target_compile_options( zaber_test PRIVATE -Wno-psabi )
   endif()
 endif()
+
+enable_testing()
+add_test(NAME zaber_test COMMAND zaber_test)

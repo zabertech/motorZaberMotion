@@ -225,8 +225,10 @@ TEST_CASE("zaberConnectionManager test", "[unit]") {
         zml::ascii::Connection::openTcpMock =
             [&](const std::string &, int) { openTcpCalled = true; return zml::ascii::Connection(); };
 
-        CHECK_THROWS_WITH(manager.tryGetConnection("something://cheese"),
-            "Invalid port: something://cheese\n\tPort name must begin with tcp:// or serial://");
+        std::shared_ptr<zml::ascii::Connection> connection = manager.tryGetConnection("/dev/oid");
+
+        REQUIRE(openTcpCalled == false);
+        REQUIRE(actualPortName == "/dev/oid");
     }
 
     SECTION("tryGetConnection -- same port returns same connection") {
