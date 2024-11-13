@@ -13,7 +13,7 @@ This should download the relevant version of the support package. Please note th
 ## Building EPICS and Zaber Motor Module
 Build steps:
 - Follow instructions for installing and building EPICS base repository. Here are instructions for [Windows](https://docs.epics-controls.org/en/latest/getting-started/installation-windows.html) and [Linux and macOS](https://docs.epics-controls.org/en/latest/getting-started/installation-linux.html).
-- Clone the EPICS (sequencer)[https://github.com/epics-modules/sequencer], (asyn)[https://github.com/epics-modules/asyn] and [motor](https://github.com/epics-modules/motor) modules with the following directory structure:
+- Clone the EPICS [sequencer](https://github.com/epics-modules/sequencer), [asyn](https://github.com/epics-modules/asyn) and [motor](https://github.com/epics-modules/motor) modules with the following directory structure:
 
 ```
 your-workfolder
