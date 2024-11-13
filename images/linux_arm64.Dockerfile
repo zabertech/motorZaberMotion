@@ -40,10 +40,8 @@ RUN export EPICS_HOST_ARCH=$($EPICS_BASE/startup/EpicsHostArch) \
 ENV PATH=$EPICS_BASE/bin/$EPICS_HOST_ARCH:$PATH
 ENV CI_PROJECT_DIR=$HOME/EPICS/support/motor/modules
 
-# TODO: this should be added to gitlab ci script after testing
 # RUN cd $HOME/EPICS/support/motor \
 #     && git submodule add -b review-branch https://gitlab.izaber.com/colby.sparks/zaber-motor-epics.git modules/motorZaberMotion \
 #     && cd $HOME/EPICS/support/motor/modules/motorZaberMotion \
 #     && npm install \
 #     && npx gulp update_epics_configs
-

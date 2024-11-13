@@ -21,8 +21,6 @@ export const update_support_package = async () => {
   await fsp.rm(localDestination);
 }
 
-
-
 const update_release_for_module = async modulePath => {
   const releasePath = `${modulePath}/configure/RELEASE`;
   const releaseContents = await fsp.readFile(releasePath, 'utf8');
@@ -32,7 +30,7 @@ const update_release_for_module = async modulePath => {
   await fsp.writeFile(releasePath, newContents);
 }
 
-const update_epics_configs = async () => {
+const update_support_configs = async () => {
   await update_release_for_module(`${EPICS_SUPPORT}/asyn`);
   await update_release_for_module(`${EPICS_SUPPORT}/sequencer`);
   await update_release_for_module(`${EPICS_SUPPORT}/motor`);
@@ -63,7 +61,7 @@ const update_epics_configs = async () => {
 }
 
 export const build = async () => {
-  await update_epics_configs();
+  await update_support_configs();
 
   // run make in all support modules
   await exec(`make -C ${EPICS_SUPPORT}/asyn`);
