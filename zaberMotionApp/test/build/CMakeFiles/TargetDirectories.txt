@@ -1,3 +1,0 @@
-/home/ubuntu/EPICS/support/epics-motor-zaber/modules/motorZaberMotion/zaberMotionApp/test/build/CMakeFiles/zaber_test.dir
-/home/ubuntu/EPICS/support/epics-motor-zaber/modules/motorZaberMotion/zaberMotionApp/test/build/CMakeFiles/edit_cache.dir
-/home/ubuntu/EPICS/support/epics-motor-zaber/modules/motorZaberMotion/zaberMotionApp/test/build/CMakeFiles/rebuild_cache.dir
