@@ -11,6 +11,8 @@ include $(TOP)/configure/CONFIG
 #=============================
 # Build the IOC application
 
+USR_CXXFLAGS += -std=c++17
+
 PROD_IOC = zaberMotion
 # zaberMotion.dbd will be created and installed
 DBD += zaberMotion.dbd
@@ -33,10 +35,8 @@ zaberMotion_LIBS += motor
 zaberMotion_LIBS += asyn
 #endif
 #ifdef SNCSEQ
-# zaberMotion_LIBS += seq pv
+zaberMotion_LIBS += seq pv
 #endif
-
-PROD_SYS_LIBS += zaber-motion
 
 # zaberMotion_registerRecordDeviceDriver.cpp derives from zaberMotion.dbd
 zaberMotion_SRCS += zaberMotion_registerRecordDeviceDriver.cpp
@@ -47,6 +47,12 @@ zaberMotion_SRCS_vxWorks += -nil-
 
 # Add support from base/src/vxWorks if needed
 #zaberMotion_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
+
+# Link to zaber motion library
+USR_SYS_LIBS += zaber-motion
+USR_INCLUDES += -I$(ZML_SUPPORT_INCLUDE)
+USR_LDFLAGS += -L$(ZML_SUPPORT_LIB)
+USR_LDFLAGS += -Wl,-rpath,$(ZML_SUPPORT_LIB)
 
 # Finally link to the EPICS Base libraries
 zaberMotion_LIBS += $(EPICS_BASE_IOC_LIBS)
