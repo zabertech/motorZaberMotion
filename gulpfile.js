@@ -7,6 +7,16 @@ const ZML_VERSION = '7.2.0';
 const EPICS_BASE = process.env.EPICS_BASE;
 const EPICS_SUPPORT = `${process.env.HOME}/EPICS/support`;
 
+const os_to_epics_arch = () => {
+  const arch = os.arch();
+  const platform = os.platform();
+  if (arch === 'x64' && platform !== 'darwin') return 'x86_64';
+  if (arch === 'x64' && platform === 'darwin') return 'x86';
+  if (arch === 'arm64') return 'aarch64';
+  if (arch === 'arm') return 'arm';
+  return arch;
+}
+
 const exec = (command) => new Promise((resolve, reject) => {
   const child = childProcess.exec(command, undefined, err => err ? reject(err) : resolve());
   child.stdout?.pipe(process.stdout);
@@ -74,6 +84,10 @@ export const build_motor = async () => {
   await exec(`make -C ${EPICS_SUPPORT}/motor`);
 }
 
+export const run_ioc = async () => {
+  const iocBootFolder = `${EPICS_SUPPORT}/motor/modules/motorZaberMotion/iocs/zaberMotionIOC/iocBoot/iocZaberMotion`;
+  await exec(`cd ${iocBootFolder} && ./st.cmd.${os.platform()}-${os_to_epics_arch()}`);
+}
 
 export const test = async () => {
   const zaberMotionTestPath = `${EPICS_SUPPORT}/motor/modules/motorZaberMotion/zaberMotionApp/test`;
