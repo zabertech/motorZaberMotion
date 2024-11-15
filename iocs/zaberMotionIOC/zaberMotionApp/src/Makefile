@@ -11,6 +11,7 @@ include $(TOP)/configure/CONFIG
 #=============================
 # Build the IOC application
 
+# This module must be built with c++17
 USR_CXXFLAGS += -std=c++17
 
 PROD_IOC = zaberMotion

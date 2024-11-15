@@ -67,8 +67,13 @@ export const build = async () => {
   // run make in all support modules
   await exec(`make -C ${EPICS_SUPPORT}/asyn`);
   await exec(`make -C ${EPICS_SUPPORT}/sequencer`);
+  build_motor();
+}
+
+export const build_motor = async () => {
   await exec(`make -C ${EPICS_SUPPORT}/motor`);
 }
+
 
 export const test = async () => {
   const zaberMotionTestPath = `${EPICS_SUPPORT}/motor/modules/motorZaberMotion/zaberMotionApp/test`;
