@@ -13,6 +13,7 @@ zaberMotionApp_DEPEND_DIRS += zaberMotionSupport
 ifeq ($(BUILD_IOCS), YES)
 DIRS += $(wildcard iocs)
 iocs_DEPEND_DIRS += zaberMotionApp
+iocs_DEPEND_DIRS += zaberMotionSupport
 endif
 
 # The build order is controlled by these dependency rules:

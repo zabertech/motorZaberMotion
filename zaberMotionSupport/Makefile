@@ -1,4 +1,4 @@
-TOP=../
+TOP=..
 include $(TOP)/configure/CONFIG
 #----------------------------------------
 #  ADD MACRO DEFINITIONS AFTER THIS LINE
@@ -13,6 +13,6 @@ LIB_INSTALLS += $(wildcard ZaberMotionCppSupport/lib/$(ZML_HOST_ARCH)/*)
 
 #=============================
 
-include $(TOP)/configure/RULES
+include $(TOP)/configure/RULES_DIRS
 #----------------------------------------
 #  ADD RULES AFTER THIS LINE
