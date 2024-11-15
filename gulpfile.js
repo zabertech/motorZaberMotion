@@ -84,6 +84,10 @@ export const build_motor = async () => {
   await exec(`make -C ${EPICS_SUPPORT}/motor`);
 }
 
+export const clean_motor = async () => {
+  await exec(`make realclean -C ${EPICS_SUPPORT}/motor`);
+}
+
 export const run_ioc = async () => {
   const iocBootFolder = `${EPICS_SUPPORT}/motor/modules/motorZaberMotion/iocs/zaberMotionIOC/iocBoot/iocZaberMotion`;
   await exec(`cd ${iocBootFolder} && ./st.cmd.${os.platform()}-${os_to_epics_arch()}`);

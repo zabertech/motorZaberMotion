@@ -3,16 +3,15 @@ include $(TOP)/configure/CONFIG
 #----------------------------------------
 #  ADD MACRO DEFINITIONS AFTER THIS LINE
 #=============================
-T_A = $(EPICS_HOST_ARCH)
 
 ifndef ZML_HOST_ARCH
-$(error "motorZaberMotion: Unsupported architecture: $(T_A)")
+$(error "motorZaberMotion: Unsupported architecture: $(EPICS_HOST_ARCH)")
 endif
 
 LIB_INSTALLS += $(wildcard ZaberMotionCppSupport/lib/$(ZML_HOST_ARCH)/*)
 
 #=============================
 
-include $(TOP)/configure/RULES_DIRS
+include $(TOP)/configure/RULES
 #----------------------------------------
 #  ADD RULES AFTER THIS LINE

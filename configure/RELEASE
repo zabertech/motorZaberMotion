@@ -1,4 +1,5 @@
 # RELEASE - Location of external support modules
+MOTOR_ZABER_MOTION = $(MOTOR)/modules/motorZaberMotion
 
 # Use motor/module's generated release file when buidling inside motor
 -include $(TOP)/../RELEASE.$(EPICS_HOST_ARCH).local
