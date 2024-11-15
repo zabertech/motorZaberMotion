@@ -35,6 +35,8 @@ CHECK_RELEASE = YES
 #HOST_OPT = NO
 #CROSS_OPT = NO
 
+# Include motorZaberMotion's CONFIG_SITE, as it contains support library paths
+include $(TOP)/../../configure/CONFIG_SITE
 # Include motor's CONFIG_SITE.local when building inside motor
 -include $(TOP)/../../../../configure/CONFIG_SITE.local
 # Include zaberMotionIOC's CONFIG_SITE.local when building inside zaberMotionIOC
