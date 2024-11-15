@@ -50,6 +50,9 @@ zaberMotion_SRCS_vxWorks += -nil-
 #zaberMotion_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
 
 # Link to zaber motion library
+# Note: if you are building and installing your own IOC which uses motorZaberMotion, you will
+# need to set your runtime library search path (-Wl,-rpath,$(XXX)) to wherever the libraries
+# will be installed: this is likely the location defined by: INSTALL_LOCATION_LIB
 USR_SYS_LIBS += zaber-motion
 USR_INCLUDES += -I$(ZML_SUPPORT_INCLUDE)
 USR_LDFLAGS += -L$(ZML_SUPPORT_LIB)
