@@ -8,7 +8,7 @@ ifndef ZML_HOST_ARCH
 $(error "motorZaberMotion: Unsupported architecture: $(EPICS_HOST_ARCH)")
 endif
 
-LIB_INSTALLS += $(wildcard ZaberMotionCppSupport/lib/$(ZML_HOST_ARCH)/*)
+LIB_INSTALLS += $(wildcard ../ZaberMotionCppSupport/lib/$(ZML_HOST_ARCH)/*)
 
 #=============================
 
