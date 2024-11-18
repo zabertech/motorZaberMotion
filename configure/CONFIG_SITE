@@ -35,9 +35,6 @@ CHECK_RELEASE = YES
 #HOST_OPT = NO
 #CROSS_OPT = NO
 
-# Configure env variables for linking to zaber motion support package
-MOTOR_ZABER_MOTION_SUPPORT=$(MOTOR_ZABER_MOTION)/zaberMotionSupport/ZaberMotionCppSupport
-
 # System architecture names copied from epics base-7.0.8.1/configure/CONFIG_SITE
 ifeq (windows-x64, $(findstring windows-x64, $(EPICS_HOST_ARCH)))
 ZML_HOST_ARCH  := win_x64
@@ -61,9 +58,6 @@ else ifeq (darwin-aarch64, $(findstring darwin-aarch64, $(EPICS_HOST_ARCH)))
 ZML_HOST_ARCH  := darwin_arm64
 
 endif
-
-ZML_SUPPORT_LIB     := $(MOTOR_ZABER_MOTION_SUPPORT)/lib/$(ZML_HOST_ARCH)
-ZML_SUPPORT_INCLUDE := $(MOTOR_ZABER_MOTION_SUPPORT)/include
 
 # These allow developers to override the CONFIG_SITE variable
 # settings without having to modify the configure/CONFIG_SITE
