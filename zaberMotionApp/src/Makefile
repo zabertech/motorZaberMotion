@@ -22,8 +22,7 @@ ZaberMotion_LIBS += $(EPICS_BASE_IOC_LIBS)
 DBD += zaberMotionSupport.dbd
 
 USR_SYS_LIBS += zaber-motion
-USR_INCLUDES += -I$(ZML_SUPPORT_INCLUDE)
-USR_LDFLAGS  += -L$(ZML_SUPPORT_LIB)
+USR_INCLUDES += -I../../../zaberMotionSupport/ZaberMotionCppSupport/include
 
 include $(TOP)/configure/RULES
 #----------------------------------------
