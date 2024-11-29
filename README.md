@@ -58,7 +58,7 @@ This section is intended to clarify implementation-specific details and limitati
 Can control either a linear or rotary axis. The units for all motion commands are microns for linear devices and degrees for rotary. Please keep this in mind when configuring motor records.
 
 __setPosition(position)__:
-zaberAxis does not implement setPosition.
+Implemented as specified. Performs unit conversion and calls `set pos <native_units>` as defined [here](https://www.zaber.com/protocol-manual#topic_setting_pos) in Zaber ASCII protocol
 
 __move(position, relative, minVelocity, maxVelocity, acceleration)__:
 Implemented as specified, except that `minVelocity` is ignored.

@@ -206,6 +206,19 @@ asynStatus zaberAxis::poll(bool *moving) {
     return status;
 }
 
+/**
+ * Set the position of the axis. Calls set pos defined in Zaber ASCII protocol.
+ *
+ * @param position The target position.
+ */
+asynStatus zaberAxis::setPosition(double position) {
+    std::function<asynStatus()> action = [this, position]() {
+        axis_.getSettings().set("pos", position, lengthUnit_);
+        return asynSuccess;
+    };
+    return zaber::epics::handleException(pC_->pasynUserSelf, action);
+}
+
 /* Private member functions */
 
 asynStatus zaberAxis::doAbsoluteMove(double position, double velocity, double acceleration) {
