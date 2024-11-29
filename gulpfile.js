@@ -1,8 +1,9 @@
 import childProcess from 'child_process';
+import { time } from 'console';
 import { promises as fsp } from 'fs';
 import os from 'os';
 
-const ZML_VERSION = '7.2.0';
+const ZML_VERSION = '7.2.1';
 
 const EPICS_BASE = process.env.EPICS_BASE;
 const EPICS_SUPPORT = `${process.env.HOME}/EPICS/support`;
@@ -24,10 +25,11 @@ const exec = (command) => new Promise((resolve, reject) => {
 });
 
 export const update_support_package = async () => {
+  const url = `https://www.zaber.com/support/software-downloads.php\\?product\\=zml_cpp_support\\&version\\=${ZML_VERSION}`;
   const localDestination = `zaberMotionSupport/ZaberMotionCppSupport-${ZML_VERSION}.zip`;
 
   await fsp.rm('zaberMotionSupport/ZaberMotionCppSupport', { recursive: true }).catch(() => false);
-  await exec(`aws s3 cp s3://026596715358-us-west-2-production--downloads/downloads/ZML/CPP/${ZML_VERSION}/ZaberMotionCppSupport-${ZML_VERSION}.zip ${localDestination}`);
+  await exec(`curl -L -o ${localDestination} ${url}`);
   await exec(`unzip ${localDestination} -d zaberMotionSupport`);
   await fsp.rm(localDestination);
 }
