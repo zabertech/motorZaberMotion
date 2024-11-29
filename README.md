@@ -94,4 +94,4 @@ The following is an overview of which status flags are set during polling, and w
 Please note that profile moves have not been implemented for `zaberController`.
 
 ### Contact
-For any comments or concerns, please contact us at `software@zaber.com`
+For any comments or concerns, please contact us at `contact@zaber.com`
