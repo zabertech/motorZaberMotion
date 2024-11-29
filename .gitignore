@@ -20,4 +20,5 @@ auto_positions.sav*
 
 node_modules/
 **/.DS_Store
+**/.iocsh_history
 
