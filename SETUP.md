@@ -29,11 +29,11 @@ your-workfolder
 
 - install `libntirpc-dev` and `re2c` (check `images/epics_ubuntu.Dockerfile` for any other dependencies you might not have)
 - In the motor repository, add the [motorZaberMotion](https://gitlab.izaber.com/colby.sparks/zaber-motor-epics) repo as a submodule at the path: `modules/motorZaberMotion`.
-- Open the motorZaberMotion folder in a shell and run: `npm install` and then `npx gulp build`. This will perform the steps listed in manual setup below.
+- Open the motorZaberMotion folder in a shell and run: `npm install` and then `npx gulp build`. This will perform the steps listed in explicit configuration steps below.
 - Run unit tests with `npx gulp test`
 
-__What  (for documentation only)__
-For documentation's sake, below are the configuration and build steps performed by the `npx gulp build` command.
+__Explicit Configuration Steps__
+For documentation's sake, or for users who do not wish to install node and npm, below are the configuration and build steps performed by the `npx gulp build` command.
 
 - In the asyn, motor and sequencer repositories, navigate to the file `./configure/RELEASE`, and set `SUPPORT` and `EPICS_BASE` to their respective global filesystem paths (ie. path to support and epics-base folders). Additionally, in the motor repo, set `ASYN` and `SNCSEQ` env variables to the global paths of `asyn` and `sequencer` folders.
 - in asyn repository, go to `./configure/CONFIG_SITE` and uncomment the line: `# TIRPC=YES`

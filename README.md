@@ -28,6 +28,14 @@ While ZML itself supports windows, linux and macOS, this module only officially 
 
 Even though Windows is not officially supported, we include our Windows dlls in `zaberMotionSupport/ZaberMotionCppSupport` just in case. If you would like us to add official support for Windows, please let us know!
 
+Darwin users must add the following to the `configure/CONFIG_SITE` of any IOC which uses this module (example in `iocs/configure/CONFIG_SITE`):
+```makefile
+ifneq ($(filter darwin-%, $(T_A)),)
+PRODDIR_RPATH_LDFLAGS_YES += $(PROD_DEPLIB_DIRS:%=-Wl,-rpath,%)
+PRODDIR_LDFLAGS += $(PRODDIR_RPATH_LDFLAGS_$(LINKER_USE_RPATH))
+endif
+```
+
 ## Documentation
 
 This module provides a single implementation of both `asynMotorController` and `asynMotorAxis`, which can be used for both rotary and linear devices.
@@ -48,6 +56,9 @@ This section is intended to clarify implementation-specific details and limitati
 
 #### zaberAxis
 Can control either a linear or rotary axis. The units for all motion commands are microns for linear devices and degrees for rotary. Please keep this in mind when configuring motor records.
+
+__setPosition(position)__:
+zaberAxis does not implement setPosition.
 
 __move(position, relative, minVelocity, maxVelocity, acceleration)__:
 Implemented as specified, except that `minVelocity` is ignored.
