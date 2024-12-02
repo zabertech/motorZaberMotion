@@ -8,6 +8,7 @@
 #include <zaber/motion/dto/ascii/device_identity.h>
 
 #include "zaberConnectionManager.h"
+#include "zaberUtils.h"
 
 #define PROFILE_MOVE_ERR_STR "Zaber Motion Error: Profile moves not implemented for zaberController\n"
 
@@ -38,10 +39,13 @@ zaberController::zaberController(const char *portName, int numAxes, double movin
 }
 
 void zaberController::report(FILE *fp, int level) {
-    fprintf(fp, "Zaber Motion Controller: %s\n", this->portName);
-    fprintf(fp, "  Zaber Device Info: %s\n", device_.toString().c_str());
-    fprintf(fp, "  EPICS Num Axes: %d\n", numAxes_);
-
+    std::function<asynStatus()> action = [this, fp]() {
+        fprintf(fp, "Zaber Motion Controller: %s\n", this->portName);
+        fprintf(fp, "  Zaber Device Info: %s\n", device_.toString().c_str());
+        fprintf(fp, "  EPICS Num Axes: %d\n", numAxes_);
+        return asynSuccess;
+    };
+    ze::handleException(this->pasynUserSelf, action);
     asynMotorController::report(fp, level);
  }
 
