@@ -42,43 +42,52 @@ zaberAxis::zaberAxis(zaberController *pC, int axisNo) :
         asynMotorAxis(pC, axisNo) {
     pC_ = pC;
     axis_ = pC->getDeviceAxis(axisNo);
-
-    switch(axis_.getAxisType()) {
-        case zml::ascii::AxisType::LINEAR:
-            lengthUnit_ = zml::Units::LENGTH_MICROMETRES;
-            velocityUnit_ = zml::Units::VELOCITY_MICROMETRES_PER_SECOND;
-            accelUnit_ = zml::Units::ACCELERATION_MICROMETRES_PER_SECOND_SQUARED;
-            break;
-        case zml::ascii::AxisType::ROTARY:
-            lengthUnit_ = zml::Units::ANGLE_DEGREES;
-            velocityUnit_ = zml::Units::ANGULAR_VELOCITY_DEGREES_PER_SECOND;
-            accelUnit_ = zml::Units::ANGULAR_ACCELERATION_DEGREES_PER_SECOND_SQUARED;
-            break;
-        default:
-            printf("Zaber Motion Error: Unsupported axis type -- %s\n", zml::ascii::AxisType_toString(axis_.getAxisType()).c_str());
-            printf("Please refer to the documentation on supported axis types\n");
-            break;
-    }
+    std::function<asynStatus()> action = [this]() {
+        asynStatus status = asynSuccess;
+        switch(axis_.getAxisType()) {
+            case zml::ascii::AxisType::LINEAR:
+                lengthUnit_ = zml::Units::LENGTH_MICROMETRES;
+                velocityUnit_ = zml::Units::VELOCITY_MICROMETRES_PER_SECOND;
+                accelUnit_ = zml::Units::ACCELERATION_MICROMETRES_PER_SECOND_SQUARED;
+                break;
+            case zml::ascii::AxisType::ROTARY:
+                lengthUnit_ = zml::Units::ANGLE_DEGREES;
+                velocityUnit_ = zml::Units::ANGULAR_VELOCITY_DEGREES_PER_SECOND;
+                accelUnit_ = zml::Units::ANGULAR_ACCELERATION_DEGREES_PER_SECOND_SQUARED;
+                break;
+            default:
+                printf("Zaber Motion Error: Unsupported axis type -- %s\n", zml::ascii::AxisType_toString(axis_.getAxisType()).c_str());
+                printf("Please refer to the documentation on supported axis types\n");
+                status = asynError;
+                break;
+        }
+        return status;
+    };
+    zaber::epics::handleException(pC_->pasynUserSelf, action);
 }
 
 zaberAxis::~zaberAxis() {}
 
 void zaberAxis::report(FILE *fp, int details) {
-    fprintf(fp, "  Zaber Motion Axis: %d\n", axisNo_);
-    fprintf(fp, "    %s\n", axis_.toString().c_str());
+    std::function<asynStatus()> action = [this, fp, details]() {
+        fprintf(fp, "  Zaber Motion Axis: %d\n", axisNo_);
+        fprintf(fp, "    %s\n", axis_.toString().c_str());
 
-    if(details > 0) {
-        double velocity, position, acceleration;
-        pC_->lock();
-        pC_->getDoubleParam(pC_->motorVelocity_, &velocity);
-        pC_->getDoubleParam(pC_->motorPosition_, &position);
-        pC_->getDoubleParam(pC_->motorAccel_, &acceleration);
-        pC_->unlock();
+        if(details > 0) {
+            double velocity, position, acceleration;
+            pC_->lock();
+            pC_->getDoubleParam(pC_->motorVelocity_, &velocity);
+            pC_->getDoubleParam(pC_->motorPosition_, &position);
+            pC_->getDoubleParam(pC_->motorAccel_, &acceleration);
+            pC_->unlock();
 
-        fprintf(fp, "    Position: %f\n", position);
-        fprintf(fp, "    Velocity: %f\n", velocity);
-        fprintf(fp, "    Acceleration: %f\n", acceleration);
-    }
+            fprintf(fp, "    Position: %f\n", position);
+            fprintf(fp, "    Velocity: %f\n", velocity);
+            fprintf(fp, "    Acceleration: %f\n", acceleration);
+        }
+        return asynSuccess;
+    };
+    zaber::epics::handleException(pC_->pasynUserSelf, action);
 }
 
 /**
@@ -169,7 +178,7 @@ asynStatus zaberAxis::stop(double acceleration) {
  * Detailed information on polling status updates can be found in project README
  */
 asynStatus zaberAxis::poll(bool *moving) {
-    std::function<asynStatus(void)> action = [this, &moving]() {
+    std::function<asynStatus()> action = [this, &moving]() {
         *moving = axis_.isBusy();
         setIntegerParam(pC_->motorStatusDone_, static_cast<int>(!*moving));
         setIntegerParam(pC_->motorStatusMoving_, static_cast<int>(*moving));

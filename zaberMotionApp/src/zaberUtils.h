@@ -17,10 +17,10 @@ inline asynStatus handleException(
     try {
         status = action();
     } catch (const zml::exceptions::MotionLibException &e) {
-        asynPrint(usr, ASYN_TRACE_ERROR, "Zaber Motion Library Error: %s", e.what());
+        asynPrint(usr, ASYN_TRACE_ERROR, "Zaber Motion Library Error: %s\n", e.what());
         status = asynError;
     } catch (const std::exception &e) {
-        asynPrint(usr, ASYN_TRACE_ERROR, "Zaber Motion Motor Error: %s", e.what());
+        asynPrint(usr, ASYN_TRACE_ERROR, "Zaber Motion Motor Error: %s\n", e.what());
         status = asynError;
     }
 

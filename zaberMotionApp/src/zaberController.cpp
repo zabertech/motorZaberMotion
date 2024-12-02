@@ -29,7 +29,7 @@ zaberController::zaberController(const char *portName, int numAxes, double movin
         device_ = connection_->getDevice(deviceNumber);
         device_.identify();
     } catch(const std::exception &e) {
-        fprintf(stderr, "zaberController: Connection failed\n\t%s\n", e.what());
+        fprintf(stderr, "zaberController: Initialization failed\n\t%s\n", e.what());
     }
     for(int i = 0; i < numAxes; i++) {
         new zaberAxis(this, i);
