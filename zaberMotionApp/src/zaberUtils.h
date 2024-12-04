@@ -4,30 +4,37 @@
 #include <asynDriver.h>
 #include <functional>
 #include <iostream>
+#include <zaber/motion/exceptions/motion_lib_exception.h>
+
+namespace zml = zaber::motion;
 
 namespace zaber {
 namespace epics {
 
-inline asynStatus performAction(
-	const std::function<asynStatus()> &action, const std::function<void()> &onError = nullptr) {
-	asynStatus status = asynSuccess;
-	try {
-		status = action();
-	} catch(const std::exception &e) {
-		std::cerr << "Zaber Motion Error: " << e.what() << std::endl;
-		status = asynError;
-	}
+inline asynStatus handleException(
+    asynUser *usr, const std::function<asynStatus()> &action, const std::function<void()> &onError = nullptr) {
+    asynStatus status = asynSuccess;
+    try {
+        status = action();
+    } catch (const zml::exceptions::MotionLibException &e) {
+        asynPrint(usr, ASYN_TRACE_ERROR, "Zaber Motion Library Error: %s\n", e.what());
+        status = asynError;
+    } catch (const std::exception &e) {
+        asynPrint(usr, ASYN_TRACE_ERROR, "Zaber Motion Motor Error: %s\n", e.what());
+        status = asynError;
+    }
 
-	if(status != asynSuccess && onError) {
-		try {
-			onError();
-		} catch(const std::exception &e) {
-			// if onError callback fails, do it silently (the user doesn't need to know)
-		}
-	}
-	return status;
+    if (status != asynSuccess && onError) {
+        try {
+            onError();
+        } catch (const std::exception &e) {
+            // if onError callback throws exception, do it silently (the user doesn't need to know)
+        }
+    }
+    return status;
 }
 
-} // namespace motion
+} // namespace epics
 } // namespace zaber
+
 #endif

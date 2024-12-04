@@ -16,3 +16,9 @@ auto_settings.sav*
 auto_positions.sav*
 .ccfxprepdir/
 *.local
+.vscode/
+
+node_modules/
+**/.DS_Store
+**/.iocsh_history
+

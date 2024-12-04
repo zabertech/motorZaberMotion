@@ -1,0 +1,2 @@
+# Build the example IOC
+BUILD_IOCS=YES

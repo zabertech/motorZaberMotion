@@ -8,6 +8,14 @@
 #   CONFIG_SITE.Common.$(T_A)
 #   CONFIG_SITE.$(EPICS_HOST_ARCH).$(T_A)
 
+# Note that darwin users MUST add this to the CONFIG_SITE of any IOC which
+# uses the motorZaberMotion module
+ifneq ($(filter darwin-%, $(T_A)),)
+$(info darwin detected, adding -undefined dynamic_lookup to LDFLAGS)
+PRODDIR_RPATH_LDFLAGS_YES += $(PROD_DEPLIB_DIRS:%=-Wl,-rpath,%)
+PRODDIR_LDFLAGS += $(PRODDIR_RPATH_LDFLAGS_$(LINKER_USE_RPATH))
+endif
+
 # CHECK_RELEASE controls the consistency checking of the support
 #   applications pointed to by the RELEASE* files.
 # Normally CHECK_RELEASE should be set to YES.
