@@ -1,0 +1,14 @@
+{
+  "name": "motor-zaber-motion",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "scripting for updating zaber EPICS motor module support",
+  "directories": {
+    "doc": "docs"
+  },
+  "author": "Zaber Motion",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^5.0.0"
+  }
+}

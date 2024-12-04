@@ -19,3 +19,6 @@ auto_positions.sav*
 .vscode/
 
 node_modules/
+**/.DS_Store
+**/.iocsh_history
+
