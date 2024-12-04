@@ -14,6 +14,10 @@ motorZaberMotion contains an example IOC that is built if ``CONFIG_SITE.local`` 
 
 This module makes use of [Zaber Motion Library](https://software.zaber.com/motion-library/docs) (ZML), which requires c++17 or greater. For this reason, any epics IOC which uses this motor module must also be compiled with at least c++17.
 
+### Build
+
+If this is your first time building an EPICS motor module, you can refer to the build instructions in SETUP.md, ignoring the npm-related instructions and instead using the explicit build steps.
+
 ### ZML Device Database
 
 Typically, ZML requires internet connectivity to identify devices: when identifying a device it will query a database service to retrieve important information such as device names, settings and conversion factors between device native units and real world units. If you would prefer that your IOC not be connected to the internet, this module exposes an ioc shell function for setting a local copy of the db (more on this in the ioc shell function section below).

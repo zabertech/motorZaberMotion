@@ -29,8 +29,11 @@ your-workfolder
 
 - install `libntirpc-dev` and `re2c` (check `images/epics_ubuntu.Dockerfile` for any other dependencies you might not have)
 - In the motor repository, add the [motorZaberMotion](https://gitlab.izaber.com/colby.sparks/zaber-motor-epics) repo as a submodule at the path: `modules/motorZaberMotion`.
+
+__Automated Configuration with NPM__
+- Install node and npm
 - Open the motorZaberMotion folder in a shell and run: `npm install` and then `npx gulp build`. This will perform the steps listed in explicit configuration steps below.
-- Run unit tests with `npx gulp test`
+- You can run unit tests with `npx gulp test`
 
 __Explicit Configuration Steps__
 For documentation's sake, or for users who do not wish to install node and npm, below are the configuration and build steps performed by the `npx gulp build` command.
