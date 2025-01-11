@@ -2,11 +2,12 @@ import childProcess from 'child_process';
 import { time } from 'console';
 import { promises as fsp } from 'fs';
 import os from 'os';
+import path from 'path';
 
 const ZML_VERSION = '7.2.1';
 
 const EPICS_BASE = process.env.EPICS_BASE;
-const EPICS_SUPPORT = `${process.env.HOME}/EPICS/support`;
+const EPICS_SUPPORT = path.normalize(`${EPICS_BASE}/../support`);
 
 const os_to_epics_arch = () => {
   const arch = os.arch();
