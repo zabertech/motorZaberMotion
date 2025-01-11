@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # c++
 RUN apt-get update && apt-get install -y bash curl wget
-RUN apt-get install -y build-essential cmake git libreadline-dev libntirpc-dev re2c
+RUN apt-get install -y build-essential cmake git libreadline-dev re2c
 
 # js
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && apt-get install -y nodejs
