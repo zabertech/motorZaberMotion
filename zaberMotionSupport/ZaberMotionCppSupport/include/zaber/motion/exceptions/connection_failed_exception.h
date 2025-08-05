@@ -19,6 +19,8 @@ namespace zaber
             public:
                 ConnectionFailedException(const std::string& message);
                 virtual ~ConnectionFailedException() = default;
+            protected:
+                ConnectionFailedException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

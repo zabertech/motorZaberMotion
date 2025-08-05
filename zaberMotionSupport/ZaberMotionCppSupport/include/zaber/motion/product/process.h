@@ -8,28 +8,27 @@
 #include <utility>
 #include <vector>
 
-#include "zaber/motion/ascii/device.h"
-#include "zaber/motion/product/process_controller.h"
-#include "zaber/motion/dto/product/process_controller_mode.h"
-#include "zaber/motion/dto/product/process_controller_source.h"
-#include "zaber/motion/units.h"
 #include "zaber/motion/ascii/axis_settings.h"
+#include "zaber/motion/ascii/device.h"
 #include "zaber/motion/ascii/storage.h"
 #include "zaber/motion/ascii/warnings.h"
+#include "zaber/motion/dto/ascii/response.h"
 #include "zaber/motion/dto/measurement.h"
+#include "zaber/motion/dto/measurement.h"
+#include "zaber/motion/dto/product/process_controller_mode.h"
+#include "zaber/motion/dto/product/process_controller_source.h"
+#include "zaber/motion/product/process_controller.h"
+#include "zaber/motion/units.h"
 
 
 namespace zaber {
 namespace motion {
-
-class Measurement;
 
 namespace ascii {
 class Axis;
 class AxisSettings;
 class AxisStorage;
 class Warnings;
-class Response;
 }
 
 namespace product {
@@ -44,6 +43,7 @@ class Process {
     using AxisStorage = zaber::motion::ascii::AxisStorage;
     using Warnings = zaber::motion::ascii::Warnings;
     using Response = zaber::motion::ascii::Response;
+    using SetStateAxisResponse = zaber::motion::ascii::SetStateAxisResponse;
 public:
   struct GenericCommandOptions {
     // Controls whether to throw an exception when the device rejects the command.
@@ -59,6 +59,12 @@ public:
     // The timeout, in milliseconds, for a device to respond to the command.
     // Overrides the connection default request timeout.
     int timeout {0};
+  };
+
+  struct CanSetStateOptions {
+    // The firmware version of the device to apply the state to.
+    // Use this to ensure the state will still be compatible after an update.
+    std::optional<FirmwareVersion> firmwareVersion {};
   };
 
     Process(ProcessController controller, int processNumber);
@@ -192,23 +198,38 @@ public:
     /**
      * Applies a saved state to this process.
      * @param state The state object to apply to this process.
+     * @return Reports of any issues that were handled, but caused the state to not be exactly restored.
      */
-    void setState(const std::string& state);
+    SetStateAxisResponse setState(const std::string& state);
 
     /**
      * Checks if a state can be applied to this process.
      * This only covers exceptions that can be determined statically such as mismatches of ID or version,
      * the process of applying the state can still fail when running.
      * @param state The state object to check against.
+     * @param firmwareVersion The firmware version of the device to apply the state to.
+     * Use this to ensure the state will still be compatible after an update.
      * @return An explanation of why this state cannot be set to this process.
      */
-    std::optional<std::string> canSetState(const std::string& state);
+    std::optional<std::string> canSetState(const std::string& state, const std::optional<FirmwareVersion>& firmwareVersion = {});
+
+    /**
+     * Checks if a state can be applied to this process.
+     * This only covers exceptions that can be determined statically such as mismatches of ID or version,
+     * the process of applying the state can still fail when running.
+     * @param state The state object to check against.
+     * @param options A struct of type CanSetStateOptions. It has the following members:
+     * * `firmwareVersion`: The firmware version of the device to apply the state to.
+     *   Use this to ensure the state will still be compatible after an update.
+     * @return An explanation of why this state cannot be set to this process.
+     */
+    std::optional<std::string> canSetState(const std::string& state, const Process::CanSetStateOptions& options);
 
     /**
      * Returns a string that represents the process.
      * @return A string that represents the process.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * Controller for this process.

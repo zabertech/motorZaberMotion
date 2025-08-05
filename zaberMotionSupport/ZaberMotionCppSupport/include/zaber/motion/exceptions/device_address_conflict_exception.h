@@ -28,6 +28,9 @@ namespace zaber
                 DeviceAddressConflictExceptionData const & getDetails() const;
             private:
                 DeviceAddressConflictExceptionData details;
+            protected:
+                DeviceAddressConflictException(const MotionLibException::ExceptionInfo& info, const std::string &customData);
+                DeviceAddressConflictException(const MotionLibException::ExceptionInfo& info, const DeviceAddressConflictExceptionData &&customData);
             };
         }
     }

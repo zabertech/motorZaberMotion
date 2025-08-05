@@ -28,6 +28,9 @@ namespace zaber
                 PvtMovementFailedExceptionData const & getDetails() const;
             private:
                 PvtMovementFailedExceptionData details;
+            protected:
+                PvtMovementFailedException(const MotionLibException::ExceptionInfo& info, const std::string &customData);
+                PvtMovementFailedException(const MotionLibException::ExceptionInfo& info, const PvtMovementFailedExceptionData &&customData);
             };
         }
     }

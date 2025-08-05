@@ -49,6 +49,18 @@ public:
     static void disableDeviceDbStore();
 
     /**
+     * Checks if the Device DB store is currently enabled.
+     * @return True if the Device DB store is enabled.
+     */
+    static bool isDeviceDbStoreEnabled();
+
+    /**
+     * Clears the Device DB store on the local filesystem.
+     * Note: If the device DB was enabled with a custom store location, store files will be removed in that location.
+     */
+    static void clearDeviceDbStore();
+
+    /**
      * Disables certain customer checks (like FF flag).
      * @param mode Whether to turn internal mode on or off.
      */

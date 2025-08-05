@@ -5,6 +5,8 @@
 
 #include "zaber/motion/units.h"
 #include "zaber/motion/dto/gcode/translator_config.h"
+#include "zaber/motion/dto/gcode/device_definition.h"
+#include "zaber/motion/dto/gcode/translate_result.h"
 #include <initializer_list>
 #include <string>
 #include <utility>
@@ -15,14 +17,11 @@ namespace zaber {
 namespace motion {
 
 namespace ascii {
+/* Forward Declarations */
 class Device;
 }
 
 namespace gcode {
-
-/* Forward Declarations */
-class DeviceDefinition;
-class TranslateResult;
 
 
 /**

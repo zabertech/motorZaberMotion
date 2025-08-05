@@ -19,6 +19,8 @@ namespace zaber
             public:
                 ConversionFailedException(const std::string& message);
                 virtual ~ConversionFailedException() = default;
+            protected:
+                ConversionFailedException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

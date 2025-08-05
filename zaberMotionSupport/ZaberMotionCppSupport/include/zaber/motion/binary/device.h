@@ -4,26 +4,23 @@
 #pragma once
 
 #include <string>
+#include <optional>
 
-#include "zaber/motion/units.h"
 #include "zaber/motion/binary/connection.h"
+#include "zaber/motion/dto/binary/binary_settings.h"
+#include "zaber/motion/dto/binary/command_code.h"
+#include "zaber/motion/dto/binary/device_identity.h"
+#include "zaber/motion/dto/binary/device_type.h"
+#include "zaber/motion/dto/binary/message.h"
+#include "zaber/motion/dto/firmware_version.h"
+#include "zaber/motion/units.h"
 
 
 namespace zaber {
 namespace motion {
-
-/* Forward Declarations */
-class FirmwareVersion;
-
-
 namespace binary {
 
 /* Forward Declarations */
-enum class BinarySettings;
-enum class CommandCode;
-enum class DeviceType;
-class DeviceIdentity;
-class Message;
 class DeviceSettings;
 
 /**
@@ -70,6 +67,13 @@ public:
   struct MoveRelativeOptions {
     // Number of seconds to wait for response from the device chain (defaults to 60s).
     double timeout {DEFAULT_MOVEMENT_TIMEOUT};
+  };
+
+  struct IdentifyOptions {
+    // The identification assumes the specified firmware version
+    // instead of the version queried from the device.
+    // Providing this argument can lead to unexpected compatibility issues.
+    std::optional<FirmwareVersion> assumeVersion {};
   };
 
     Device(BaseConnection connection, int deviceAddress);
@@ -228,9 +232,24 @@ public:
      * Queries the device and the database, gathering information about the product.
      * Without this information features such as unit conversions will not work.
      * Usually, called automatically by detect devices method.
+     * @param assumeVersion The identification assumes the specified firmware version
+     * instead of the version queried from the device.
+     * Providing this argument can lead to unexpected compatibility issues.
      * @return Device identification data.
      */
-    DeviceIdentity identify();
+    DeviceIdentity identify(const std::optional<FirmwareVersion>& assumeVersion = {});
+
+    /**
+     * Queries the device and the database, gathering information about the product.
+     * Without this information features such as unit conversions will not work.
+     * Usually, called automatically by detect devices method.
+     * @param options A struct of type IdentifyOptions. It has the following members:
+     * * `assumeVersion`: The identification assumes the specified firmware version
+     *   instead of the version queried from the device.
+     *   Providing this argument can lead to unexpected compatibility issues.
+     * @return Device identification data.
+     */
+    DeviceIdentity identify(const Device::IdentifyOptions& options);
 
     /**
      * Parks the axis.
@@ -264,7 +283,7 @@ public:
      * Returns a string that represents the device.
      * @return A string that represents the device.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * Connection of this device.

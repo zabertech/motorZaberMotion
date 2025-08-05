@@ -28,6 +28,9 @@ namespace zaber
                 SetPeripheralStateExceptionData const & getDetails() const;
             private:
                 SetPeripheralStateExceptionData details;
+            protected:
+                SetPeripheralStateFailedException(const MotionLibException::ExceptionInfo& info, const std::string &customData);
+                SetPeripheralStateFailedException(const MotionLibException::ExceptionInfo& info, const SetPeripheralStateExceptionData &&customData);
             };
         }
     }

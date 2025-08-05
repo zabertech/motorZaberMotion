@@ -20,6 +20,8 @@ namespace zaber
             public:
                 InvalidRequestDataException(const std::string& message);
                 virtual ~InvalidRequestDataException() = default;
+            protected:
+                InvalidRequestDataException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

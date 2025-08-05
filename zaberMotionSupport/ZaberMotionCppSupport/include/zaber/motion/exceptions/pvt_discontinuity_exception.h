@@ -19,6 +19,8 @@ namespace zaber
             public:
                 PvtDiscontinuityException(const std::string& message);
                 virtual ~PvtDiscontinuityException() = default;
+            protected:
+                PvtDiscontinuityException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

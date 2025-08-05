@@ -19,6 +19,8 @@ namespace zaber
             public:
                 InvalidArgumentException(const std::string& message);
                 virtual ~InvalidArgumentException() = default;
+            protected:
+                InvalidArgumentException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

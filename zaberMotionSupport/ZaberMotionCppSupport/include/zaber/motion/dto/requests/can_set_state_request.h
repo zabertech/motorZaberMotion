@@ -4,8 +4,10 @@
 #pragma once
 
 #include <string>
+#include <optional>
 
 #include "zaber/motion/dto/serializable.h"
+#include "zaber/motion/dto/firmware_version.h"
 
 namespace zaber {
 namespace motion {
@@ -17,8 +19,17 @@ public:
     int device {0};
     int axis {0};
     std::string state;
+    std::optional<FirmwareVersion> firmwareVersion;
 
     CanSetStateRequest();
+
+    CanSetStateRequest(
+        int p_interfaceId,
+        int p_device,
+        int p_axis,
+        std::string p_state,
+        std::optional<FirmwareVersion> p_firmwareVersion
+    );
 
     CanSetStateRequest(
         int p_interfaceId,
@@ -44,6 +55,9 @@ public:
 
     std::string const& getState() const;
     void setState(std::string p_state);
+
+    std::optional<FirmwareVersion> const& getFirmwareVersion() const;
+    void setFirmwareVersion(std::optional<FirmwareVersion> p_firmwareVersion);
 
     /**
      * Convert object to human-readable string format

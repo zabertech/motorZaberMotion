@@ -19,6 +19,8 @@ namespace zaber
             public:
                 DeviceDetectionFailedException(const std::string& message);
                 virtual ~DeviceDetectionFailedException() = default;
+            protected:
+                DeviceDetectionFailedException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

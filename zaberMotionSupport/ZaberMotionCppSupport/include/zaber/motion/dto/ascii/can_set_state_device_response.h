@@ -23,17 +23,17 @@ namespace ascii {
 class CanSetStateDeviceResponse: public Serializable {
 public:
     std::optional<std::string> error;
-    std::vector<CanSetStateAxisResponse> axisErrors;
+    std::vector<CanSetStateAxisResponse> axisResponses;
 
     CanSetStateDeviceResponse();
 
     CanSetStateDeviceResponse(
         std::optional<std::string> p_error,
-        std::vector<CanSetStateAxisResponse> p_axisErrors
+        std::vector<CanSetStateAxisResponse> p_axisResponses
     );
 
     CanSetStateDeviceResponse(
-        std::vector<CanSetStateAxisResponse> p_axisErrors
+        std::vector<CanSetStateAxisResponse> p_axisResponses
     );
 
     bool operator==(const CanSetStateDeviceResponse& other) const;
@@ -43,16 +43,17 @@ public:
     }
 
     /**
-     * The error blocking applying this state to the given device.
+     * The error blocking applying this state to the given device, or null if there is no error.
      */
     std::optional<std::string> const& getError() const;
     void setError(std::optional<std::string> p_error);
 
     /**
-     * A list of errors that block setting state of device's axes.
+     * A list of axis responses, potentially with messages for errors
+     * which would block setting the state of the device's axes.
      */
-    std::vector<CanSetStateAxisResponse> const& getAxisErrors() const;
-    void setAxisErrors(std::vector<CanSetStateAxisResponse> p_axisErrors);
+    std::vector<CanSetStateAxisResponse> const& getAxisResponses() const;
+    void setAxisResponses(std::vector<CanSetStateAxisResponse> p_axisResponses);
 
     /**
      * Convert object to human-readable string format

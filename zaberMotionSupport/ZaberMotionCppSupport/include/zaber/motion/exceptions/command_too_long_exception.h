@@ -28,6 +28,9 @@ namespace zaber
                 CommandTooLongExceptionData const & getDetails() const;
             private:
                 CommandTooLongExceptionData details;
+            protected:
+                CommandTooLongException(const MotionLibException::ExceptionInfo& info, const std::string &customData);
+                CommandTooLongException(const MotionLibException::ExceptionInfo& info, const CommandTooLongExceptionData &&customData);
             };
         }
     }

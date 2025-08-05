@@ -82,7 +82,7 @@ public:
      * Returns a string that represents the microscope.
      * @return A string that represents the microscope.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * Connection of the microscope.

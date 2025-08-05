@@ -14,6 +14,7 @@ cd "${TOP}/iocBoot/${IOC}"
 ##
 < dbPath.cmd.zaber
 < motor.cmd.zaber
+< profile.cmd.zaber
 
 iocInit
 

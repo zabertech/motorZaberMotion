@@ -3,22 +3,20 @@
 
 #pragma once
 
-#include "zaber/motion/units.h"
-#include "zaber/motion/dto/rotation_direction.h"
-#include "zaber/motion/dto/ascii/stream_mode.h"
-#include "zaber/motion/dto/ascii/stream_axis_definition.h"
 #include "zaber/motion/ascii/device.h"
 #include "zaber/motion/ascii/stream_io.h"
 #include "zaber/motion/dto/ascii/digital_output_action.h"
+#include "zaber/motion/dto/ascii/stream_axis_definition.h"
+#include "zaber/motion/dto/ascii/stream_mode.h"
+#include "zaber/motion/dto/measurement.h"
+#include "zaber/motion/dto/rotation_direction.h"
+#include "zaber/motion/units.h"
 #include <string>
 #include <vector>
 
 
 namespace zaber {
 namespace motion {
-
-class Measurement;
-
 namespace ascii {
 
 /* Forward Declarations */
@@ -385,7 +383,7 @@ public:
      * Returns a string which represents the stream.
      * @return String which represents the stream.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * Disables the stream.

@@ -9,13 +9,11 @@
 
 #include "zaber/motion/dto/ascii/io_port_type.h"
 #include "zaber/motion/dto/ascii/oscilloscope_data_source.h"
+#include "zaber/motion/dto/ascii/oscilloscope_capture_properties.h"
 
 namespace zaber {
 namespace motion {
 namespace ascii {
-
-/* Forward Declarations */
-class OscilloscopeCaptureProperties; // Defined in ascii/oscilloscope_capture_properties.h
 
 
 /**

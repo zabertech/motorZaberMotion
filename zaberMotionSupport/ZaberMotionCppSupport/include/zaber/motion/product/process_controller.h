@@ -59,7 +59,7 @@ public:
      * Returns a string that represents the device.
      * @return A string that represents the device.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * The base device of this process controller.

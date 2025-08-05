@@ -107,7 +107,7 @@ public:
      * Returns a string that represents the axes.
      * @return A string that represents the axes.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * Axes of the group.

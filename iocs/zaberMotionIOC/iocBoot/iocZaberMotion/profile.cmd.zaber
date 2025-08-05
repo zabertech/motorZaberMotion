@@ -1,0 +1,9 @@
+dbLoadTemplate("motor.substitutions.zaber")
+
+###
+# ZaberControllerCreateProfile(
+#    asyn motor port (must already be created),
+#    num points,
+# )
+###
+ZaberControllerCreateProfile("EMCC1", 10)

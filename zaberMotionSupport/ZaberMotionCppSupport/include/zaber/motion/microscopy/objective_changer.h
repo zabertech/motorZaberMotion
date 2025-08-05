@@ -15,6 +15,7 @@ namespace zaber {
 namespace motion {
 
 namespace ascii {
+/* Forward Declarations */
 class Axis;
 }
 
@@ -138,7 +139,7 @@ public:
      * Returns a string that represents the device.
      * @return A string that represents the device.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * Device address of the turret.

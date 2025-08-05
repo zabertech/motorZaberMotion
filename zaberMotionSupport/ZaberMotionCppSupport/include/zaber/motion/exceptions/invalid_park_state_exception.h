@@ -19,6 +19,8 @@ namespace zaber
             public:
                 InvalidParkStateException(const std::string& message);
                 virtual ~InvalidParkStateException() = default;
+            protected:
+                InvalidParkStateException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

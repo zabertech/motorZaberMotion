@@ -19,6 +19,8 @@ namespace zaber
             public:
                 PvtSetupFailedException(const std::string& message);
                 virtual ~PvtSetupFailedException() = default;
+            protected:
+                PvtSetupFailedException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

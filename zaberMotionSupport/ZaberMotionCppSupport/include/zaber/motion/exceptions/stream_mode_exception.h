@@ -19,6 +19,8 @@ namespace zaber
             public:
                 StreamModeException(const std::string& message);
                 virtual ~StreamModeException() = default;
+            protected:
+                StreamModeException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

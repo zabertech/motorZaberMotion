@@ -33,6 +33,11 @@ public:
     bool throwErrorOnFault {true};
   };
 
+  struct DriverEnableOptions {
+    // Timeout in seconds. Specify 0 to attempt to enable the driver once.
+    double timeout {10};
+  };
+
     AllAxes(Device device);
 
     /**
@@ -98,10 +103,30 @@ public:
     bool isHomed();
 
     /**
+     * Disables all axes drivers, which prevents current from being sent to the motor or load.
+     */
+    void driverDisable();
+
+    /**
+     * Attempts to enable all axes drivers (where applicable) repeatedly for the specified timeout.
+     * If the driver is already enabled, the driver remains enabled.
+     * @param timeout Timeout in seconds. Specify 0 to attempt to enable the driver once.
+     */
+    void driverEnable(double timeout = 10);
+
+    /**
+     * Attempts to enable all axes drivers (where applicable) repeatedly for the specified timeout.
+     * If the driver is already enabled, the driver remains enabled.
+     * @param options A struct of type DriverEnableOptions. It has the following members:
+     * * `timeout`: Timeout in seconds. Specify 0 to attempt to enable the driver once.
+     */
+    void driverEnable(const AllAxes::DriverEnableOptions& options);
+
+    /**
      * Returns a string that represents the axes.
      * @return A string that represents the axes.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * Device that controls this axis.

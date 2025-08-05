@@ -28,6 +28,9 @@ namespace zaber
                 SetDeviceStateExceptionData const & getDetails() const;
             private:
                 SetDeviceStateExceptionData details;
+            protected:
+                SetDeviceStateFailedException(const MotionLibException::ExceptionInfo& info, const std::string &customData);
+                SetDeviceStateFailedException(const MotionLibException::ExceptionInfo& info, const SetDeviceStateExceptionData &&customData);
             };
         }
     }

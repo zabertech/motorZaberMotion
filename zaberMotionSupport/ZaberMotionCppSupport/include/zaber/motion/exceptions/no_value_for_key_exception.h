@@ -19,6 +19,8 @@ namespace zaber
             public:
                 NoValueForKeyException(const std::string& message);
                 virtual ~NoValueForKeyException() = default;
+            protected:
+                NoValueForKeyException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

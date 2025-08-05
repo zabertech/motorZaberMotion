@@ -19,6 +19,8 @@ namespace zaber
             public:
                 OsFailedException(const std::string& message);
                 virtual ~OsFailedException() = default;
+            protected:
+                OsFailedException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

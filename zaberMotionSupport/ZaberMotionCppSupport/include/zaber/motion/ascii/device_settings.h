@@ -58,6 +58,38 @@ public:
     void setString(const std::string& setting, const std::string& value);
 
     /**
+     * Returns any device setting or property as an integer.
+     * For more information refer to the [ASCII Protocol Manual](https://www.zaber.com/protocol-manual#topic_settings).
+     * @param setting Name of the setting.
+     * @return Setting value.
+     */
+    int64_t getInt(const std::string& setting);
+
+    /**
+     * Sets any device setting or property as an integer.
+     * For more information refer to the [ASCII Protocol Manual](https://www.zaber.com/protocol-manual#topic_settings).
+     * @param setting Name of the setting.
+     * @param value Value of the setting.
+     */
+    void setInt(const std::string& setting, const int64_t& value);
+
+    /**
+     * Returns any device setting or property as a boolean.
+     * For more information refer to the [ASCII Protocol Manual](https://www.zaber.com/protocol-manual#topic_settings).
+     * @param setting Name of the setting.
+     * @return Setting value.
+     */
+    bool getBool(const std::string& setting);
+
+    /**
+     * Sets any device setting as a boolean.
+     * For more information refer to the [ASCII Protocol Manual](https://www.zaber.com/protocol-manual#topic_settings).
+     * @param setting Name of the setting.
+     * @param value Value of the setting.
+     */
+    void setBool(const std::string& setting, bool value);
+
+    /**
      * Convert arbitrary setting value to Zaber native units.
      * @param setting Name of the setting.
      * @param value Value of the setting in units specified by following argument.
@@ -89,6 +121,20 @@ public:
      * @return Default setting value.
      */
     std::string getDefaultString(const std::string& setting);
+
+    /**
+     * Returns the default value of a setting as an integer.
+     * @param setting Name of the setting.
+     * @return Default setting value.
+     */
+    int64_t getDefaultInt(const std::string& setting);
+
+    /**
+     * Returns the default value of a setting as a boolean.
+     * @param setting Name of the setting.
+     * @return Default setting value.
+     */
+    bool getDefaultBool(const std::string& setting);
 
     /**
      * Indicates if given setting can be converted from and to native units.

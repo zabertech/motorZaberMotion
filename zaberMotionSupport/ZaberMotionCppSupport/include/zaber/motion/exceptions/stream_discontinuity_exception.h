@@ -19,6 +19,8 @@ namespace zaber
             public:
                 StreamDiscontinuityException(const std::string& message);
                 virtual ~StreamDiscontinuityException() = default;
+            protected:
+                StreamDiscontinuityException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

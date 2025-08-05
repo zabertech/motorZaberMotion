@@ -10,18 +10,17 @@
 #include <functional>
 
 #include "zaber/motion/gateway/event_handler.h"
-#include "zaber/motion/dto/requests/alert_event_wrapper.h"
-#include "zaber/motion/dto/requests/unknown_response_event_wrapper.h"
+#include "zaber/motion/dto/ascii/response.h"
+#include "zaber/motion/dto/ascii/alert_event.h"
+#include "zaber/motion/dto/ascii/unknown_response_event.h"
 #include "zaber/motion/exceptions/motion_lib_exception.h"
 
 namespace zaber {
 namespace motion {
-
 namespace ascii {
 
 /* Forward Declarations */
 class Device;
-class Response;
 class Transport;
 
 /**
@@ -295,7 +294,7 @@ public:
      * Returns a string that represents the connection.
      * @return A string that represents the connection.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * The interface ID identifies this Connection instance with the underlying library.
@@ -347,6 +346,11 @@ protected:
      * @param isEnabled Checksum enabled.
      */
     void changeChecksumEnabled(bool isEnabled) const;
+    /**
+     * Releases native resources of the connection.
+     * @param interfaceId The ID of the connection.
+     */
+    static void free(int interfaceId);
     int _interfaceId;
 
 public:

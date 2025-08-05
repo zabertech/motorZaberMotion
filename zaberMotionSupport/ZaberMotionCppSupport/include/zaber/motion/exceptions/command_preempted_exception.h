@@ -19,6 +19,8 @@ namespace zaber
             public:
                 CommandPreemptedException(const std::string& message);
                 virtual ~CommandPreemptedException() = default;
+            protected:
+                CommandPreemptedException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

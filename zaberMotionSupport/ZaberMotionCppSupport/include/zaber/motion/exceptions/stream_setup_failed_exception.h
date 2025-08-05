@@ -19,6 +19,8 @@ namespace zaber
             public:
                 StreamSetupFailedException(const std::string& message);
                 virtual ~StreamSetupFailedException() = default;
+            protected:
+                StreamSetupFailedException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

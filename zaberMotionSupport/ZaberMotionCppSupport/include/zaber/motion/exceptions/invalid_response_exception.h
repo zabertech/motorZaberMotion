@@ -28,6 +28,9 @@ namespace zaber
                 InvalidResponseExceptionData const & getDetails() const;
             private:
                 InvalidResponseExceptionData details;
+            protected:
+                InvalidResponseException(const MotionLibException::ExceptionInfo& info, const std::string &customData);
+                InvalidResponseException(const MotionLibException::ExceptionInfo& info, const InvalidResponseExceptionData &&customData);
             };
         }
     }

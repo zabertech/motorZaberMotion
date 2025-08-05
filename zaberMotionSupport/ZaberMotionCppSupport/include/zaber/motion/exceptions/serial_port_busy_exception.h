@@ -19,6 +19,8 @@ namespace zaber
             public:
                 SerialPortBusyException(const std::string& message);
                 virtual ~SerialPortBusyException() = default;
+            protected:
+                SerialPortBusyException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

@@ -3,21 +3,22 @@
 
 #pragma once
 
-#include "zaber/motion/dto/ascii/pvt_mode.h"
-#include "zaber/motion/dto/ascii/pvt_axis_definition.h"
-#include "zaber/motion/ascii/device.h"
-#include "zaber/motion/ascii/pvt_io.h"
-#include "zaber/motion/dto/ascii/digital_output_action.h"
 #include <string>
 #include <vector>
 #include <optional>
 
+#include "zaber/motion/ascii/device.h"
+#include "zaber/motion/ascii/pvt_io.h"
+#include "zaber/motion/dto/ascii/digital_output_action.h"
+#include "zaber/motion/dto/ascii/pvt_axis_definition.h"
+#include "zaber/motion/dto/ascii/pvt_mode.h"
+#include "zaber/motion/dto/ascii/pvt_csv_data.h"
+#include "zaber/motion/dto/measurement.h"
+#include "zaber/motion/dto/ascii/measurement_sequence.h"
+#include "zaber/motion/dto/ascii/optional_measurement_sequence.h"
 
 namespace zaber {
 namespace motion {
-
-class Measurement;
-
 namespace ascii {
 
 /* Forward Declarations */
@@ -109,6 +110,16 @@ public:
     void point(const std::vector<Measurement>& positions, const std::vector<std::optional<Measurement>>& velocities, const Measurement& time);
 
     /**
+     * Queues points with absolute coordinates in the PVT sequence.
+     * @param positions Per-axis sequences of positions.
+     * @param velocities Per-axis sequences of velocities.
+     * For velocities [v0, v1, ...] and positions [p0, p1, ...], v1 is the target velocity at point p1.
+     * @param times Segment times from one point to another.
+     * For times [t0, t1, ...] and positions [p0, p1, ...], t1 is the time it takes to move from p0 to p1.
+     */
+    void points(const std::vector<MeasurementSequence>& positions, const std::vector<MeasurementSequence>& velocities, const MeasurementSequence& times);
+
+    /**
      * Queues a point with coordinates relative to the previous point in the PVT sequence.
      * If some or all velocities are not provided, the sequence calculates the velocities
      * from surrounding points using finite difference.
@@ -119,6 +130,57 @@ public:
      * @param time The duration between the previous point in the sequence and this one.
      */
     void pointRelative(const std::vector<Measurement>& positions, const std::vector<std::optional<Measurement>>& velocities, const Measurement& time);
+
+    /**
+     * Queues points with coordinates relative to the previous point in the PVT sequence.
+     * @param positions Per-axis sequences of positions.
+     * @param velocities Per-axis sequences of velocities.
+     * For velocities [v0, v1, ...] and positions [p0, p1, ...], v1 is the target velocity at point p1.
+     * @param times Segment times from one point to another.
+     * For times [t0, t1, ...] and positions [p0, p1, ...], t1 is the time it takes to move from p0 to p1.
+     */
+    void pointsRelative(const std::vector<MeasurementSequence>& positions, const std::vector<MeasurementSequence>& velocities, const MeasurementSequence& times);
+
+    /**
+     * Generates velocities for a sequence of positions and times, and (optionally) a partially defined sequence
+     * of velocities. Note that if some velocities are defined, the solver will NOT modify them in any way.
+     * If all velocities are defined, the solver will simply return the same velocities.
+     * This function calculates velocities by enforcing that acceleration be continuous at each segment transition.
+     *
+     * Also note that if generating a path for multiple axes, the user must provide a position measurement sequence
+     * per axis, And the values arrays for each sequence must be equal in length to each other and also to the
+     * times sequence.
+     * @param positions Positions for the axes to move through, relative to their home positions.
+     * Each MeasurementSequence represents a sequence of positions along a particular dimension.
+     * For example, a 2D path sequence would contain two MeasurementSequence objects,
+     * one representing positions along X and one for those along Y.
+     * @param times The relative or absolute time of each position in the PVT sequence.
+     * @param velocities Optional velocities corresponding to each point in the position sequences.
+     * @param timesRelative If true, the times sequence values are interpreted as relative. Otherwise,
+     * they are interpreted as absolute. Note that the values of the returned time
+     * sequence are ALWAYS relative. This is because the PVT sequence API expects
+     * points to have relative times.
+     * @return Object containing the generated PVT sequence. Note that returned time sequence is always relative.
+     */
+    static PvtSequenceData generateVelocities(const std::vector<MeasurementSequence>& positions, const MeasurementSequence& times, const std::vector<OptionalMeasurementSequence>& velocities = {}, bool timesRelative = true);
+
+    /**
+     * Generates positions for a sequence of velocities and times. This function calculates
+     * positions by enforcing that acceleration be continuous at each segment transition.
+     *
+     * Note that if generating a path for multiple axes, the user must provide a
+     * velocity measurement sequence per axis, and the values arrays for each sequence
+     * must be equal in length to each other and also to the times sequence.
+     * @param velocities The sequence of velocities for each axis.
+     * Each MeasurementSequence represents a sequence of velocities along particular dimension.
+     * @param times The relative or absolute time of each position in the PVT sequence.
+     * @param timesRelative If true, the times sequence values are interpreted as relative. Otherwise,
+     * they are interpreted as absolute. Note that the values of the returned time
+     * sequence are ALWAYS relative. This is because the PVT sequence API expects
+     * points to have relative times.
+     * @return Object containing the generated PVT sequence. Note that returned time sequence is always relative.
+     */
+    static PvtSequenceData generatePositions(const std::vector<MeasurementSequence>& velocities, const MeasurementSequence& times, bool timesRelative = true);
 
     /**
      * Waits until the live PVT sequence executes all queued actions.
@@ -157,7 +219,7 @@ public:
      * Returns a string which represents the PVT sequence.
      * @return String which represents the PVT sequence.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * Disables the PVT sequence.
@@ -199,6 +261,45 @@ public:
      * Prevents PvtDiscontinuityException as a result of expected discontinuity when resuming the sequence.
      */
     void ignoreCurrentDiscontinuity();
+
+    /**
+     * Saves PvtSequenceData object as csv file.
+     * Save format is compatible with Zaber Launcher PVT Editor App.
+     *
+     * Throws InvalidArgumentException if fields are undefined or inconsistent.
+     * For example, position and velocity arrays must have the same dimensions.
+     * Sequence lengths must be consistent for positions, velocities and times.
+     * @param sequenceData The PVT sequence data to save.
+     * @param path The path to save the file to.
+     * @param dimensionNames Optional csv column names for each series.
+     * If not provided, the default names will be used: Series 1, Series 2, etc..
+     * Length of this array must be equal to number of dimensions in sequence data.
+     */
+    static void saveSequenceData(const PvtSequenceData& sequenceData, const std::string& path, const std::vector<std::string>& dimensionNames = {});
+
+    /**
+     * Load PVT Sequence data from CSV file.
+     * The CSV data can include a header (recommended).
+     * There are two possible header formats:
+     *
+     * 1. A time column with named position and velocity columns.
+     * For example, "Time (ms),X Position (cm),X Velocity (cm/s),...".
+     * In this case, position, velocity and time columns are all optional.
+     * Also, order does not matter, but position and velocity names must be consistent.
+     * This is our recommended CSV format.
+     *
+     * 2. A time column with alternating position and velocity columns.
+     * For example, "Time (ms),Position (cm),Velocity (cm/s),...".
+     * In this case, only the time column is optional and order does matter.
+     *
+     * Units must be wrapped in parens or square braces: ie. (µm/s), [µm/s].
+     * Additionally, native units are the default if no units are specified.
+     * If no header is included, then column order is assumed to be "T,P1,V1,P2,V2,...".
+     * In this case the number of columns must be odd.
+     * @param path The path from which the csv file will be loaded.
+     * @return The PVT csv data loaded from the file.
+     */
+    static PvtCsvData loadSequenceData(const std::string& path);
 
     /**
      * Deprecated: Use PvtSequence.Io.SetDigitalOutput instead.

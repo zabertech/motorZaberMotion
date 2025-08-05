@@ -5,6 +5,7 @@
 
 #include "zaber/motion/units.h"
 #include "zaber/motion/dto/gcode/translator_config.h"
+#include "zaber/motion/dto/gcode/translate_result.h"
 #include <initializer_list>
 #include <string>
 #include <utility>
@@ -20,9 +21,6 @@ class Stream;
 }
 
 namespace gcode {
-
-/* Forward Declarations */
-class TranslateResult;
 
 
 /**

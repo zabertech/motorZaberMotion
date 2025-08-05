@@ -19,6 +19,8 @@ namespace zaber
             public:
                 NotSupportedException(const std::string& message);
                 virtual ~NotSupportedException() = default;
+            protected:
+                NotSupportedException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

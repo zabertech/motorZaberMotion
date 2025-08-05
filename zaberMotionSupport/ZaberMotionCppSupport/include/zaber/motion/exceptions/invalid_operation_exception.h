@@ -19,6 +19,8 @@ namespace zaber
             public:
                 InvalidOperationException(const std::string& message);
                 virtual ~InvalidOperationException() = default;
+            protected:
+                InvalidOperationException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

@@ -12,7 +12,7 @@ motorZaberMotion contains an example IOC that is built if ``CONFIG_SITE.local`` 
 
 ## Documentation
 
-This module makes use of [Zaber Motion Library](https://software.zaber.com/motion-library/docs) (ZML), which requires c++17 or greater. For this reason, any epics IOC which uses this motor module must also be compiled with at least c++17.
+This module only supports makes use of [Zaber Motion Library](https://software.zaber.com/motion-library/docs) (ZML), which requires c++17 or greater. For this reason, any epics IOC which uses this motor module must also be compiled with at least c++17.
 
 ### Build
 

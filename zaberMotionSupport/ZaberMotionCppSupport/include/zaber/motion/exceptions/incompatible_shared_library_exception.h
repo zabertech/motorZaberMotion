@@ -20,6 +20,8 @@ namespace zaber
             public:
                 IncompatibleSharedLibraryException(const std::string& message);
                 virtual ~IncompatibleSharedLibraryException() = default;
+            protected:
+                IncompatibleSharedLibraryException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

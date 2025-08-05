@@ -19,6 +19,8 @@ namespace zaber
             public:
                 DeviceNotIdentifiedException(const std::string& message);
                 virtual ~DeviceNotIdentifiedException() = default;
+            protected:
+                DeviceNotIdentifiedException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

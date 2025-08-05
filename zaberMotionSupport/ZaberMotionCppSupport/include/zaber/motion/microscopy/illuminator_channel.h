@@ -9,13 +9,13 @@
 #include "zaber/motion/ascii/connection.h"
 #include "zaber/motion/ascii/device.h"
 #include "zaber/motion/microscopy/illuminator.h"
+#include "zaber/motion/dto/ascii/response.h"
 
 namespace zaber {
 namespace motion {
 
 namespace ascii {
 class Axis;
-class Response;
 class AxisSettings;
 class AxisStorage;
 class Warnings;
@@ -37,6 +37,7 @@ class IlluminatorChannel {
     using Connection = zaber::motion::ascii::Connection;
     using Device = zaber::motion::ascii::Device;
     using Response = zaber::motion::ascii::Response;
+    using SetStateAxisResponse = zaber::motion::ascii::SetStateAxisResponse;
 public:
   struct GenericCommandOptions {
     // Controls whether to throw an exception when the device rejects the command.
@@ -52,6 +53,12 @@ public:
     // The timeout, in milliseconds, for a device to respond to the command.
     // Overrides the connection default request timeout.
     int timeout {0};
+  };
+
+  struct CanSetStateOptions {
+    // The firmware version of the device to apply the state to.
+    // Use this to ensure the state will still be compatible after an update.
+    std::optional<FirmwareVersion> firmwareVersion {};
   };
 
     IlluminatorChannel(Illuminator illuminator, int channelNumber);
@@ -156,23 +163,38 @@ public:
     /**
      * Applies a saved state to this channel.
      * @param state The state object to apply to this channel.
+     * @return Reports of any issues that were handled, but caused the state to not be exactly restored.
      */
-    void setState(const std::string& state);
+    SetStateAxisResponse setState(const std::string& state);
 
     /**
      * Checks if a state can be applied to this channel.
      * This only covers exceptions that can be determined statically such as mismatches of ID or version,
      * the process of applying the state can still fail when running.
      * @param state The state object to check against.
+     * @param firmwareVersion The firmware version of the device to apply the state to.
+     * Use this to ensure the state will still be compatible after an update.
      * @return An explanation of why this state cannot be set to this channel.
      */
-    std::optional<std::string> canSetState(const std::string& state);
+    std::optional<std::string> canSetState(const std::string& state, const std::optional<FirmwareVersion>& firmwareVersion = {});
+
+    /**
+     * Checks if a state can be applied to this channel.
+     * This only covers exceptions that can be determined statically such as mismatches of ID or version,
+     * the process of applying the state can still fail when running.
+     * @param state The state object to check against.
+     * @param options A struct of type CanSetStateOptions. It has the following members:
+     * * `firmwareVersion`: The firmware version of the device to apply the state to.
+     *   Use this to ensure the state will still be compatible after an update.
+     * @return An explanation of why this state cannot be set to this channel.
+     */
+    std::optional<std::string> canSetState(const std::string& state, const IlluminatorChannel::CanSetStateOptions& options);
 
     /**
      * Returns a string that represents the channel.
      * @return A string that represents the channel.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * Illuminator of this channel.

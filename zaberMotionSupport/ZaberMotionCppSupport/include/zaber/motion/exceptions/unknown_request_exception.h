@@ -19,6 +19,8 @@ namespace zaber
             public:
                 UnknownRequestException(const std::string& message);
                 virtual ~UnknownRequestException() = default;
+            protected:
+                UnknownRequestException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

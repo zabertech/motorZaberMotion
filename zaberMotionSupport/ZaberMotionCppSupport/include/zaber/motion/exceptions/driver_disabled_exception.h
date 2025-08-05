@@ -21,6 +21,9 @@ namespace zaber
                 DriverDisabledException(const std::string& message, const std::string &customData);
                 DriverDisabledException(const std::string& message, const CommandFailedExceptionData &&customData);
                 virtual ~DriverDisabledException() = default;
+            protected:
+                DriverDisabledException(const MotionLibException::ExceptionInfo& info, const std::string &customData);
+                DriverDisabledException(const MotionLibException::ExceptionInfo& info, const CommandFailedExceptionData &&customData);
             };
         }
     }

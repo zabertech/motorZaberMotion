@@ -7,19 +7,19 @@
 #include <string>
 #include <vector>
 
-#include "zaber/motion/gateway/event_handler.h"
+#include "zaber/motion/dto/binary/command_code.h"
+#include "zaber/motion/dto/binary/message.h"
 #include "zaber/motion/dto/binary/reply_only_event.h"
 #include "zaber/motion/dto/binary/unknown_response_event.h"
 #include "zaber/motion/exceptions/motion_lib_exception.h"
+#include "zaber/motion/gateway/event_handler.h"
 
 namespace zaber {
 namespace motion {
 namespace binary {
 
 /* Forward Declarations */
-enum class CommandCode;
 class Device;
-class Message;
 
 /**
  * Default baud rate for serial connections.
@@ -154,7 +154,7 @@ public:
      * Returns a string that represents the connection.
      * @return A string that represents the connection.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * The interface ID identifies thisConnection instance with the underlying library.
@@ -162,6 +162,11 @@ public:
     int getInterfaceId() const;
 
 protected:
+    /**
+     * Releases native resources of the connection.
+     * @param interfaceId The ID of the connection.
+     */
+    static void free(int interfaceId);
     int _interfaceId;
 
 public:

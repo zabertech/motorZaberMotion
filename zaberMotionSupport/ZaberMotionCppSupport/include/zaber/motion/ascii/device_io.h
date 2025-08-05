@@ -9,13 +9,11 @@
 #include "zaber/motion/ascii/device.h"
 #include "zaber/motion/dto/ascii/digital_output_action.h"
 #include "zaber/motion/dto/ascii/io_port_label.h"
+#include "zaber/motion/dto/ascii/device_io_info.h"
 
 namespace zaber {
 namespace motion {
 namespace ascii {
-
-/* Forward Declarations */
-class DeviceIOInfo;
 
 
 /**

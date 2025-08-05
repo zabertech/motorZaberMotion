@@ -28,6 +28,9 @@ namespace zaber
                 GCodeExecutionExceptionData const & getDetails() const;
             private:
                 GCodeExecutionExceptionData details;
+            protected:
+                GCodeExecutionException(const MotionLibException::ExceptionInfo& info, const std::string &customData);
+                GCodeExecutionException(const MotionLibException::ExceptionInfo& info, const GCodeExecutionExceptionData &&customData);
             };
         }
     }

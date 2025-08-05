@@ -19,6 +19,8 @@ namespace zaber
             public:
                 IoChannelOutOfRangeException(const std::string& message);
                 virtual ~IoChannelOutOfRangeException() = default;
+            protected:
+                IoChannelOutOfRangeException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

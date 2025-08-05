@@ -19,6 +19,8 @@ namespace zaber
             public:
                 InternalErrorException(const std::string& message);
                 virtual ~InternalErrorException() = default;
+            protected:
+                InternalErrorException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

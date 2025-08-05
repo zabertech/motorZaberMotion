@@ -21,6 +21,9 @@ namespace zaber
                 BadDataException(const std::string& message, const std::string &customData);
                 BadDataException(const std::string& message, const CommandFailedExceptionData &&customData);
                 virtual ~BadDataException() = default;
+            protected:
+                BadDataException(const MotionLibException::ExceptionInfo& info, const std::string &customData);
+                BadDataException(const MotionLibException::ExceptionInfo& info, const CommandFailedExceptionData &&customData);
             };
         }
     }

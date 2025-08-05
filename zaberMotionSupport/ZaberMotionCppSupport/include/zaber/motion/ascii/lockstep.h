@@ -8,14 +8,12 @@
 
 #include "zaber/motion/units.h"
 #include "zaber/motion/ascii/device.h"
+#include "zaber/motion/dto/ascii/lockstep_axes.h"
 
 
 namespace zaber {
 namespace motion {
 namespace ascii {
-
-/* Forward Declarations */
-class LockstepAxes;
 
 
 /**
@@ -479,7 +477,24 @@ public:
      * Returns a string which represents the enabled lockstep group.
      * @return String which represents the enabled lockstep group.
      */
-    std::string toString();
+    std::string toString() const;
+
+    /**
+     * Parks lockstep group in anticipation of turning the power off.
+     * It can later be powered on, unparked, and moved without first having to home it.
+     */
+    void park();
+
+    /**
+     * Unparks lockstep group. Lockstep group will now be able to move.
+     */
+    void unpark();
+
+    /**
+     * Returns bool indicating whether the axis is parked or not.
+     * @return True if lockstep group is parked.
+     */
+    bool isParked();
 
     /**
      * Device that controls this lockstep group.

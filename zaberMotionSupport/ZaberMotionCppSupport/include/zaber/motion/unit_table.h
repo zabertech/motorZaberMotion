@@ -34,6 +34,16 @@ public:
      */
     static Units getUnit(const std::string& symbol);
 
+    /**
+     * Converts a value from one unit to a different unit of the same dimension.
+     * Note that this function does not support native unit conversions.
+     * @param value The value to be converted.
+     * @param fromUnit The unit which the value is being converted from.
+     * @param toUnit The unit which the value is being converted to.
+     * @return The converted value. Throws ConversionFailedException if unit is incompatible.
+     */
+    static double convertUnits(double value, Units fromUnit, Units toUnit);
+
 protected:
 };
 

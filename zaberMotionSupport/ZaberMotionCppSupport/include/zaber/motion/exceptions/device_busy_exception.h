@@ -19,6 +19,8 @@ namespace zaber
             public:
                 DeviceBusyException(const std::string& message);
                 virtual ~DeviceBusyException() = default;
+            protected:
+                DeviceBusyException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

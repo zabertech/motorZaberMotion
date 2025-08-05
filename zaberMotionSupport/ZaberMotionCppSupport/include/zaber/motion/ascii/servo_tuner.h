@@ -28,8 +28,19 @@ namespace ascii {
 class ServoTuner {
 public:
   struct SetSimpleTuningOptions {
-    // The mass of the carriage in kg. If this value is not set the default carriage mass is used.
+    // The units the load mass was supplied in.
+    Units loadMassUnits {Units::NATIVE};
+    // The mass of the carriage itself. If not supplied, the product's default mass will be used.
+    // Unless specified by the CarriageMassUnits parameter, this is in units of kg for linear devices,
+    // and kg⋅m² for rotary devices.
     std::optional<double> carriageMass {};
+    // The units the carriage mass was supplied in.
+    Units carriageMassUnits {Units::NATIVE};
+    // The inertia of the motor. Unless specified by the MotorInertiaUnits parameter,
+    // this is in units of kg⋅m².
+    std::optional<double> motorInertia {};
+    // The units the motor inertia was supplied in.
+    Units motorInertiaUnits {Units::NATIVE};
   };
 
   struct IsUsingSimpleTuningOptions {
@@ -73,15 +84,17 @@ public:
      * Only use this method if you have a strong understanding of Zaber specific tuning parameters.
      * @param paramset The paramset to set tuning of.
      * @param tuningParams The params to set.
+     * @param setUnspecifiedToDefault If true, any tuning parameters not included in TuningParams
+     * are reset to their default values.
      */
-    void setTuning(ServoTuningParamset paramset, const std::vector<ServoTuningParam>& tuningParams);
+    void setTuning(ServoTuningParamset paramset, const std::vector<ServoTuningParam>& tuningParams, bool setUnspecifiedToDefault = false);
 
     /**
      * Sets the tuning of a paramset using the PID method.
      * @param paramset The paramset to get tuning for.
-     * @param p The proportional gain. Must be in units of N/m.
-     * @param i The integral gain. Must be in units of N/m⋅s.
-     * @param d The derivative gain. Must be in units of N⋅s/m.
+     * @param p The proportional gain. Must be in units of N/m for linear devices, and N⋅m/° for rotary devices.
+     * @param i The integral gain. Must be in units of N/(m⋅s) for linear devices, and N⋅m/(°⋅s) for rotary devices.
+     * @param d The derivative gain. Must be in units of N⋅s/m for linear devices, and N⋅m⋅s/° for rotary devices.
      * @param fc The cutoff frequency. Must be in units of Hz.
      * @return The PID representation of the current tuning after your changes have been applied.
      */
@@ -106,10 +119,19 @@ public:
      * @param tuningParams The params used to tune this device.
      * To get what parameters are expected, call GetSimpleTuningParamList.
      * All values must be between 0 and 1.
-     * @param loadMass The mass loaded on the stage (excluding the mass of the carriage itself) in kg.
-     * @param carriageMass The mass of the carriage in kg. If this value is not set the default carriage mass is used.
+     * @param loadMass The mass loaded on the stage, excluding the mass of the carriage itself.
+     * Unless specified by the LoadMassUnits parameter, this is in units of kg for linear devices,
+     * and kg⋅m² for rotary devices.
+     * @param loadMassUnits The units the load mass was supplied in.
+     * @param carriageMass The mass of the carriage itself. If not supplied, the product's default mass will be used.
+     * Unless specified by the CarriageMassUnits parameter, this is in units of kg for linear devices,
+     * and kg⋅m² for rotary devices.
+     * @param carriageMassUnits The units the carriage mass was supplied in.
+     * @param motorInertia The inertia of the motor. Unless specified by the MotorInertiaUnits parameter,
+     * this is in units of kg⋅m².
+     * @param motorInertiaUnits The units the motor inertia was supplied in.
      */
-    void setSimpleTuning(ServoTuningParamset paramset, const std::vector<ServoTuningParam>& tuningParams, double loadMass, const std::optional<double>& carriageMass = {});
+    void setSimpleTuning(ServoTuningParamset paramset, const std::vector<ServoTuningParam>& tuningParams, double loadMass, Units loadMassUnits = Units::NATIVE, const std::optional<double>& carriageMass = {}, Units carriageMassUnits = Units::NATIVE, const std::optional<double>& motorInertia = {}, Units motorInertiaUnits = Units::NATIVE);
 
     /**
      * Set the tuning of this device using the simple input method.
@@ -117,9 +139,18 @@ public:
      * @param tuningParams The params used to tune this device.
      * To get what parameters are expected, call GetSimpleTuningParamList.
      * All values must be between 0 and 1.
-     * @param loadMass The mass loaded on the stage (excluding the mass of the carriage itself) in kg.
+     * @param loadMass The mass loaded on the stage, excluding the mass of the carriage itself.
+     * Unless specified by the LoadMassUnits parameter, this is in units of kg for linear devices,
+     * and kg⋅m² for rotary devices.
      * @param options A struct of type SetSimpleTuningOptions. It has the following members:
-     * * `carriageMass`: The mass of the carriage in kg. If this value is not set the default carriage mass is used.
+     * * `loadMassUnits`: The units the load mass was supplied in.
+     * * `carriageMass`: The mass of the carriage itself. If not supplied, the product's default mass will be used.
+     *   Unless specified by the CarriageMassUnits parameter, this is in units of kg for linear devices,
+     *   and kg⋅m² for rotary devices.
+     * * `carriageMassUnits`: The units the carriage mass was supplied in.
+     * * `motorInertia`: The inertia of the motor. Unless specified by the MotorInertiaUnits parameter,
+     *   this is in units of kg⋅m².
+     * * `motorInertiaUnits`: The units the motor inertia was supplied in.
      */
     void setSimpleTuning(ServoTuningParamset paramset, const std::vector<ServoTuningParam>& tuningParams, double loadMass, const ServoTuner::SetSimpleTuningOptions& options);
 

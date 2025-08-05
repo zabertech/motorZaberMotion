@@ -9,25 +9,22 @@
 #include <vector>
 #include <optional>
 
-#include "zaber/motion/units.h"
-#include "zaber/motion/dto/ascii/can_set_state_device_response.h"
 #include "zaber/motion/ascii/connection.h"
+#include "zaber/motion/dto/ascii/can_set_state_device_response.h"
+#include "zaber/motion/dto/ascii/device_identity.h"
+#include "zaber/motion/dto/ascii/response.h"
+#include "zaber/motion/dto/ascii/set_state_device_response.h"
 #include "zaber/motion/dto/firmware_version.h"
+#include "zaber/motion/dto/measurement.h"
+#include "zaber/motion/units.h"
 
 
 namespace zaber {
 namespace motion {
-
-/* Forward Declarations */
-class Measurement;
-
-
 namespace ascii {
 
 /* Forward Declarations */
-class Response;
 class Axis;
-class DeviceIdentity;
 class Lockstep;
 class DeviceSettings;
 class DeviceStorage;
@@ -81,6 +78,12 @@ public:
   struct SetStateOptions {
     // If true, only device scope settings and features will be set.
     bool deviceOnly {false};
+  };
+
+  struct CanSetStateOptions {
+    // The firmware version of the device to apply the state to.
+    // Use this to ensure the state will still be compatible after an update.
+    std::optional<FirmwareVersion> firmwareVersion {};
   };
 
     Device(BaseConnection connection, int deviceAddress);
@@ -225,7 +228,7 @@ public:
      * Returns a string that represents the device.
      * @return A string that represents the device.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * Returns a serialization of the current device state that can be saved and reapplied.
@@ -237,25 +240,41 @@ public:
      * Applies a saved state to this device.
      * @param state The state object to apply to this device.
      * @param deviceOnly If true, only device scope settings and features will be set.
+     * @return Reports of any issues that were handled, but caused the state to not be exactly restored.
      */
-    void setState(const std::string& state, bool deviceOnly = false);
+    SetStateDeviceResponse setState(const std::string& state, bool deviceOnly = false);
 
     /**
      * Applies a saved state to this device.
      * @param state The state object to apply to this device.
      * @param options A struct of type SetStateOptions. It has the following members:
      * * `deviceOnly`: If true, only device scope settings and features will be set.
+     * @return Reports of any issues that were handled, but caused the state to not be exactly restored.
      */
-    void setState(const std::string& state, const Device::SetStateOptions& options);
+    SetStateDeviceResponse setState(const std::string& state, const Device::SetStateOptions& options);
 
     /**
      * Checks if a state can be applied to this device.
      * This only covers exceptions that can be determined statically such as mismatches of ID or version,
      * the process of applying the state can still fail when running.
      * @param state The state object to check against.
+     * @param firmwareVersion The firmware version of the device to apply the state to.
+     * Use this to ensure the state will still be compatible after an update.
      * @return An object listing errors that come up when trying to set the state.
      */
-    CanSetStateDeviceResponse canSetState(const std::string& state);
+    CanSetStateDeviceResponse canSetState(const std::string& state, const std::optional<FirmwareVersion>& firmwareVersion = {});
+
+    /**
+     * Checks if a state can be applied to this device.
+     * This only covers exceptions that can be determined statically such as mismatches of ID or version,
+     * the process of applying the state can still fail when running.
+     * @param state The state object to check against.
+     * @param options A struct of type CanSetStateOptions. It has the following members:
+     * * `firmwareVersion`: The firmware version of the device to apply the state to.
+     *   Use this to ensure the state will still be compatible after an update.
+     * @return An object listing errors that come up when trying to set the state.
+     */
+    CanSetStateDeviceResponse canSetState(const std::string& state, const Device::CanSetStateOptions& options);
 
     /**
      * Waits for the device to start responding to messages.
@@ -273,6 +292,17 @@ public:
      * @return New device instance with the new address.
      */
     Device renumber(int address);
+
+    /**
+     * Restores most of the settings to their default values.
+     * Deletes all triggers, stream and PVT buffers, servo tunings.
+     * Deletes all zaber storage keys.
+     * Disables locksteps, unparks axes.
+     * Preserves storage, communication settings, peripherals (unless hard is specified).
+     * The device needs to be identified again after the restore.
+     * @param hard If true, completely erases device's memory. The device also resets.
+     */
+    void restore(bool hard = false);
 
     /**
      * Connection of this device.

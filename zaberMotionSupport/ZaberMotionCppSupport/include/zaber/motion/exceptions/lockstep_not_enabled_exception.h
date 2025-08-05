@@ -19,6 +19,8 @@ namespace zaber
             public:
                 LockstepNotEnabledException(const std::string& message);
                 virtual ~LockstepNotEnabledException() = default;
+            protected:
+                LockstepNotEnabledException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

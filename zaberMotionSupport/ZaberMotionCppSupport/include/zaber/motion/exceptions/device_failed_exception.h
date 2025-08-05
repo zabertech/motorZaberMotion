@@ -20,6 +20,8 @@ namespace zaber
             public:
                 DeviceFailedException(const std::string& message);
                 virtual ~DeviceFailedException() = default;
+            protected:
+                DeviceFailedException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

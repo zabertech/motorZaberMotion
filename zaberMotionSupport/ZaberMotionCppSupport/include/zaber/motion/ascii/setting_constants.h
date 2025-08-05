@@ -17,6 +17,11 @@ namespace zaber { namespace motion { namespace ascii {
         static const std::string ACCEL = "accel";
 
         /**
+         * Autodetect Coil Mode.
+         */
+        static const std::string AUTODETECT_COIL_MODE = "autodetect.coil.mode";
+
+        /**
          * Brake Mode.
          */
         static const std::string BRAKE_MODE = "brake.mode";
@@ -30,6 +35,26 @@ namespace zaber { namespace motion { namespace ascii {
          * Calibration Type.
          */
         static const std::string CALIBRATION_TYPE = "calibration.type";
+
+        /**
+         * Cia 402 Controlword.
+         */
+        static const std::string CIA_402_CONTROLWORD = "cia402.controlword";
+
+        /**
+         * Cia 402 Modes.
+         */
+        static const std::string CIA_402_MODES = "cia402.modes";
+
+        /**
+         * Cia 402 Modes Display.
+         */
+        static const std::string CIA_402_MODES_DISPLAY = "cia402.modes.display";
+
+        /**
+         * Cia 402 Statusword.
+         */
+        static const std::string CIA_402_STATUSWORD = "cia402.statusword";
 
         /**
          * Cloop Continuous Enable.
@@ -55,6 +80,11 @@ namespace zaber { namespace motion { namespace ascii {
          * Cloop Enable.
          */
         static const std::string CLOOP_ENABLE = "cloop.enable";
+
+        /**
+         * Cloop Following Tolerance.
+         */
+        static const std::string CLOOP_FOLLOWING_TOLERANCE = "cloop.following.tolerance";
 
         /**
          * Cloop Mode.
@@ -165,6 +195,11 @@ namespace zaber { namespace motion { namespace ascii {
          * Comm En Mdns Enable.
          */
         static const std::string COMM_EN_MDNS_ENABLE = "comm.en.mdns.enable";
+
+        /**
+         * Comm Ethercat Remote.
+         */
+        static const std::string COMM_ETHERCAT_REMOTE = "comm.ethercat.remote";
 
         /**
          * Comm Next Owner.
@@ -367,6 +402,11 @@ namespace zaber { namespace motion { namespace ascii {
         static const std::string ENCODER_1_POS_ERROR = "encoder.1.pos.error";
 
         /**
+         * Encoder 1 Power Up Delay.
+         */
+        static const std::string ENCODER_1_POWER_UP_DELAY = "encoder.1.power.up.delay";
+
+        /**
          * Encoder 1 Ratio Div.
          */
         static const std::string ENCODER_1_RATIO_DIV = "encoder.1.ratio.div";
@@ -475,6 +515,11 @@ namespace zaber { namespace motion { namespace ascii {
          * Encoder 2 Pos Error.
          */
         static const std::string ENCODER_2_POS_ERROR = "encoder.2.pos.error";
+
+        /**
+         * Encoder 2 Power Up Delay.
+         */
+        static const std::string ENCODER_2_POWER_UP_DELAY = "encoder.2.power.up.delay";
 
         /**
          * Encoder 2 Ratio Div.
@@ -590,6 +635,11 @@ namespace zaber { namespace motion { namespace ascii {
          * Encoder Pos Error.
          */
         static const std::string ENCODER_POS_ERROR = "encoder.pos.error";
+
+        /**
+         * Encoder Power Up Delay.
+         */
+        static const std::string ENCODER_POWER_UP_DELAY = "encoder.power.up.delay";
 
         /**
          * Encoder Ratio Div.

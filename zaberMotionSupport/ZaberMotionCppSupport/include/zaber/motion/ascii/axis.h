@@ -10,20 +10,17 @@
 
 #include "zaber/motion/ascii/device.h"
 #include "zaber/motion/units.h"
+#include "zaber/motion/dto/ascii/axis_identity.h"
+#include "zaber/motion/dto/ascii/axis_type.h"
+#include "zaber/motion/dto/ascii/response.h"
+#include "zaber/motion/dto/measurement.h"
 
 
 namespace zaber {
 namespace motion {
-
-/* Forward Declarations */
-class Measurement;
-
 namespace ascii {
 
 /* Forward Declarations */
-enum class AxisType;
-class AxisIdentity;
-class Response;
 class AxisSettings;
 class AxisStorage;
 class Warnings;
@@ -157,6 +154,17 @@ public:
     // The timeout, in milliseconds, for a device to respond to the command.
     // Overrides the connection default request timeout.
     int timeout {0};
+  };
+
+  struct CanSetStateOptions {
+    // The firmware version of the device to apply the state to.
+    // Use this to ensure the state will still be compatible after an update.
+    std::optional<FirmwareVersion> firmwareVersion {};
+  };
+
+  struct DriverEnableOptions {
+    // Timeout in seconds. Specify 0 to attempt to enable the driver once.
+    double timeout {10};
   };
 
   struct MoveSinOptions {
@@ -524,7 +532,7 @@ public:
      * Returns a string that represents the axis.
      * @return A string that represents the axis.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * Returns a serialization of the current axis state that can be saved and reapplied.
@@ -535,17 +543,32 @@ public:
     /**
      * Applies a saved state to this axis.
      * @param state The state object to apply to this axis.
+     * @return Reports of any issues that were handled, but caused the state to not be exactly restored.
      */
-    void setState(const std::string& state);
+    SetStateAxisResponse setState(const std::string& state);
 
     /**
      * Checks if a state can be applied to this axis.
      * This only covers exceptions that can be determined statically such as mismatches of ID or version,
      * the process of applying the state can still fail when running.
      * @param state The state object to check against.
+     * @param firmwareVersion The firmware version of the device to apply the state to.
+     * Use this to ensure the state will still be compatible after an update.
      * @return An explanation of why this state cannot be set to this axis.
      */
-    std::optional<std::string> canSetState(const std::string& state);
+    std::optional<std::string> canSetState(const std::string& state, const std::optional<FirmwareVersion>& firmwareVersion = {});
+
+    /**
+     * Checks if a state can be applied to this axis.
+     * This only covers exceptions that can be determined statically such as mismatches of ID or version,
+     * the process of applying the state can still fail when running.
+     * @param state The state object to check against.
+     * @param options A struct of type CanSetStateOptions. It has the following members:
+     * * `firmwareVersion`: The firmware version of the device to apply the state to.
+     *   Use this to ensure the state will still be compatible after an update.
+     * @return An explanation of why this state cannot be set to this axis.
+     */
+    std::optional<std::string> canSetState(const std::string& state, const Axis::CanSetStateOptions& options);
 
     /**
      * Disables the driver, which prevents current from being sent to the motor or load.
@@ -554,10 +577,19 @@ public:
     void driverDisable();
 
     /**
-     * Attempts to enable the driver.
+     * Attempts to enable the driver repeatedly for the specified timeout.
      * If the driver is already enabled, the driver remains enabled.
+     * @param timeout Timeout in seconds. Specify 0 to attempt to enable the driver once.
      */
-    void driverEnable();
+    void driverEnable(double timeout = 10);
+
+    /**
+     * Attempts to enable the driver repeatedly for the specified timeout.
+     * If the driver is already enabled, the driver remains enabled.
+     * @param options A struct of type DriverEnableOptions. It has the following members:
+     * * `timeout`: Timeout in seconds. Specify 0 to attempt to enable the driver once.
+     */
+    void driverEnable(const Axis::DriverEnableOptions& options);
 
     /**
      * Activates a peripheral on this axis.
@@ -565,6 +597,15 @@ public:
      * Run the identify method on the device after activating to refresh the information.
      */
     void activate();
+
+    /**
+     * Restores all axis settings to their default values.
+     * Deletes all zaber axis storage keys.
+     * Disables lockstep if the axis is part of one. Unparks the axis.
+     * Preserves storage.
+     * The device needs to be identified again after the restore.
+     */
+    void restore();
 
     /**
      * Moves the axis in a sinusoidal trajectory.

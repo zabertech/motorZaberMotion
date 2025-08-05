@@ -19,6 +19,8 @@ namespace zaber
             public:
                 RequestTimeoutException(const std::string& message);
                 virtual ~RequestTimeoutException() = default;
+            protected:
+                RequestTimeoutException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

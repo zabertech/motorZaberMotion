@@ -28,6 +28,9 @@ namespace zaber
                 BinaryCommandFailedExceptionData const & getDetails() const;
             private:
                 BinaryCommandFailedExceptionData details;
+            protected:
+                BinaryCommandFailedException(const MotionLibException::ExceptionInfo& info, const std::string &customData);
+                BinaryCommandFailedException(const MotionLibException::ExceptionInfo& info, const BinaryCommandFailedExceptionData &&customData);
             };
         }
     }

@@ -28,6 +28,9 @@ namespace zaber
                 StreamExecutionExceptionData const & getDetails() const;
             private:
                 StreamExecutionExceptionData details;
+            protected:
+                StreamExecutionException(const MotionLibException::ExceptionInfo& info, const std::string &customData);
+                StreamExecutionException(const MotionLibException::ExceptionInfo& info, const StreamExecutionExceptionData &&customData);
             };
         }
     }

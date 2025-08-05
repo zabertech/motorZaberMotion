@@ -28,6 +28,9 @@ namespace zaber
                 DeviceDbFailedExceptionData const & getDetails() const;
             private:
                 DeviceDbFailedExceptionData details;
+            protected:
+                DeviceDbFailedException(const MotionLibException::ExceptionInfo& info, const std::string &customData);
+                DeviceDbFailedException(const MotionLibException::ExceptionInfo& info, const DeviceDbFailedExceptionData &&customData);
             };
         }
     }

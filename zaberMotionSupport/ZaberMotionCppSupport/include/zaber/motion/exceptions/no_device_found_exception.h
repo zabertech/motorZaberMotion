@@ -19,6 +19,8 @@ namespace zaber
             public:
                 NoDeviceFoundException(const std::string& message);
                 virtual ~NoDeviceFoundException() = default;
+            protected:
+                NoDeviceFoundException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

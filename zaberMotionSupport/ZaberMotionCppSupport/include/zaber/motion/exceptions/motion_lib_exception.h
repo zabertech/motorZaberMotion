@@ -11,13 +11,23 @@ namespace zaber
         {
             class MotionLibException: public std::runtime_error {
             public:
+                struct ExceptionInfo {
+                    std::string message;
+                    const char* typeName;
+                };
+
                 MotionLibException(const std::string& message);
+                MotionLibException(const ExceptionInfo& info);
                 virtual ~MotionLibException() = default;
 
                 /**
                  * Error message of the exception
                 **/
-                std::string getMessage() const;
+                const std::string& getMessage() const;
+
+                virtual std::string toString() const;
+            private:
+                std::string message;
             };
         }
     }

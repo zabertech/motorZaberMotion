@@ -41,7 +41,7 @@ public:
     }
 
     /**
-     * The error blocking applying this state to the given axis.
+     * The error blocking applying this state to the given axis, or null if there is no error.
      */
     std::optional<std::string> const& getError() const;
     void setError(std::optional<std::string> p_error);

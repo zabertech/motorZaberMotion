@@ -19,6 +19,8 @@ namespace zaber
             public:
                 SettingNotFoundException(const std::string& message);
                 virtual ~SettingNotFoundException() = default;
+            protected:
+                SettingNotFoundException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

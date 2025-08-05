@@ -28,6 +28,9 @@ namespace zaber
                 InvalidPacketExceptionData const & getDetails() const;
             private:
                 InvalidPacketExceptionData details;
+            protected:
+                InvalidPacketException(const MotionLibException::ExceptionInfo& info, const std::string &customData);
+                InvalidPacketException(const MotionLibException::ExceptionInfo& info, const InvalidPacketExceptionData &&customData);
             };
         }
     }

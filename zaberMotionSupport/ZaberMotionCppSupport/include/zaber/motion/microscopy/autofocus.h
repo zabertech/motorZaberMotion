@@ -126,7 +126,7 @@ public:
      * Returns a string that represents the autofocus.
      * @return A string that represents the autofocus.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * The identification of external device providing the capability.

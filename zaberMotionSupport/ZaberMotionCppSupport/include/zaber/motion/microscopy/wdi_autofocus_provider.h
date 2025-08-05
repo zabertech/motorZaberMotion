@@ -79,7 +79,7 @@ public:
 
     /**
      * Generic write operation.
-     * @param registerId Register address to read from.
+     * @param registerId Register address to write to.
      * @param size Data size to write. Valid values are (0,1,2,4). Determines the data type (Nil, Byte, Word, DWord).
      * @param data Array of values to write to the register. Empty array is allowed.
      * @param offset Offset within the register (defaults to 0).
@@ -89,7 +89,7 @@ public:
 
     /**
      * Generic write operation.
-     * @param registerId Register address to read from.
+     * @param registerId Register address to write to.
      * @param size Data size to write. Valid values are (0,1,2,4). Determines the data type (Nil, Byte, Word, DWord).
      * @param data Array of values to write to the register. Empty array is allowed.
      * @param options A struct of type GenericWriteOptions. It has the following members:
@@ -118,7 +118,7 @@ public:
      * Returns a string that represents the autofocus connection.
      * @return A string that represents the connection.
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * The ID identifies the autofocus with the underlying library.
@@ -126,6 +126,11 @@ public:
     int getProviderId() const;
 
 protected:
+    /**
+     * Frees the connection.
+     * @param providerId The ID of the connection to free.
+     */
+    static void free(int providerId);
     int _providerId;
 public:
     WdiAutofocusProvider(): _providerId(-1) {};

@@ -19,6 +19,8 @@ namespace zaber
             public:
                 PvtModeException(const std::string& message);
                 virtual ~PvtModeException() = default;
+            protected:
+                PvtModeException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

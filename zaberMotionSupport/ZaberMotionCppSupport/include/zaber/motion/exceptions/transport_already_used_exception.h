@@ -19,6 +19,8 @@ namespace zaber
             public:
                 TransportAlreadyUsedException(const std::string& message);
                 virtual ~TransportAlreadyUsedException() = default;
+            protected:
+                TransportAlreadyUsedException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }

@@ -5,13 +5,11 @@
 
 #include "zaber/motion/units.h"
 #include "zaber/motion/binary/device.h"
+#include "zaber/motion/dto/binary/binary_settings.h"
 
 namespace zaber {
 namespace motion {
 namespace binary {
-
-/* Forward Declarations */
-enum class BinarySettings;
 
 
 /**

@@ -21,6 +21,7 @@ public:
     int axis {0};
     ascii::ServoTuningParamset paramset {0};
     std::vector<ascii::ServoTuningParam> tuningParams;
+    bool setUnspecifiedToDefault {false};
 
     SetServoTuningRequest();
 
@@ -29,7 +30,8 @@ public:
         int p_device,
         int p_axis,
         ascii::ServoTuningParamset p_paramset,
-        std::vector<ascii::ServoTuningParam> p_tuningParams
+        std::vector<ascii::ServoTuningParam> p_tuningParams,
+        bool p_setUnspecifiedToDefault
     );
 
     bool operator==(const SetServoTuningRequest& other) const;
@@ -52,6 +54,9 @@ public:
 
     std::vector<ascii::ServoTuningParam> const& getTuningParams() const;
     void setTuningParams(std::vector<ascii::ServoTuningParam> p_tuningParams);
+
+    bool getSetUnspecifiedToDefault() const;
+    void setSetUnspecifiedToDefault(bool p_setUnspecifiedToDefault);
 
     /**
      * Convert object to human-readable string format

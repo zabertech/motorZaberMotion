@@ -61,6 +61,11 @@ public:
     int getTransportId() const;
 
 protected:
+    /**
+     * Frees the transport instance.
+     * @param transportId Transport ID to be freed.
+     */
+    static void free(int transportId);
     int _transportId;
 
 public:

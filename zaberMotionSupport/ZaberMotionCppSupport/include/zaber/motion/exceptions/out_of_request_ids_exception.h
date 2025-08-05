@@ -19,6 +19,8 @@ namespace zaber
             public:
                 OutOfRequestIdsException(const std::string& message);
                 virtual ~OutOfRequestIdsException() = default;
+            protected:
+                OutOfRequestIdsException(const MotionLibException::ExceptionInfo& info);
             };
         }
     }
