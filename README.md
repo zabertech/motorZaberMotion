@@ -12,7 +12,8 @@ motorZaberMotion contains an example IOC that is built if ``CONFIG_SITE.local`` 
 
 ## Documentation
 
-This makes use of [Zaber Motion Library](https://software.zaber.com/motion-library/docs) (ZML), which requires c++17 or greater. For this reason, any epics IOC which uses this motor module must also be compiled with at least c++17.
+This driver makes use of [Zaber Motion Library](https://software.zaber.com/motion-library/docs) (ZML), which requires c++17 or greater.
+For this reason, any epics IOC which uses this motor module must also be compiled with at least c++17.
 
 Additionally, it only supports Zaber devices with FW version >= 7.25.
 
@@ -20,9 +21,30 @@ Additionally, it only supports Zaber devices with FW version >= 7.25.
 
 If this is your first time building an EPICS motor module, you can refer to the build instructions in [SETUP.md](SETUP.md), ignoring the npm-related instructions and instead using the explicit build steps.
 
+### Downloading the ZML Support Package
+
+The Zaber Motion Library support package which contains all the binary dependencies of this driver will be downloaded into the `zaberMotionSupport` directory when this driver is first built. It can also be downloaded manually by running the following command from the module's base directory.
+
+```bash
+make download-zml-support
+```
+
+When updating the driver, you may want to clean the support package directory before rebuilding.
+This can be done by running:
+
+```bash
+make clean-zml-support
+```
+
+Please note that the `download-zml-support` target makes use of `curl` and `unzip`.
+
+If the build must be performed without internet connectivity, then the support package can be downloaded from the following link, replacing `<version>` with Zaber Motion Library version found in [zaberMotionSupport/Makefile](zaberMotionSupport/Makefile).
+
+`https://www.zaber.com/support/software-downloads.php?product=zml_cpp_support&version=<version>`
+
 ### ZML Device Database
 
-Typically, ZML requires internet connectivity to identify devices: when identifying a device it will query a database service to retrieve important information such as device names, settings and conversion factors between device native units and real world units. If you would prefer that your IOC not be connected to the internet, this module exposes an ioc shell function for setting a local copy of the db (more on this in the ioc shell function section below).
+Typically, Zaber Motion Library requires internet connectivity to identify devices: when identifying a device it will query a database service to retrieve important information such as device names, settings and conversion factors between device native units and real world units. If you would prefer that your IOC not be connected to the internet, this module exposes an ioc shell function for setting a local copy of the db (more on this in the ioc shell function section below).
 
 ### Officially supported systems and architectures:
 While ZML itself supports windows, linux and macOS, this module only officially supports linux and maxOS, specifically:
@@ -32,7 +54,7 @@ While ZML itself supports windows, linux and macOS, this module only officially 
 - darwin-aarch64
 - darwin-x86
 
-Even though Windows is not officially supported, we include our Windows dlls in `zaberMotionSupport/ZaberMotionCppSupport` just in case. If you would like us to add official support for Windows, please let us know!
+Even though Windows is not officially supported, all Zaber Motion Library Windows dlls are included in the downloaded `zaberMotionSupport/ZaberMotionCppSupport` package. If you would like us to add official support for Windows, please let us know!
 
 Darwin users must add the following to the `configure/CONFIG_SITE` of any IOC which uses this module (example in `iocs/configure/CONFIG_SITE`):
 ```makefile
