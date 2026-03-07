@@ -6,7 +6,7 @@ ENV TZ=America/Vancouver
 ENV DEBIAN_FRONTEND=noninteractive
 
 # c++
-RUN apt-get update && apt-get install -y bash curl wget
+RUN apt-get update && apt-get install -y bash curl wget unzip
 RUN apt-get install -y build-essential cmake git libreadline-dev re2c
 
 # js

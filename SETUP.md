@@ -2,13 +2,13 @@
 
 This documentation is for developers who wish to contribute to this module.
 
-## Updating ZML cpp support package
+## Updating ZML cpp support package version
 Make sure that aws cli is installed. Open `gulpfile.js` and change `ZML_VERSION` to version which you'd like to update to, then on the command line:
 ```
 npm install
-npx gulp update_support_package
+npx gulp update_support_package_version
 ```
-This should download the relevant version of the support package. Please note that the support package was added in version `7.2.0`, so is not available for earlier versions.
+This will update the support package version in [zaberMotionSupport/Makefile](zaberMotionSupport/Makefile). Please note that the support package was added in version `7.2.0`, so is not available for earlier versions.
 
 ## Building EPICS and Zaber Motor Module
 ### Building natively
