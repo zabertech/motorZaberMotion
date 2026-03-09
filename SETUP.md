@@ -10,6 +10,16 @@ npx gulp update_support_package_version
 ```
 This will update the support package version in [zaberMotionSupport/Makefile](zaberMotionSupport/Makefile). Please note that the support package was added in version `7.2.0`, so is not available for earlier versions.
 
+## Releasing
+
+Update the [changelog](docs/RELEASE.md), then create and push new tag:
+
+```
+git tag vX.X.X
+git push origin vX.X.X
+```
+
+
 ## Building EPICS and Zaber Motor Module
 ### Building natively
 
