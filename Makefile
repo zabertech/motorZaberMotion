@@ -46,3 +46,8 @@ ifeq ($(INSTALL_LOCATION),$(MOTOR))
 else
   include $(TOP)/configure/RULES_TOP
 endif
+
+.PHONY: download-zml-support clean-zml-support
+
+download-zml-support clean-zml-support:
+	$(MAKE) -C zaberMotionSupport $@

@@ -29,23 +29,18 @@ class ServoTuner {
 public:
   struct SetSimpleTuningOptions {
     // The units the load mass was supplied in.
-    Units loadMassUnits {Units::NATIVE};
+    Units loadInertiaUnits {Units::NATIVE};
     // The mass of the carriage itself. If not supplied, the product's default mass will be used.
-    // Unless specified by the CarriageMassUnits parameter, this is in units of kg for linear devices,
+    // Unless specified by the CarriageInertiaUnits parameter, this is in units of kg for linear devices,
     // and kg⋅m² for rotary devices.
-    std::optional<double> carriageMass {};
+    std::optional<double> carriageInertia {};
     // The units the carriage mass was supplied in.
-    Units carriageMassUnits {Units::NATIVE};
+    Units carriageInertiaUnits {Units::NATIVE};
     // The inertia of the motor. Unless specified by the MotorInertiaUnits parameter,
     // this is in units of kg⋅m².
     std::optional<double> motorInertia {};
     // The units the motor inertia was supplied in.
     Units motorInertiaUnits {Units::NATIVE};
-  };
-
-  struct IsUsingSimpleTuningOptions {
-    // The mass of the carriage in kg. If this value is not set the default carriage mass is used.
-    std::optional<double> carriageMass {};
   };
 
     /**
@@ -119,19 +114,19 @@ public:
      * @param tuningParams The params used to tune this device.
      * To get what parameters are expected, call GetSimpleTuningParamList.
      * All values must be between 0 and 1.
-     * @param loadMass The mass loaded on the stage, excluding the mass of the carriage itself.
-     * Unless specified by the LoadMassUnits parameter, this is in units of kg for linear devices,
+     * @param loadInertia The mass loaded on the stage, excluding the mass of the carriage itself.
+     * Unless specified by the LoadInertiaUnits parameter, this is in units of kg for linear devices,
      * and kg⋅m² for rotary devices.
-     * @param loadMassUnits The units the load mass was supplied in.
-     * @param carriageMass The mass of the carriage itself. If not supplied, the product's default mass will be used.
-     * Unless specified by the CarriageMassUnits parameter, this is in units of kg for linear devices,
+     * @param loadInertiaUnits The units the load mass was supplied in.
+     * @param carriageInertia The mass of the carriage itself. If not supplied, the product's default mass will be used.
+     * Unless specified by the CarriageInertiaUnits parameter, this is in units of kg for linear devices,
      * and kg⋅m² for rotary devices.
-     * @param carriageMassUnits The units the carriage mass was supplied in.
+     * @param carriageInertiaUnits The units the carriage mass was supplied in.
      * @param motorInertia The inertia of the motor. Unless specified by the MotorInertiaUnits parameter,
      * this is in units of kg⋅m².
      * @param motorInertiaUnits The units the motor inertia was supplied in.
      */
-    void setSimpleTuning(ServoTuningParamset paramset, const std::vector<ServoTuningParam>& tuningParams, double loadMass, Units loadMassUnits = Units::NATIVE, const std::optional<double>& carriageMass = {}, Units carriageMassUnits = Units::NATIVE, const std::optional<double>& motorInertia = {}, Units motorInertiaUnits = Units::NATIVE);
+    void setSimpleTuning(ServoTuningParamset paramset, const std::vector<ServoTuningParam>& tuningParams, double loadInertia, Units loadInertiaUnits = Units::NATIVE, const std::optional<double>& carriageInertia = {}, Units carriageInertiaUnits = Units::NATIVE, const std::optional<double>& motorInertia = {}, Units motorInertiaUnits = Units::NATIVE);
 
     /**
      * Set the tuning of this device using the simple input method.
@@ -139,20 +134,20 @@ public:
      * @param tuningParams The params used to tune this device.
      * To get what parameters are expected, call GetSimpleTuningParamList.
      * All values must be between 0 and 1.
-     * @param loadMass The mass loaded on the stage, excluding the mass of the carriage itself.
-     * Unless specified by the LoadMassUnits parameter, this is in units of kg for linear devices,
+     * @param loadInertia The mass loaded on the stage, excluding the mass of the carriage itself.
+     * Unless specified by the LoadInertiaUnits parameter, this is in units of kg for linear devices,
      * and kg⋅m² for rotary devices.
      * @param options A struct of type SetSimpleTuningOptions. It has the following members:
-     * * `loadMassUnits`: The units the load mass was supplied in.
-     * * `carriageMass`: The mass of the carriage itself. If not supplied, the product's default mass will be used.
-     *   Unless specified by the CarriageMassUnits parameter, this is in units of kg for linear devices,
+     * * `loadInertiaUnits`: The units the load mass was supplied in.
+     * * `carriageInertia`: The mass of the carriage itself. If not supplied, the product's default mass will be used.
+     *   Unless specified by the CarriageInertiaUnits parameter, this is in units of kg for linear devices,
      *   and kg⋅m² for rotary devices.
-     * * `carriageMassUnits`: The units the carriage mass was supplied in.
+     * * `carriageInertiaUnits`: The units the carriage mass was supplied in.
      * * `motorInertia`: The inertia of the motor. Unless specified by the MotorInertiaUnits parameter,
      *   this is in units of kg⋅m².
      * * `motorInertiaUnits`: The units the motor inertia was supplied in.
      */
-    void setSimpleTuning(ServoTuningParamset paramset, const std::vector<ServoTuningParam>& tuningParams, double loadMass, const ServoTuner::SetSimpleTuningOptions& options);
+    void setSimpleTuning(ServoTuningParamset paramset, const std::vector<ServoTuningParam>& tuningParams, double loadInertia, const ServoTuner::SetSimpleTuningOptions& options);
 
     /**
      * Get the simple tuning parameters for this device.
@@ -160,35 +155,6 @@ public:
      * @return The simple tuning parameters.
      */
     SimpleTuning getSimpleTuning(ServoTuningParamset paramset);
-
-    /**
-     * Deprecated: Use GetSimpleTuning instead.
-     *
-     * Checks if the provided simple tuning is being stored by this paramset.
-     * @param paramset The paramset to set tuning for.
-     * @param tuningParams The params used to tune this device.
-     * To get what parameters are expected, call GetSimpleTuningParamList.
-     * All values must be between 0 and 1.
-     * @param loadMass The mass loaded on the stage (excluding the mass of the carriage itself) in kg.
-     * @param carriageMass The mass of the carriage in kg. If this value is not set the default carriage mass is used.
-     * @return True if the provided simple tuning is currently stored in this paramset.
-     */
-    bool isUsingSimpleTuning(ServoTuningParamset paramset, const std::vector<ServoTuningParam>& tuningParams, double loadMass, const std::optional<double>& carriageMass = {});
-
-    /**
-     * Deprecated: Use GetSimpleTuning instead.
-     *
-     * Checks if the provided simple tuning is being stored by this paramset.
-     * @param paramset The paramset to set tuning for.
-     * @param tuningParams The params used to tune this device.
-     * To get what parameters are expected, call GetSimpleTuningParamList.
-     * All values must be between 0 and 1.
-     * @param loadMass The mass loaded on the stage (excluding the mass of the carriage itself) in kg.
-     * @param options A struct of type IsUsingSimpleTuningOptions. It has the following members:
-     * * `carriageMass`: The mass of the carriage in kg. If this value is not set the default carriage mass is used.
-     * @return True if the provided simple tuning is currently stored in this paramset.
-     */
-    bool isUsingSimpleTuning(ServoTuningParamset paramset, const std::vector<ServoTuningParam>& tuningParams, double loadMass, const ServoTuner::IsUsingSimpleTuningOptions& options);
 
     /**
      * The axis that will be tuned.

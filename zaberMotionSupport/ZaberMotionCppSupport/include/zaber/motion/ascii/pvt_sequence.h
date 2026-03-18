@@ -9,7 +9,6 @@
 
 #include "zaber/motion/ascii/device.h"
 #include "zaber/motion/ascii/pvt_io.h"
-#include "zaber/motion/dto/ascii/digital_output_action.h"
 #include "zaber/motion/dto/ascii/pvt_axis_definition.h"
 #include "zaber/motion/dto/ascii/pvt_mode.h"
 #include "zaber/motion/dto/ascii/pvt_csv_data.h"
@@ -48,8 +47,20 @@ public:
      * Allows use of lockstep axes in a PVT sequence.
      * @param pvtAxes Definition of the PVT sequence axes.
      */
+    void setupLiveComposite(const std::vector<PvtAxisDefinition>& pvtAxes);
+        
     void setupLiveComposite(std::initializer_list<PvtAxisDefinition> pvtAxes);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    void setupLiveComposite(TIterator begin, TIterator end) {
+        return setupLiveComposite(std::vector<PvtAxisDefinition>(begin,end));
+    }
+    
     template<typename... T>
     void setupLiveComposite(T&&... pvtAxes) {
         return setupLiveComposite({std::forward<T>(pvtAxes)...});
@@ -59,8 +70,20 @@ public:
      * Setup the PVT sequence to control the specified axes and to queue actions on the device.
      * @param axes Numbers of physical axes to setup the PVT sequence on.
      */
+    void setupLive(const std::vector<int>& axes);
+        
     void setupLive(std::initializer_list<int> axes);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    void setupLive(TIterator begin, TIterator end) {
+        return setupLive(std::vector<int>(begin,end));
+    }
+    
     template<typename... T>
     void setupLive(T&&... axes) {
         return setupLive({std::forward<T>(axes)...});
@@ -72,8 +95,20 @@ public:
      * @param pvtBuffer The PVT buffer to queue actions in.
      * @param pvtAxes Definition of the PVT sequence axes.
      */
+    void setupStoreComposite(const PvtBuffer& pvtBuffer, const std::vector<PvtAxisDefinition>& pvtAxes);
+        
     void setupStoreComposite(const PvtBuffer& pvtBuffer, std::initializer_list<PvtAxisDefinition> pvtAxes);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    void setupStoreComposite(const PvtBuffer& pvtBuffer, TIterator begin, TIterator end) {
+        return setupStoreComposite(pvtBuffer, std::vector<PvtAxisDefinition>(begin,end));
+    }
+    
     template<typename... T>
     void setupStoreComposite(const PvtBuffer& pvtBuffer, T&&... pvtAxes) {
         return setupStoreComposite(pvtBuffer, {std::forward<T>(pvtAxes)...});
@@ -84,8 +119,20 @@ public:
      * @param pvtBuffer The PVT buffer to queue actions in.
      * @param axes Numbers of physical axes to setup the PVT sequence on.
      */
+    void setupStore(const PvtBuffer& pvtBuffer, const std::vector<int>& axes);
+        
     void setupStore(const PvtBuffer& pvtBuffer, std::initializer_list<int> axes);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    void setupStore(const PvtBuffer& pvtBuffer, TIterator begin, TIterator end) {
+        return setupStore(pvtBuffer, std::vector<int>(begin,end));
+    }
+    
     template<typename... T>
     void setupStore(const PvtBuffer& pvtBuffer, T&&... axes) {
         return setupStore(pvtBuffer, {std::forward<T>(axes)...});
@@ -150,6 +197,8 @@ public:
      * Also note that if generating a path for multiple axes, the user must provide a position measurement sequence
      * per axis, And the values arrays for each sequence must be equal in length to each other and also to the
      * times sequence.
+     *
+     * Does not support native units.
      * @param positions Positions for the axes to move through, relative to their home positions.
      * Each MeasurementSequence represents a sequence of positions along a particular dimension.
      * For example, a 2D path sequence would contain two MeasurementSequence objects,
@@ -171,6 +220,8 @@ public:
      * Note that if generating a path for multiple axes, the user must provide a
      * velocity measurement sequence per axis, and the values arrays for each sequence
      * must be equal in length to each other and also to the times sequence.
+     *
+     * Does not support native units.
      * @param velocities The sequence of velocities for each axis.
      * Each MeasurementSequence represents a sequence of velocities along particular dimension.
      * @param times The relative or absolute time of each position in the PVT sequence.
@@ -181,6 +232,33 @@ public:
      * @return Object containing the generated PVT sequence. Note that returned time sequence is always relative.
      */
     static PvtSequenceData generatePositions(const std::vector<MeasurementSequence>& velocities, const MeasurementSequence& times, bool timesRelative = true);
+
+    /**
+     * Generates sequences of velocities and times for a sequence of positions.
+     * This function fits a geometric spline (not-a-knot cubic for sequences of >3 points,
+     * natural cubic for 3, and a straight line for 2) over the position sequence
+     * and then calculates the velocity and time information by traversing it using a
+     * trapezoidal motion profile.
+     *
+     * This generation scheme attempts to keep speed and acceleration less than the
+     * specified target values, but does not guarantee it. Generally speaking, a higher
+     * resample number will bring the generated trajectory closer to respecting these
+     * limits.
+     *
+     * Note that consecutive duplicate points will be automatically removed as they
+     * have no geometric significance without additional time information. Also note that
+     * for multi-dimensional paths this function expects axes to be linear and orthogonal,
+     * however for paths of a single dimension rotary units are accepted.
+     *
+     * Does not support native units.
+     * @param positions Positions for the axes to move through, relative to their home positions.
+     * @param targetSpeed The target speed used to generate positions and times.
+     * @param targetAcceleration The target acceleration used to generate positions and times.
+     * @param resampleNumber The number of points to resample the sequence by.
+     * Leave undefined to use the specified points.
+     * @return Object containing the generated PVT sequence. Note that returned time sequence is always relative.
+     */
+    static PvtSequenceData generateVelocitiesAndTimes(const std::vector<MeasurementSequence>& positions, const Measurement& targetSpeed, const Measurement& targetAcceleration, const std::optional<int>& resampleNumber = {});
 
     /**
      * Waits until the live PVT sequence executes all queued actions.
@@ -294,46 +372,19 @@ public:
      *
      * Units must be wrapped in parens or square braces: ie. (µm/s), [µm/s].
      * Additionally, native units are the default if no units are specified.
+     * Time values default to milliseconds if no units are provided.
      * If no header is included, then column order is assumed to be "T,P1,V1,P2,V2,...".
      * In this case the number of columns must be odd.
-     * @param path The path from which the csv file will be loaded.
+     * @param path The path to the csv file to load.
      * @return The PVT csv data loaded from the file.
      */
     static PvtCsvData loadSequenceData(const std::string& path);
 
     /**
-     * Deprecated: Use PvtSequence.Io.SetDigitalOutput instead.
-     *
-     * Sets value for the specified digital output channel.
-     * @param channelNumber Channel number starting at 1.
-     * @param value The type of action to perform on the channel.
+     * Writes the contents of a PvtSequenceData object to the sequence.
+     * @param sequenceData The PVT sequence data to submit.
      */
-    void setDigitalOutput(int channelNumber, DigitalOutputAction value);
-
-    /**
-     * Deprecated: Use PvtSequence.Io.SetAllDigitalOutputs instead.
-     *
-     * Sets values for all digital output channels.
-     * @param values The type of action to perform on the channel.
-     */
-    void setAllDigitalOutputs(const std::vector<DigitalOutputAction>& values);
-
-    /**
-     * Deprecated: Use PvtSequence.Io.SetAnalogOutput instead.
-     *
-     * Sets value for the specified analog output channel.
-     * @param channelNumber Channel number starting at 1.
-     * @param value Value to set the output channel voltage to.
-     */
-    void setAnalogOutput(int channelNumber, double value);
-
-    /**
-     * Deprecated: Use PvtSequence.Io.SetAllAnalogOutputs instead.
-     *
-     * Sets values for all analog output channels.
-     * @param values Voltage values to set the output channels to.
-     */
-    void setAllAnalogOutputs(const std::vector<double>& values);
+    void submitSequenceData(const PvtSequenceData& sequenceData);
 
     /**
      * Device that controls this PVT sequence.
@@ -373,6 +424,7 @@ protected:
     PvtMode retrieveMode() const;
     Device _device;
     int _pvtId;
+    PvtIo _io;
 };
 
 

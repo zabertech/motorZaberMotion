@@ -22,10 +22,10 @@ public:
     int device {0};
     int axis {0};
     ascii::ServoTuningParamset paramset {0};
-    double loadMass {0.0};
-    Units loadMassUnits {Units::NATIVE};
-    std::optional<double> carriageMass;
-    Units carriageMassUnits {Units::NATIVE};
+    double loadInertia {0.0};
+    Units loadInertiaUnits {Units::NATIVE};
+    std::optional<double> carriageInertia;
+    Units carriageInertiaUnits {Units::NATIVE};
     std::optional<double> motorInertia;
     Units motorInertiaUnits {Units::NATIVE};
     std::vector<ascii::ServoTuningParam> tuningParams;
@@ -37,10 +37,10 @@ public:
         int p_device,
         int p_axis,
         ascii::ServoTuningParamset p_paramset,
-        double p_loadMass,
-        Units p_loadMassUnits,
-        std::optional<double> p_carriageMass,
-        Units p_carriageMassUnits,
+        double p_loadInertia,
+        Units p_loadInertiaUnits,
+        std::optional<double> p_carriageInertia,
+        Units p_carriageInertiaUnits,
         std::optional<double> p_motorInertia,
         Units p_motorInertiaUnits,
         std::vector<ascii::ServoTuningParam> p_tuningParams
@@ -51,9 +51,9 @@ public:
         int p_device,
         int p_axis,
         ascii::ServoTuningParamset p_paramset,
-        double p_loadMass,
-        Units p_loadMassUnits,
-        Units p_carriageMassUnits,
+        double p_loadInertia,
+        Units p_loadInertiaUnits,
+        Units p_carriageInertiaUnits,
         Units p_motorInertiaUnits,
         std::vector<ascii::ServoTuningParam> p_tuningParams
     );
@@ -76,17 +76,17 @@ public:
     ascii::ServoTuningParamset const& getParamset() const;
     void setParamset(ascii::ServoTuningParamset p_paramset);
 
-    double getLoadMass() const;
-    void setLoadMass(double p_loadMass);
+    double getLoadInertia() const;
+    void setLoadInertia(double p_loadInertia);
 
-    Units getLoadMassUnits() const;
-    void setLoadMassUnits(Units p_loadMassUnits);
+    Units getLoadInertiaUnits() const;
+    void setLoadInertiaUnits(Units p_loadInertiaUnits);
 
-    std::optional<double> getCarriageMass() const;
-    void setCarriageMass(std::optional<double> p_carriageMass);
+    std::optional<double> getCarriageInertia() const;
+    void setCarriageInertia(std::optional<double> p_carriageInertia);
 
-    Units getCarriageMassUnits() const;
-    void setCarriageMassUnits(Units p_carriageMassUnits);
+    Units getCarriageInertiaUnits() const;
+    void setCarriageInertiaUnits(Units p_carriageInertiaUnits);
 
     std::optional<double> getMotorInertia() const;
     void setMotorInertia(std::optional<double> p_motorInertia);

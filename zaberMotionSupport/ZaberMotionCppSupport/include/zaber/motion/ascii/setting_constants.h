@@ -1177,6 +1177,11 @@ namespace zaber { namespace motion { namespace ascii {
         static const std::string MAXSPEED = "maxspeed";
 
         /**
+         * Maxspeed Max.
+         */
+        static const std::string MAXSPEED_MAX = "maxspeed.max";
+
+        /**
          * Motion Accel Ramptime.
          */
         static const std::string MOTION_ACCEL_RAMPTIME = "motion.accel.ramptime";
@@ -1365,6 +1370,11 @@ namespace zaber { namespace motion { namespace ascii {
          * Motor Resistance.
          */
         static const std::string MOTOR_RESISTANCE = "motor.resistance";
+
+        /**
+         * Motor Temperature.
+         */
+        static const std::string MOTOR_TEMPERATURE = "motor.temperature";
 
         /**
          * Parking State.

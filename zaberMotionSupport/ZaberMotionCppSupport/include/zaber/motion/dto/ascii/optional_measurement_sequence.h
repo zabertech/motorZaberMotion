@@ -40,7 +40,7 @@ public:
     }
 
     /**
-     * Sequence of values.
+     * Sequence of optional values.
      */
     std::vector<std::optional<double>> const& getValues() const;
     void setValues(std::vector<std::optional<double>> p_values);

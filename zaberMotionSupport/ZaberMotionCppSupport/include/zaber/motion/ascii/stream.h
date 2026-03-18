@@ -5,7 +5,6 @@
 
 #include "zaber/motion/ascii/device.h"
 #include "zaber/motion/ascii/stream_io.h"
-#include "zaber/motion/dto/ascii/digital_output_action.h"
 #include "zaber/motion/dto/ascii/stream_axis_definition.h"
 #include "zaber/motion/dto/ascii/stream_mode.h"
 #include "zaber/motion/dto/measurement.h"
@@ -44,8 +43,20 @@ public:
      * Allows use of lockstep axes in a stream.
      * @param axes Definition of the stream axes.
      */
+    void setupLiveComposite(const std::vector<StreamAxisDefinition>& axes);
+        
     void setupLiveComposite(std::initializer_list<StreamAxisDefinition> axes);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    void setupLiveComposite(TIterator begin, TIterator end) {
+        return setupLiveComposite(std::vector<StreamAxisDefinition>(begin,end));
+    }
+    
     template<typename... T>
     void setupLiveComposite(T&&... axes) {
         return setupLiveComposite({std::forward<T>(axes)...});
@@ -55,8 +66,20 @@ public:
      * Setup the stream to control the specified axes and to queue actions on the device.
      * @param axes Numbers of physical axes to setup the stream on.
      */
+    void setupLive(const std::vector<int>& axes);
+        
     void setupLive(std::initializer_list<int> axes);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    void setupLive(TIterator begin, TIterator end) {
+        return setupLive(std::vector<int>(begin,end));
+    }
+    
     template<typename... T>
     void setupLive(T&&... axes) {
         return setupLive({std::forward<T>(axes)...});
@@ -68,8 +91,20 @@ public:
      * @param streamBuffer The stream buffer to queue actions in.
      * @param axes Definition of the stream axes.
      */
+    void setupStoreComposite(const StreamBuffer& streamBuffer, const std::vector<StreamAxisDefinition>& axes);
+        
     void setupStoreComposite(const StreamBuffer& streamBuffer, std::initializer_list<StreamAxisDefinition> axes);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    void setupStoreComposite(const StreamBuffer& streamBuffer, TIterator begin, TIterator end) {
+        return setupStoreComposite(streamBuffer, std::vector<StreamAxisDefinition>(begin,end));
+    }
+    
     template<typename... T>
     void setupStoreComposite(const StreamBuffer& streamBuffer, T&&... axes) {
         return setupStoreComposite(streamBuffer, {std::forward<T>(axes)...});
@@ -80,8 +115,20 @@ public:
      * @param streamBuffer The stream buffer to queue actions in.
      * @param axes Numbers of physical axes to setup the stream on.
      */
+    void setupStore(const StreamBuffer& streamBuffer, const std::vector<int>& axes);
+        
     void setupStore(const StreamBuffer& streamBuffer, std::initializer_list<int> axes);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    void setupStore(const StreamBuffer& streamBuffer, TIterator begin, TIterator end) {
+        return setupStore(streamBuffer, std::vector<int>(begin,end));
+    }
+    
     template<typename... T>
     void setupStore(const StreamBuffer& streamBuffer, T&&... axes) {
         return setupStore(streamBuffer, {std::forward<T>(axes)...});
@@ -106,8 +153,20 @@ public:
      * Queue an absolute line movement in the stream.
      * @param endpoint Positions for the axes to move to, relative to their home positions.
      */
+    void lineAbsolute(const std::vector<Measurement>& endpoint);
+        
     void lineAbsolute(std::initializer_list<Measurement> endpoint);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    void lineAbsolute(TIterator begin, TIterator end) {
+        return lineAbsolute(std::vector<Measurement>(begin,end));
+    }
+    
     template<typename... T>
     void lineAbsolute(T&&... endpoint) {
         return lineAbsolute({std::forward<T>(endpoint)...});
@@ -117,8 +176,20 @@ public:
      * Queue a relative line movement in the stream.
      * @param endpoint Positions for the axes to move to, relative to their positions before movement.
      */
+    void lineRelative(const std::vector<Measurement>& endpoint);
+        
     void lineRelative(std::initializer_list<Measurement> endpoint);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    void lineRelative(TIterator begin, TIterator end) {
+        return lineRelative(std::vector<Measurement>(begin,end));
+    }
+    
     template<typename... T>
     void lineRelative(T&&... endpoint) {
         return lineRelative({std::forward<T>(endpoint)...});
@@ -211,8 +282,20 @@ public:
      * @param endY The second dimension of the end position of the helix's arc component.
      * @param endpoint Positions for the helix's line component axes, relative to their home positions.
      */
+    void helixAbsoluteOn(const std::vector<int>& targetAxesIndices, RotationDirection rotationDirection, const Measurement& centerX, const Measurement& centerY, const Measurement& endX, const Measurement& endY, const std::vector<Measurement>& endpoint);
+        
     void helixAbsoluteOn(const std::vector<int>& targetAxesIndices, RotationDirection rotationDirection, const Measurement& centerX, const Measurement& centerY, const Measurement& endX, const Measurement& endY, std::initializer_list<Measurement> endpoint);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    void helixAbsoluteOn(const std::vector<int>& targetAxesIndices, RotationDirection rotationDirection, const Measurement& centerX, const Measurement& centerY, const Measurement& endX, const Measurement& endY, TIterator begin, TIterator end) {
+        return helixAbsoluteOn(targetAxesIndices, rotationDirection, centerX, centerY, endX, endY, std::vector<Measurement>(begin,end));
+    }
+    
     template<typename... T>
     void helixAbsoluteOn(const std::vector<int>& targetAxesIndices, RotationDirection rotationDirection, const Measurement& centerX, const Measurement& centerY, const Measurement& endX, const Measurement& endY, T&&... endpoint) {
         return helixAbsoluteOn(targetAxesIndices, rotationDirection, centerX, centerY, endX, endY, {std::forward<T>(endpoint)...});
@@ -233,8 +316,20 @@ public:
      * @param endY The second dimension of the end position of the helix's arc component.
      * @param endpoint Positions for the helix's line component axes, relative to their positions before movement.
      */
+    void helixRelativeOn(const std::vector<int>& targetAxesIndices, RotationDirection rotationDirection, const Measurement& centerX, const Measurement& centerY, const Measurement& endX, const Measurement& endY, const std::vector<Measurement>& endpoint);
+        
     void helixRelativeOn(const std::vector<int>& targetAxesIndices, RotationDirection rotationDirection, const Measurement& centerX, const Measurement& centerY, const Measurement& endX, const Measurement& endY, std::initializer_list<Measurement> endpoint);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    void helixRelativeOn(const std::vector<int>& targetAxesIndices, RotationDirection rotationDirection, const Measurement& centerX, const Measurement& centerY, const Measurement& endX, const Measurement& endY, TIterator begin, TIterator end) {
+        return helixRelativeOn(targetAxesIndices, rotationDirection, centerX, centerY, endX, endY, std::vector<Measurement>(begin,end));
+    }
+    
     template<typename... T>
     void helixRelativeOn(const std::vector<int>& targetAxesIndices, RotationDirection rotationDirection, const Measurement& centerX, const Measurement& centerY, const Measurement& endX, const Measurement& endY, T&&... endpoint) {
         return helixRelativeOn(targetAxesIndices, rotationDirection, centerX, centerY, endX, endY, {std::forward<T>(endpoint)...});
@@ -427,61 +522,6 @@ public:
     void ignoreCurrentDiscontinuity();
 
     /**
-     * Deprecated: Use Stream.Io.WaitDigitalInput instead.
-     *
-     * Wait for a digital input channel to reach a given value.
-     * @param channelNumber The number of the digital input channel.
-     * Channel numbers are numbered from one.
-     * @param value The value that the stream should wait for.
-     */
-    void waitDigitalInput(int channelNumber, bool value);
-
-    /**
-     * Deprecated: Use Stream.Io.WaitAnalogInput instead.
-     *
-     * Wait for the value of a analog input channel to reach a condition concerning a given value.
-     * @param channelNumber The number of the analog input channel.
-     * Channel numbers are numbered from one.
-     * @param condition A condition (e.g. <, <=, ==, !=).
-     * @param value The value that the condition concerns, in Volts.
-     */
-    void waitAnalogInput(int channelNumber, const std::string& condition, double value);
-
-    /**
-     * Deprecated: Use Stream.Io.SetDigitalOutput instead.
-     *
-     * Sets value for the specified digital output channel.
-     * @param channelNumber Channel number starting at 1.
-     * @param value The type of action to perform on the channel.
-     */
-    void setDigitalOutput(int channelNumber, DigitalOutputAction value);
-
-    /**
-     * Deprecated: Use Stream.Io.SetAllDigitalOutputs instead.
-     *
-     * Sets values for all digital output channels.
-     * @param values The type of action to perform on the channel.
-     */
-    void setAllDigitalOutputs(const std::vector<DigitalOutputAction>& values);
-
-    /**
-     * Deprecated: Use Stream.Io.setAnalogOutput instead.
-     *
-     * Sets value for the specified analog output channel.
-     * @param channelNumber Channel number starting at 1.
-     * @param value Value to set the output channel voltage to.
-     */
-    void setAnalogOutput(int channelNumber, double value);
-
-    /**
-     * Deprecated: Use Stream.Io.setAllAnalogOutputs instead.
-     *
-     * Sets values for all analog output channels.
-     * @param values Voltage values to set the output channels to.
-     */
-    void setAllAnalogOutputs(const std::vector<double>& values);
-
-    /**
      * Device that controls this stream.
      */
     Device getDevice() const;
@@ -519,6 +559,7 @@ protected:
     StreamMode retrieveMode() const;
     Device _device;
     int _streamId;
+    StreamIo _io;
 };
 
 

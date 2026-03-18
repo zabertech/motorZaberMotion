@@ -261,6 +261,10 @@ protected:
 
     ProcessController _controller;
     int _processNumber;
+    Axis _axis;
+    AxisSettings _settings;
+    AxisStorage _storage;
+    Warnings _warnings;
 };
 
 

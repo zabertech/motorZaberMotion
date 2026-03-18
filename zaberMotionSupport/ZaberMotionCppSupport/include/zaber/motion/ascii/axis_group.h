@@ -44,8 +44,20 @@ public:
      * Moves the axes to absolute position.
      * @param position Position.
      */
+    void moveAbsolute(const std::vector<Measurement>& position);
+        
     void moveAbsolute(std::initializer_list<Measurement> position);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    void moveAbsolute(TIterator begin, TIterator end) {
+        return moveAbsolute(std::vector<Measurement>(begin,end));
+    }
+    
     template<typename... T>
     void moveAbsolute(T&&... position) {
         return moveAbsolute({std::forward<T>(position)...});
@@ -55,8 +67,20 @@ public:
      * Move axes to position relative to the current position.
      * @param position Position.
      */
+    void moveRelative(const std::vector<Measurement>& position);
+        
     void moveRelative(std::initializer_list<Measurement> position);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    void moveRelative(TIterator begin, TIterator end) {
+        return moveRelative(std::vector<Measurement>(begin,end));
+    }
+    
     template<typename... T>
     void moveRelative(T&&... position) {
         return moveRelative({std::forward<T>(position)...});
@@ -96,8 +120,20 @@ public:
      * @param unit Units of position. You can specify units once or for each axis separately.
      * @return Axes position.
      */
+    std::vector<double> getPosition(const std::vector<Units>& unit);
+        
     std::vector<double> getPosition(std::initializer_list<Units> unit);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    std::vector<double> getPosition(TIterator begin, TIterator end) {
+        return getPosition(std::vector<Units>(begin,end));
+    }
+    
     template<typename... T>
     std::vector<double> getPosition(T&&... unit) {
         return getPosition({std::forward<T>(unit)...});

@@ -144,6 +144,14 @@ public:
     bool canConvertNativeUnits(const std::string& setting);
 
     /**
+     * Retrieves unit conversion descriptor for a setting, allowing unit conversion without a device.
+     * The descriptor can be used with the ConvertTo/FromNativeUnits methods of the UnitTable class.
+     * @param setting Name of the setting.
+     * @return The unit conversion descriptor for the setting.
+     */
+    UnitConversionDescriptor getUnitConversionDescriptor(const std::string& setting);
+
+    /**
      * Gets the value of an axis scope setting for each axis on the device.
      * Values may be NaN where the setting is not applicable.
      * @param setting Name of the setting.
@@ -156,8 +164,20 @@ public:
      * @param settings The settings to read.
      * @return The setting values read.
      */
+    std::vector<GetSettingResult> getMany(const std::vector<GetSetting>& settings);
+        
     std::vector<GetSettingResult> getMany(std::initializer_list<GetSetting> settings);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    std::vector<GetSettingResult> getMany(TIterator begin, TIterator end) {
+        return getMany(std::vector<GetSetting>(begin,end));
+    }
+    
     template<typename... T>
     std::vector<GetSettingResult> getMany(T&&... settings) {
         return getMany({std::forward<T>(settings)...});
@@ -169,8 +189,20 @@ public:
      * @param settings The settings to read.
      * @return The setting values read.
      */
+    std::vector<GetSettingResult> getSynchronized(const std::vector<GetSetting>& settings);
+        
     std::vector<GetSettingResult> getSynchronized(std::initializer_list<GetSetting> settings);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    std::vector<GetSettingResult> getSynchronized(TIterator begin, TIterator end) {
+        return getSynchronized(std::vector<GetSetting>(begin,end));
+    }
+    
     template<typename... T>
     std::vector<GetSettingResult> getSynchronized(T&&... settings) {
         return getSynchronized({std::forward<T>(settings)...});

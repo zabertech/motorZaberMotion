@@ -16,6 +16,7 @@
 #include "zaber/motion/dto/ascii/set_state_device_response.h"
 #include "zaber/motion/dto/firmware_version.h"
 #include "zaber/motion/dto/measurement.h"
+#include "zaber/motion/dto/unit_conversion_descriptor.h"
 #include "zaber/motion/units.h"
 
 
@@ -210,12 +211,34 @@ public:
      * @param parameters Variable number of command parameters.
      * @return Command with converted parameters.
      */
+    std::string prepareCommand(const std::string& commandTemplate, const std::vector<Measurement>& parameters);
+        
     std::string prepareCommand(const std::string& commandTemplate, std::initializer_list<Measurement> parameters);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    std::string prepareCommand(const std::string& commandTemplate, TIterator begin, TIterator end) {
+        return prepareCommand(commandTemplate, std::vector<Measurement>(begin,end));
+    }
+    
     template<typename... T>
     std::string prepareCommand(const std::string& commandTemplate, T&&... parameters) {
         return prepareCommand(commandTemplate, {std::forward<T>(parameters)...});
     }
+
+    /**
+     * Retrieves unit conversion descriptors for a command, allowing unit conversion without a device.
+     * The descriptors can be used with the ConvertTo/FromNativeUnits methods of the UnitTable class.
+     * Parameters in the command template are denoted by a question mark.
+     * For more information refer to: [ASCII Protocol Manual](https://www.zaber.com/protocol-manual#topic_commands).
+     * @param commandTemplate Template of the command. Parameters are denoted by question marks.
+     * @return Unit conversion descriptor for each parameter in the command. Nil if a parameter does not have conversion.
+     */
+    std::vector<std::optional<UnitConversionDescriptor>> getCommandUnitConversionDescriptors(const std::string& commandTemplate);
 
     /**
      * Sets the user-assigned device label.

@@ -148,6 +148,11 @@ protected:
     std::optional<FilterChanger> _filterChanger;
     std::optional<Autofocus> _autofocus;
     std::optional<CameraTrigger> _cameraTrigger;
+
+    /**
+     * Initializes the components of the microscope based on the configuration.
+     */
+    void initializeComponents();
 };
 
 

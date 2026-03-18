@@ -146,6 +146,14 @@ public:
     bool canConvertNativeUnits(const std::string& setting);
 
     /**
+     * Retrieves unit conversion descriptor for a setting, allowing unit conversion without a device.
+     * The descriptor can be used with the ConvertTo/FromNativeUnits methods of the UnitTable class.
+     * @param setting Name of the setting.
+     * @return The unit conversion descriptor for the setting.
+     */
+    UnitConversionDescriptor getUnitConversionDescriptor(const std::string& setting);
+
+    /**
      * Overrides default unit conversions.
      * Conversion factors are specified by setting names representing underlying dimensions.
      * Requires at least Firmware 7.30.
@@ -158,8 +166,20 @@ public:
      * @param axisSettings The settings to read.
      * @return The setting values read.
      */
+    std::vector<GetAxisSettingResult> getMany(const std::vector<GetAxisSetting>& axisSettings);
+        
     std::vector<GetAxisSettingResult> getMany(std::initializer_list<GetAxisSetting> axisSettings);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    std::vector<GetAxisSettingResult> getMany(TIterator begin, TIterator end) {
+        return getMany(std::vector<GetAxisSetting>(begin,end));
+    }
+    
     template<typename... T>
     std::vector<GetAxisSettingResult> getMany(T&&... axisSettings) {
         return getMany({std::forward<T>(axisSettings)...});
@@ -171,8 +191,20 @@ public:
      * @param axisSettings The settings to read.
      * @return The setting values read.
      */
+    std::vector<GetAxisSettingResult> getSynchronized(const std::vector<GetAxisSetting>& axisSettings);
+        
     std::vector<GetAxisSettingResult> getSynchronized(std::initializer_list<GetAxisSetting> axisSettings);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    std::vector<GetAxisSettingResult> getSynchronized(TIterator begin, TIterator end) {
+        return getSynchronized(std::vector<GetAxisSetting>(begin,end));
+    }
+    
     template<typename... T>
     std::vector<GetAxisSettingResult> getSynchronized(T&&... axisSettings) {
         return getSynchronized({std::forward<T>(axisSettings)...});

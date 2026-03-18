@@ -5,6 +5,7 @@
 
 #include "zaber/motion/ascii/connection.h"
 #include "zaber/motion/ascii/device.h"
+#include "zaber/motion/dto/ascii/pvt_sequence_data.h"
 #include "zaber/motion/gateway/call.h"
 
 namespace zaber {
@@ -28,6 +29,12 @@ public:
      * @return A string array containing all the PVT commands stored in the buffer.
      */
     std::vector<std::string> getContent();
+
+    /**
+     * Gets the buffer contents as a PvtSequenceData object.
+     * @return The PVT data loaded from the buffer.
+     */
+    PvtSequenceData retrieveSequenceData();
 
     /**
      * Erases the contents of the buffer.

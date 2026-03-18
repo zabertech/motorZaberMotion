@@ -55,6 +55,7 @@ public:
      * Moves the focus axis continuously maintaining focus.
      * Starts the autofocus control loop.
      * Note that the control loop may stop if the autofocus comes out of range or a movement error occurs.
+     * Use WaitUntilIdle of the focus axis to wait for the loop to stop and handle potential errors.
      */
     void startFocusLoop();
 
@@ -63,6 +64,13 @@ public:
      * If the focus axis already stopped moving because of an error, an exception will be thrown.
      */
     void stopFocusLoop();
+
+    /**
+     * Returns bool indicating whether the focus axis is busy.
+     * Can be used to determine if the focus loop is running.
+     * @return True if the axis is currently executing a motion command.
+     */
+    bool isBusy();
 
     /**
      * Gets the lower motion limit for the autofocus control loop.

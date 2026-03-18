@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 
+#include "zaber/motion/dto/firmware_version.h"
 #include "zaber/motion/dto/microscopy/wdi_autofocus_provider_status.h"
 
 namespace zaber {
@@ -33,6 +34,22 @@ public:
   };
 
   struct GenericWriteOptions {
+    // Offset within the register (defaults to 0).
+    int offset {0};
+    // Register bank letter (defaults to U for user bank).
+    std::string registerBank {"U"};
+  };
+
+  struct GenericReadFloatOptions {
+    // Number of values to read (defaults to 1).
+    int count {1};
+    // Offset within the register (defaults to 0).
+    int offset {0};
+    // Register bank letter (defaults to U for user bank).
+    std::string registerBank {"U"};
+  };
+
+  struct GenericWriteFloatOptions {
     // Offset within the register (defaults to 0).
     int offset {0};
     // Register bank letter (defaults to U for user bank).
@@ -99,6 +116,46 @@ public:
     void genericWrite(int registerId, int size, const std::vector<int>& data, const WdiAutofocusProvider::GenericWriteOptions& options);
 
     /**
+     * Generic read operation.
+     * @param registerId Register address to read from.
+     * @param count Number of values to read (defaults to 1).
+     * @param offset Offset within the register (defaults to 0).
+     * @param registerBank Register bank letter (defaults to U for user bank).
+     * @return Array of floats read from the device.
+     */
+    std::vector<double> genericReadFloat(int registerId, int count = 1, int offset = 0, const std::string& registerBank = "U");
+
+    /**
+     * Generic read operation.
+     * @param registerId Register address to read from.
+     * @param options A struct of type GenericReadFloatOptions. It has the following members:
+     * * `count`: Number of values to read (defaults to 1).
+     * * `offset`: Offset within the register (defaults to 0).
+     * * `registerBank`: Register bank letter (defaults to U for user bank).
+     * @return Array of floats read from the device.
+     */
+    std::vector<double> genericReadFloat(int registerId, const WdiAutofocusProvider::GenericReadFloatOptions& options);
+
+    /**
+     * Generic write operation.
+     * @param registerId Register address to write to.
+     * @param data Array of values to write to the register. Empty array is allowed.
+     * @param offset Offset within the register (defaults to 0).
+     * @param registerBank Register bank letter (defaults to U for user bank).
+     */
+    void genericWriteFloat(int registerId, const std::vector<double>& data = {}, int offset = 0, const std::string& registerBank = "U");
+
+    /**
+     * Generic write operation.
+     * @param registerId Register address to write to.
+     * @param data Array of values to write to the register. Empty array is allowed.
+     * @param options A struct of type GenericWriteFloatOptions. It has the following members:
+     * * `offset`: Offset within the register (defaults to 0).
+     * * `registerBank`: Register bank letter (defaults to U for user bank).
+     */
+    void genericWriteFloat(int registerId, const std::vector<double>& data, const WdiAutofocusProvider::GenericWriteFloatOptions& options);
+
+    /**
      * Enables the laser.
      */
     void enableLaser();
@@ -125,12 +182,22 @@ public:
      */
     int getProviderId() const;
 
+    /**
+     * The firmware version of the connected autofocus.
+     */
+    FirmwareVersion getFirmwareVersion() const;
+
 protected:
     /**
      * Frees the connection.
      * @param providerId The ID of the connection to free.
      */
     static void free(int providerId);
+    /**
+     * Returns FW version.
+     * @return Firmware version.
+     */
+    FirmwareVersion retrieveFirmwareVersion() const;
     int _providerId;
 public:
     WdiAutofocusProvider(): _providerId(-1) {};

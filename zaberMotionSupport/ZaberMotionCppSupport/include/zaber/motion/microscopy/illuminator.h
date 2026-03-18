@@ -7,7 +7,9 @@
 #include <utility>
 
 #include "zaber/motion/ascii/connection.h"
+#include "zaber/motion/ascii/axis.h"
 #include "zaber/motion/ascii/device.h"
+#include "zaber/motion/ascii/device_io.h"
 
 namespace zaber {
 namespace motion {
@@ -54,6 +56,11 @@ public:
     IlluminatorChannel getChannel(int channelNumber);
 
     /**
+     * Turns all channels off.
+     */
+    void turnOff();
+
+    /**
      * Finds an illuminator on a connection.
      * In case of conflict, specify the optional device address.
      * @param connection Connection on which to detect the illuminator.
@@ -94,6 +101,7 @@ protected:
      */
     void verifyIsIlluminator() const;
     Device _device;
+    DeviceIO _io;
 };
 
 

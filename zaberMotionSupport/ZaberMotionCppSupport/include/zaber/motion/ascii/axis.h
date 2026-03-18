@@ -9,11 +9,14 @@
 #include <vector>
 
 #include "zaber/motion/ascii/device.h"
+#include "zaber/motion/ascii/warnings.h"
 #include "zaber/motion/units.h"
+#include "zaber/motion/dto/cyclic_direction.h"
 #include "zaber/motion/dto/ascii/axis_identity.h"
 #include "zaber/motion/dto/ascii/axis_type.h"
 #include "zaber/motion/dto/ascii/response.h"
 #include "zaber/motion/dto/measurement.h"
+#include "zaber/motion/dto/unit_conversion_descriptor.h"
 
 
 namespace zaber {
@@ -61,6 +64,10 @@ public:
     double acceleration {0};
     // Units of acceleration.
     Units accelerationUnit {Units::NATIVE};
+    // Which direction a cyclic device should take to get to the target position.
+    std::optional<CyclicDirection> cyclicDirection {};
+    // Number of extra cycles to complete before stopping at the target.
+    std::optional<int> extraCycles {};
   };
 
   struct MoveMaxOptions {
@@ -266,8 +273,10 @@ public:
      * Default value of 0 indicates that the accel setting is used instead.
      * Requires at least Firmware 7.25.
      * @param accelerationUnit Units of acceleration.
+     * @param cyclicDirection Which direction a cyclic device should take to get to the target position.
+     * @param extraCycles Number of extra cycles to complete before stopping at the target.
      */
-    void moveAbsolute(double position, Units unit = Units::NATIVE, bool waitUntilIdle = true, double velocity = 0, Units velocityUnit = Units::NATIVE, double acceleration = 0, Units accelerationUnit = Units::NATIVE);
+    void moveAbsolute(double position, Units unit = Units::NATIVE, bool waitUntilIdle = true, double velocity = 0, Units velocityUnit = Units::NATIVE, double acceleration = 0, Units accelerationUnit = Units::NATIVE, const std::optional<CyclicDirection>& cyclicDirection = {}, const std::optional<int>& extraCycles = {});
 
     /**
      * Move axis to absolute position.
@@ -283,6 +292,8 @@ public:
      *   Default value of 0 indicates that the accel setting is used instead.
      *   Requires at least Firmware 7.25.
      * * `accelerationUnit`: Units of acceleration.
+     * * `cyclicDirection`: Which direction a cyclic device should take to get to the target position.
+     * * `extraCycles`: Number of extra cycles to complete before stopping at the target.
      */
     void moveAbsolute(double position, Units unit, const Axis::MoveAbsoluteOptions& options);
 
@@ -514,12 +525,34 @@ public:
      * @param parameters Variable number of command parameters.
      * @return Command with converted parameters.
      */
+    std::string prepareCommand(const std::string& commandTemplate, const std::vector<Measurement>& parameters);
+        
     std::string prepareCommand(const std::string& commandTemplate, std::initializer_list<Measurement> parameters);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    std::string prepareCommand(const std::string& commandTemplate, TIterator begin, TIterator end) {
+        return prepareCommand(commandTemplate, std::vector<Measurement>(begin,end));
+    }
+    
     template<typename... T>
     std::string prepareCommand(const std::string& commandTemplate, T&&... parameters) {
         return prepareCommand(commandTemplate, {std::forward<T>(parameters)...});
     }
+
+    /**
+     * Retrieves unit conversion descriptors for a command, allowing unit conversion without a device.
+     * The descriptors can be used with the ConvertTo/FromNativeUnits methods of the UnitTable class.
+     * Parameters in the command template are denoted by a question mark.
+     * For more information refer to: [ASCII Protocol Manual](https://www.zaber.com/protocol-manual#topic_commands).
+     * @param commandTemplate Template of the command. Parameters are denoted by question marks.
+     * @return Unit conversion descriptor for each parameter in the command. Nil if a parameter does not have conversion.
+     */
+    std::vector<std::optional<UnitConversionDescriptor>> getCommandUnitConversionDescriptors(const std::string& commandTemplate);
 
     /**
      * Sets the user-assigned peripheral label.
@@ -709,6 +742,11 @@ public:
     AxisType getAxisType() const;
 
     /**
+     * The number of microsteps per full step for motion axes. Always equal to 0 for non-motion axes.
+     */
+    unsigned int getResolution() const;
+
+    /**
      * User-assigned label of the peripheral.
      */
     std::string getLabel() const;
@@ -726,6 +764,7 @@ protected:
     AxisIdentity retrieveIdentity() const;
     Device _device;
     int _axisNumber;
+    Warnings _warnings;
 };
 
 

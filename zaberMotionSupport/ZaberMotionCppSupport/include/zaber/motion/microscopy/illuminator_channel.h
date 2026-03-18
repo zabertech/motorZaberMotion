@@ -6,6 +6,8 @@
 #include <string>
 #include <utility>
 
+#include "zaber/motion/ascii/axis_settings.h"
+#include "zaber/motion/ascii/storage.h"
 #include "zaber/motion/ascii/connection.h"
 #include "zaber/motion/ascii/device.h"
 #include "zaber/motion/microscopy/illuminator.h"
@@ -67,8 +69,10 @@ public:
 
     /**
      * Turns this channel on.
+     * @param duration Duration for which to turn the channel on.
+     * If not specified, the channel remains on until turned off.
      */
-    void on();
+    void on(const std::optional<Measurement>& duration = {});
 
     /**
      * Turns this channel off.
@@ -226,6 +230,10 @@ protected:
 
     Illuminator _illuminator;
     int _channelNumber;
+    Axis _axis;
+    AxisSettings _settings;
+    AxisStorage _storage;
+    Warnings _warnings;
 };
 
 

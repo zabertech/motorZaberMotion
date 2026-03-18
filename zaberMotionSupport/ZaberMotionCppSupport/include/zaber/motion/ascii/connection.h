@@ -12,6 +12,7 @@
 #include "zaber/motion/gateway/event_handler.h"
 #include "zaber/motion/dto/ascii/response.h"
 #include "zaber/motion/dto/ascii/alert_event.h"
+#include "zaber/motion/dto/ascii/mock_device.h"
 #include "zaber/motion/dto/ascii/unknown_response_event.h"
 #include "zaber/motion/exceptions/motion_lib_exception.h"
 
@@ -325,6 +326,12 @@ public:
      */
     void setChecksumEnabled(bool value);
 
+    /**
+     * Returns whether the connection is open.
+     * Does not guarantee that subsequent requests will succeed.
+     */
+    bool getIsOpen() const;
+
 protected:
     /**
      * Returns default request timeout.
@@ -346,6 +353,11 @@ protected:
      * @param isEnabled Checksum enabled.
      */
     void changeChecksumEnabled(bool isEnabled) const;
+    /**
+     * Returns is open.
+     * @return Is open.
+     */
+    bool retrieveIsOpen() const;
     /**
      * Releases native resources of the connection.
      * @param interfaceId The ID of the connection.
@@ -370,6 +382,9 @@ public:
     // If true will connect to the serial port directly,
     // failing if the connection is already opened by a message router instance.
     bool direct {false};
+    // Some operating systems may allow opening a serial port that is not writable.
+    // Tests if the serial port is writable, and throws an exception if it is not.
+    bool testPort {false};
   };
 
   struct OpenIotOptions {
@@ -397,9 +412,11 @@ public:
      * @param baudRate Optional baud rate (defaults to 115200).
      * @param direct If true will connect to the serial port directly,
      * failing if the connection is already opened by a message router instance.
+     * @param testPort Some operating systems may allow opening a serial port that is not writable.
+     * Tests if the serial port is writable, and throws an exception if it is not.
      * @return An object representing the port.
      */
-    static Connection openSerialPort(const std::string& portName, int baudRate = DEFAULT_BAUD_RATE, bool direct = false);
+    static Connection openSerialPort(const std::string& portName, int baudRate = DEFAULT_BAUD_RATE, bool direct = false, bool testPort = false);
 
     /**
      * Opens a serial port, if Zaber Launcher controls the port, the port will be opened through Zaber Launcher.
@@ -410,6 +427,8 @@ public:
      * * `baudRate`: Optional baud rate (defaults to 115200).
      * * `direct`: If true will connect to the serial port directly,
      *   failing if the connection is already opened by a message router instance.
+     * * `testPort`: Some operating systems may allow opening a serial port that is not writable.
+     *   Tests if the serial port is writable, and throws an exception if it is not.
      * @return An object representing the port.
      */
     static Connection openSerialPort(const std::string& portName, const Connection::OpenSerialPortOptions& options);
@@ -471,6 +490,20 @@ public:
      * @return An object representing the connection.
      */
     static Connection openNetworkShare(const std::string& hostName, int port = NETWORK_SHARE_PORT, const std::optional<std::string>& connectionName = {});
+
+    /**
+     * Opens a mock connection with mock devices for testing purposes.
+     * The mock connection cannot be used for communication with mock devices.
+     * @param devices List of mock devices.
+     * @return An object representing the mock connection.
+     */
+    static Connection openMock(const std::vector<MockDevice>& devices);
+
+    /**
+     * Reopens the connection.
+     * Throws an exception if the connection is already open.
+     */
+    void reopen();
 
     /**
      * Close the connection.

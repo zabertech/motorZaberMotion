@@ -1,10 +1,9 @@
 import childProcess from 'child_process';
-import { time } from 'console';
 import { promises as fsp } from 'fs';
 import os from 'os';
 import path from 'path';
 
-const ZML_VERSION = '7.8.4';
+const ZML_VERSION = '8.4.0';
 
 const EPICS_BASE = process.env.EPICS_BASE;
 const EPICS_SUPPORT = path.normalize(`${EPICS_BASE}/../support`);
@@ -25,14 +24,11 @@ const exec = (command) => new Promise((resolve, reject) => {
   child.stderr?.pipe(process.stderr);
 });
 
-export const update_support_package = async () => {
-  const url = `https://www.zaber.com/support/software-downloads.php\\?product\\=zml_cpp_support\\&version\\=${ZML_VERSION}`;
-  const localDestination = `zaberMotionSupport/ZaberMotionCppSupport-${ZML_VERSION}.zip`;
-
-  await fsp.rm('zaberMotionSupport/ZaberMotionCppSupport', { recursive: true }).catch(() => false);
-  await exec(`curl -L -o ${localDestination} ${url}`);
-  await exec(`unzip ${localDestination} -d zaberMotionSupport`);
-  await fsp.rm(localDestination);
+export const update_support_package_version = async () => {
+  const makefilePath = 'zaberMotionSupport/Makefile';
+  const contents = await fsp.readFile(makefilePath, 'utf8');
+  const updated = contents.replace(/^(ZML_VERSION\s*=\s*).*$/m, `$1${ZML_VERSION}`);
+  await fsp.writeFile(makefilePath, updated);
 }
 
 const update_release_for_module = async modulePath => {

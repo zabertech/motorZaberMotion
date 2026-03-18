@@ -7,7 +7,6 @@
 #include <utility>
 
 #include "zaber/motion/ascii/axis.h"
-#include "zaber/motion/ascii/connection.h"
 #include "zaber/motion/ascii/device.h"
 #include "zaber/motion/dto/measurement.h"
 
@@ -33,13 +32,6 @@ class ObjectiveChanger {
     using Connection = zaber::motion::ascii::Connection;
     using Device = zaber::motion::ascii::Device;
 public:
-  struct FindOptions {
-    // Optional device address of the turret device (X-MOR).
-    int turretAddress {0};
-    // Optional device address of the focus device (X-LDA).
-    int focusAddress {0};
-  };
-
   struct ChangeOptions {
     // Optional offset from the focus datum.
     std::optional<Measurement> focusOffset {std::nullopt};
@@ -52,33 +44,6 @@ public:
     ObjectiveChanger(Device turret, Axis focusAxis);
 
     ObjectiveChanger();
-
-    /**
-     * Deprecated: Use microscope's `Find` method instead or instantiate manually.
-     *
-     * Finds an objective changer on a connection.
-     * In case of conflict, specify the optional device addresses.
-     * Devices on the connection must be identified.
-     * @param connection Connection on which to detect the objective changer.
-     * @param turretAddress Optional device address of the turret device (X-MOR).
-     * @param focusAddress Optional device address of the focus device (X-LDA).
-     * @return New instance of objective changer.
-     */
-    static ObjectiveChanger find(const BaseConnection& connection, int turretAddress = 0, int focusAddress = 0);
-
-    /**
-     * Deprecated: Use microscope's `Find` method instead or instantiate manually.
-     *
-     * Finds an objective changer on a connection.
-     * In case of conflict, specify the optional device addresses.
-     * Devices on the connection must be identified.
-     * @param connection Connection on which to detect the objective changer.
-     * @param options A struct of type FindOptions. It has the following members:
-     * * `turretAddress`: Optional device address of the turret device (X-MOR).
-     * * `focusAddress`: Optional device address of the focus device (X-LDA).
-     * @return New instance of objective changer.
-     */
-    static ObjectiveChanger find(const BaseConnection& connection, const ObjectiveChanger::FindOptions& options);
 
     /**
      * Changes the objective.

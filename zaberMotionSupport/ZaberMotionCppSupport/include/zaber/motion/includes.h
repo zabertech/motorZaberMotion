@@ -77,6 +77,7 @@
 #include "zaber/motion/tools.h"
 #include "zaber/motion/unit_table.h"
 #include "zaber/motion/units.h"
+#include "zaber/motion/variant_test_api.h"
 #include "zaber/motion/version.h"
 
 #endif

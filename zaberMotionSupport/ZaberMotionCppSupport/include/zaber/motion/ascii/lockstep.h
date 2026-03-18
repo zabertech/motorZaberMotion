@@ -8,8 +8,6 @@
 
 #include "zaber/motion/units.h"
 #include "zaber/motion/ascii/device.h"
-#include "zaber/motion/dto/ascii/lockstep_axes.h"
-
 
 namespace zaber {
 namespace motion {
@@ -141,8 +139,20 @@ public:
      * Activate the lockstep group on the axes specified.
      * @param axes The numbers of axes in the lockstep group.
      */
+    void enable(const std::vector<int>& axes);
+        
     void enable(std::initializer_list<int> axes);
 
+    template<
+        typename TIterator,
+        typename = std::enable_if_t<
+            std::is_base_of_v<
+                std::input_iterator_tag,
+                typename std::iterator_traits<TIterator>::iterator_category>>>
+    void enable(TIterator begin, TIterator end) {
+        return enable(std::vector<int>(begin,end));
+    }
+    
     template<typename... T>
     void enable(T&&... axes) {
         return enable({std::forward<T>(axes)...});
@@ -404,14 +414,6 @@ public:
      * @return True if the axes are currently executing a motion command.
      */
     bool isBusy();
-
-    /**
-     * Deprecated: Use GetAxisNumbers instead.
-     *
-     * Gets the axes of the lockstep group.
-     * @return LockstepAxes instance which contains the axes numbers of the lockstep group.
-     */
-    LockstepAxes getAxes();
 
     /**
      * Gets the axis numbers of the lockstep group.

@@ -21,9 +21,9 @@ class SimpleTuning: public Serializable {
 public:
     bool isUsed {false};
     bool isSet {false};
-    std::optional<double> carriageMass;
+    std::optional<double> carriageInertia;
     std::optional<double> motorInertia;
-    double loadMass {0.0};
+    double loadInertia {0.0};
     std::vector<ServoTuningParam> tuningParams;
 
     SimpleTuning();
@@ -31,16 +31,16 @@ public:
     SimpleTuning(
         bool p_isUsed,
         bool p_isSet,
-        std::optional<double> p_carriageMass,
+        std::optional<double> p_carriageInertia,
         std::optional<double> p_motorInertia,
-        double p_loadMass,
+        double p_loadInertia,
         std::vector<ServoTuningParam> p_tuningParams
     );
 
     SimpleTuning(
         bool p_isUsed,
         bool p_isSet,
-        double p_loadMass,
+        double p_loadInertia,
         std::vector<ServoTuningParam> p_tuningParams
     );
 
@@ -64,22 +64,23 @@ public:
     void setIsSet(bool p_isSet);
 
     /**
-     * The mass of the carriage in kg.
+     * The inertia of the carriage in kg (for linear devices) or kg⋅m² (for rotary devices).
      */
-    std::optional<double> getCarriageMass() const;
-    void setCarriageMass(std::optional<double> p_carriageMass);
+    std::optional<double> getCarriageInertia() const;
+    void setCarriageInertia(std::optional<double> p_carriageInertia);
 
     /**
-     * The mass of the carriage in kg.
+     * The inertia of the motor in kg⋅m².
      */
     std::optional<double> getMotorInertia() const;
     void setMotorInertia(std::optional<double> p_motorInertia);
 
     /**
-     * The mass of the load in kg, excluding the mass of the carriage.
+     * The inertia of the load in kg (for linear devices) or kg⋅m² (for rotary devices),
+     * excluding the inertia of the carriage.
      */
-    double getLoadMass() const;
-    void setLoadMass(double p_loadMass);
+    double getLoadInertia() const;
+    void setLoadInertia(double p_loadInertia);
 
     /**
      * The parameters used by simple tuning.

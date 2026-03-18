@@ -25,6 +25,17 @@ class Device;
  * Default baud rate for serial connections.
  */
 constexpr int DEFAULT_BAUD_RATE = 9600;
+/**
+ * Commands sent over this port are forwarded to the device chain.
+ * The bandwidth may be limited as the commands are forwarded over a serial connection.
+ */
+constexpr int TCP_PORT_CHAIN = 55550;
+/**
+ * Commands send over this port are processed only by the device
+ * and not forwarded to the rest of the chain.
+ * Using this port typically makes the communication faster.
+ */
+constexpr int TCP_PORT_DEVICE_ONLY = 55551;
 
 /**
  * Class representing access to particular connection (serial port, TCP connection) using the legacy Binary protocol.
@@ -161,7 +172,18 @@ public:
      */
     int getInterfaceId() const;
 
+    /**
+     * Returns whether the connection is open.
+     * Does not guarantee that the subsequent requests will succeed.
+     */
+    bool getIsOpen() const;
+
 protected:
+    /**
+     * Returns is open.
+     * @return Is open.
+     */
+    bool retrieveIsOpen() const;
     /**
      * Releases native resources of the connection.
      * @param interfaceId The ID of the connection.
@@ -189,6 +211,8 @@ public:
   };
 
   struct OpenTcpOptions {
+    // Optional port number (defaults to 55550).
+    int port {TCP_PORT_CHAIN};
     // Enable use of message IDs (defaults to disabled).
     // All your devices must be pre-configured to match.
     bool useMessageIds {false};
@@ -221,23 +245,23 @@ public:
     /**
      * Opens a TCP connection.
      * @param hostName Hostname or IP address.
-     * @param port Port number.
+     * @param port Optional port number (defaults to 55550).
      * @param useMessageIds Enable use of message IDs (defaults to disabled).
      * All your devices must be pre-configured to match.
      * @return An object representing the connection.
      */
-    static Connection openTcp(const std::string& hostName, int port, bool useMessageIds = false);
+    static Connection openTcp(const std::string& hostName, int port = TCP_PORT_CHAIN, bool useMessageIds = false);
 
     /**
      * Opens a TCP connection.
      * @param hostName Hostname or IP address.
-     * @param port Port number.
      * @param options A struct of type OpenTcpOptions. It has the following members:
+     * * `port`: Optional port number (defaults to 55550).
      * * `useMessageIds`: Enable use of message IDs (defaults to disabled).
      *   All your devices must be pre-configured to match.
      * @return An object representing the connection.
      */
-    static Connection openTcp(const std::string& hostName, int port, const Connection::OpenTcpOptions& options);
+    static Connection openTcp(const std::string& hostName, const Connection::OpenTcpOptions& options);
 
     /**
      * Close the connection.
