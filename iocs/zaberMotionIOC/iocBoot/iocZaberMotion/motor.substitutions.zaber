@@ -12,6 +12,13 @@ pattern
 {IOC:, MyProfile:, EMCC1,      1,    10,    10,       1}
 }
 
+file "$(TOP)/db/profileMoveControllerZaber.template"
+{
+pattern
+{P,      R,         PORT,  TIMEOUT}
+{IOC:, MyProfile:, EMCC1,       1}
+}
+
 file "$(TOP)/db/profileMoveAxis.template"
 {
 pattern

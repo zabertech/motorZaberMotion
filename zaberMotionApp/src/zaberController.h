@@ -13,6 +13,8 @@ class zaberAxis;
 
 namespace zml = zaber::motion;
 
+#define ZaberPulseWidthMsString "ZABER_PULSE_WIDTH_MS"
+
 class epicsShareClass zaberController : public asynMotorController {
     public:
     zaberController(const char *portName, int numAxes, double movingPollPeriod, double idlePollPeriod, const char *devicePort, int deviceNumber);
@@ -30,6 +32,7 @@ class epicsShareClass zaberController : public asynMotorController {
     private:
     std::shared_ptr<zml::ascii::Connection> connection_;
     zml::ascii::Device device_;
+    int zaberPulseWidthMs_;
 
     friend zaberAxis;
     zml::ascii::Axis getDeviceAxis(int axisNo);

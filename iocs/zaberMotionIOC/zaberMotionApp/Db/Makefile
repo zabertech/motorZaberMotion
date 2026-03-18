@@ -17,6 +17,7 @@ DB_INSTALLS += $(MOTOR)/db/profileMoveController.template
 DB_INSTALLS += $(MOTOR)/db/profileMoveController_settings.req
 DB_INSTALLS += $(MOTOR)/db/profileMoveAxis.template
 DB_INSTALLS += $(MOTOR)/db/profileMoveAxis_settings.req
+DB_INSTALLS += $(MOTOR)/db/profileMoveControllerZaber.template
 
 # ifdef MOTOR_ZABER_MOTION
 # ### motorZaberMotion was built outside motor
