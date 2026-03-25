@@ -2,5 +2,7 @@
 # ZaberMotionSetDbPath(
 #    path of local copy of zaber device database
 # )
+# Set ZABER_DB_PATH in the environment before starting the IOC to use a local
+# device database instead of fetching from the internet.
 ###
-ZaberMotionSetDbPath("/Users/colby.sparks/Desktop/device-db/devices-public.sqlite")
+# ZaberMotionSetDbPath("$(ZABER_DB_PATH)")

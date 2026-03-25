@@ -2,22 +2,27 @@
 
 #include <cmath>
 #include <functional>
+#include <iostream>
 
+#include <epicsEvent.h>
 #include <epicsExport.h>
 #include <epicsThread.h>
 #include <epicsStdio.h>
 #include <iocsh.h>
 
+#include <zaber/motion/dto/unit_conversion_descriptor.h>
 #include <zaber/motion/dto/ascii/device_identity.h>
-#include <zaber/motion/ascii/axis_settings.h>
-#include <zaber/motion/dto/ascii/measurement_sequence.h>
 #include <zaber/motion/dto/ascii/digital_output_action.h>
+#include <zaber/motion/dto/ascii/pvt_partial_point.h>
+#include <zaber/motion/dto/ascii/pvt_partial_sequence_item.h>
+#include <zaber/motion/dto/ascii/pvt_sequence_item.h>
+#include <zaber/motion/dto/ascii/pvt_set_digital_output_action.h>
+#include <zaber/motion/ascii/axis_settings.h>
 #include <zaber/motion/ascii/pvt_sequence.h>
-#include <zaber/motion/ascii/pvt_io.h>
 #include <zaber/motion/ascii/pvt.h>
 #include <zaber/motion/ascii/pvt_buffer.h>
-#include <zaber/motion/dto/ascii/pvt_sequence_data.h>
 #include <zaber/motion/units.h>
+#include <zaber/motion/unit_table.h>
 
 #include "zaberConnectionManager.h"
 #include "zaberUtils.h"
@@ -25,10 +30,13 @@
 static constexpr int  PVT_BUFFER_ID        = 1;
 static constexpr int  PVT_SEQUENCE_ID      = 1;
 static constexpr int  PULSE_OUTPUT_CHANNEL = 1;
-static constexpr char POSITION_SETTING[]   = "pos";
 
 namespace ze = zaber::epics;
 namespace zml = zaber::motion;
+
+static void zaberProfileThreadC(void *pPvt) {
+    static_cast<zaberController *>(pPvt)->profileThread();
+}
 
 /**
  * Creates a new zaberController object.
@@ -53,6 +61,12 @@ zaberController::zaberController(const char *portName, int numAxes, double movin
         new zaberAxis(this, i);
     }
     startPoller(static_cast<double>(movingPollPeriod) / 1000.0, static_cast<double>(idlePollPeriod) / 1000.0, 2);
+
+    profileExecuteEvent_ = epicsEventMustCreate(epicsEventEmpty);
+    epicsThreadCreate("ZaberProfile",
+                      epicsThreadPriorityLow,
+                      epicsThreadGetStackSize(epicsThreadStackMedium),
+                      (EPICSTHREADFUNC)zaberProfileThreadC, (void *)this);
 }
 
 void zaberController::report(FILE *fp, int level) {
@@ -108,10 +122,11 @@ asynStatus zaberController::buildProfile() {
     getIntegerParam(profileEndPulses_,   &endPulses);
 
     if (numPulses > 0) {
-        if (startPulses < 1 || endPulses > numPoints || numPulses != endPulses - startPulses + 1) {
+        if (startPulses < 2 || endPulses > numPoints || numPulses != endPulses - startPulses + 1) {
             const char *msg =
                 "Invalid pulse configuration: numPulses must equal endPulses - startPulses + 1, "
-                "with 1 <= startPulses and endPulses <= numPoints";
+                "with 2 <= startPulses (pulses cannot be triggered at the profile's start position) "
+                "and endPulses <= numPoints";
             setStringParam(profileBuildMessage_, msg);
             setIntegerParam(profileBuildStatus_, PROFILE_STATUS_FAILURE);
             setIntegerParam(profileBuildState_, PROFILE_BUILD_DONE);
@@ -127,31 +142,48 @@ asynStatus zaberController::buildProfile() {
 
     std::function<asynStatus()> action = [this, numPoints, numPulses, startPulses, endPulses, pulseWidthMs]() {
         std::vector<int> usedAxes;
-        std::vector<zml::ascii::MeasurementSequence> positions;
-
         for (int i = 0; i < numAxes_; i++) {
             epicsInt32 used;
             getIntegerParam(i, profileUseAxis_, &used);
             if (used) {
-                usedAxes.push_back(i + 1);
-                const zaberAxis *axis = getAxis(i);
-                if (axis == nullptr) {
+                if (getAxis(i) == nullptr) {
                     throw std::runtime_error("Attempted to access invalid axis at index: " + std::to_string(i));
                 }
-                positions.push_back(zml::ascii::MeasurementSequence(std::vector<double>(numPoints), axis->lengthUnit_));
+                usedAxes.push_back(i + 1);
             }
         }
 
-        zml::ascii::MeasurementSequence times(std::vector<double>(numPoints), zml::Units::TIME_SECONDS);
+        std::vector<zml::ascii::PvtPartialSequenceItem> partialItems;
+        partialItems.reserve(numPoints + numPulses);
         for (int i = 0; i < numPoints; i++) {
-            times.values[i] = profileTimes_[i];
-            for (int j = 0; j < static_cast<int>(usedAxes.size()); j++) {
-                positions[j].values[i] = getAxis(usedAxes[j] - 1)->profilePositions_[i];
+            if (numPulses > 0 && i >= startPulses - 1 && i <= endPulses - 1) {
+                partialItems.push_back(zml::ascii::PvtSetDigitalOutputAction(
+                    PULSE_OUTPUT_CHANNEL,
+                    zml::ascii::DigitalOutputAction::ON,
+                    zml::Measurement{pulseWidthMs, zml::Units::TIME_MILLISECONDS},
+                    zml::ascii::DigitalOutputAction::OFF));
             }
+            std::vector<std::optional<zml::Measurement>> pointPositions;
+            std::vector<std::optional<zml::Measurement>> pointVelocities;
+            for (int axisNum : usedAxes) {
+                const zaberAxis *axis = getAxis(axisNum - 1);
+                pointPositions.push_back(zml::Measurement{axis->profilePositions_[i], axis->lengthUnit_});
+            }
+            // Point 0 is the starting position.
+            // This driver will move the device to this starting position when the profile is executed.
+            partialItems.push_back(zml::ascii::PvtPartialPoint(
+                pointPositions,
+                pointVelocities,
+                zml::Measurement{i == 0 ? 0.0 : profileTimes_[i], zml::Units::TIME_SECONDS},
+                /*relative=*/false));
         }
 
-        zml::ascii::PvtSequenceData data = zml::ascii::PvtSequence::generateVelocities(
-            positions, times, {}, /*timesRelative=*/true);
+        std::vector<zml::ascii::PvtSequenceItem> sequenceData =
+            zml::ascii::PvtSequence::generateVelocities(partialItems);
+
+        for (const zml::ascii::PvtSequenceItem& item : sequenceData) {
+            std::cout << zml::ascii::PvtSequenceItem_toString(item) << std::endl;
+        }
 
         zml::ascii::Pvt pvt = device_.getPvt();
         zml::ascii::PvtSequence sequence = pvt.getSequence(PVT_SEQUENCE_ID);
@@ -159,31 +191,7 @@ asynStatus zaberController::buildProfile() {
         zml::ascii::PvtBuffer buffer = pvt.getBuffer(PVT_BUFFER_ID);
         buffer.erase();
         sequence.setupStore(buffer, usedAxes);
-        zml::ascii::PvtIo io = sequence.getIo();
-
-        for (int i = 0; i < numPoints; i++) {
-            std::vector<zml::Measurement> pointPositions;
-            std::vector<std::optional<zml::Measurement>> pointVelocities;
-            for (int j = 0; j < static_cast<int>(usedAxes.size()); j++) {
-                pointPositions.push_back({data.positions[j].values[i], data.positions[j].unit});
-                pointVelocities.push_back(zml::Measurement{data.velocities[j].values[i], data.velocities[j].unit});
-            }
-            zml::Measurement pointTime{data.times.values[i], data.times.unit};
-
-            // Queue pulse output before the point it fires at (requires FW 7.37+).
-            // IO actions are interleaved with PVT points in FIFO order.
-            if (numPulses > 0 && i >= startPulses - 1 && i <= endPulses - 1) {
-                io.setDigitalOutputSchedule(
-                    PULSE_OUTPUT_CHANNEL,
-                    zml::ascii::DigitalOutputAction::ON,
-                    zml::ascii::DigitalOutputAction::OFF,
-                    pulseWidthMs,
-                    zml::Units::TIME_MILLISECONDS);
-            }
-
-            sequence.point(pointPositions, pointVelocities, pointTime);
-        }
-
+        sequence.submitSequenceData({sequenceData.begin() + 1, sequenceData.end()});
         sequence.disable();
 
         setStringParam(profileBuildMessage_, "Profile built successfully");
@@ -208,6 +216,19 @@ asynStatus zaberController::buildProfile() {
 }
 
 asynStatus zaberController::executeProfile() {
+    epicsEventSignal(profileExecuteEvent_);
+    return asynSuccess;
+}
+
+void zaberController::profileThread() {
+    while (true) {
+        epicsEventWait(profileExecuteEvent_);
+        runProfile();
+    }
+}
+
+void zaberController::runProfile() {
+    lock();
     std::vector<int> usedAxes;
     for (int i = 0; i < numAxes_; i++) {
         epicsInt32 used;
@@ -216,30 +237,28 @@ asynStatus zaberController::executeProfile() {
             usedAxes.push_back(i + 1);
         }
     }
+    epicsInt32 moveMode;
+    getIntegerParam(profileMoveMode_, &moveMode);
+    setIntegerParam(profileExecuteState_, PROFILE_EXECUTE_MOVE_START);
+    setIntegerParam(profileExecuteStatus_, PROFILE_STATUS_UNDEFINED);
+    callParamCallbacks();
+    unlock();
 
-    double acceleration;
-    getDoubleParam(profileAcceleration_, &acceleration);
-
-    std::function<asynStatus()> action = [this, usedAxes, acceleration]() {
-        epicsInt32 moveMode;
-        getIntegerParam(profileMoveMode_, &moveMode);
+    std::function<asynStatus()> action = [this, usedAxes, moveMode]() {
+        wakeupPoller();
 
         if (moveMode == PROFILE_MOVE_MODE_ABSOLUTE) {
             for (int axisNum : usedAxes) {
+                // Move to start position using device's current velocity/acceleration settings.
                 zaberAxis *axis = getAxis(axisNum - 1);
-                if (axis == nullptr) {
-                    throw std::runtime_error("Attempted to access invalid axis at index: " + std::to_string(axisNum - 1));
-                }
-                axis->axis_.moveAbsolute(
-                    axis->profilePositions_[0],
-                    axis->lengthUnit_,
-                    /*waitUntilIdle=*/true,
-                    /*velocity=*/0,
-                    zml::Units::NATIVE,
-                    acceleration,
-                    axis->accelUnit_);
+                axis->axis_.moveAbsolute(axis->profilePositions_[0], axis->lengthUnit_, /*waitUntilIdle=*/true);
             }
         }
+
+        lock();
+        setIntegerParam(profileExecuteState_, PROFILE_EXECUTE_EXECUTING);
+        callParamCallbacks();
+        unlock();
 
         zml::ascii::Pvt pvt = device_.getPvt();
         zml::ascii::PvtSequence sequence = pvt.getSequence(PVT_SEQUENCE_ID);
@@ -249,16 +268,32 @@ asynStatus zaberController::executeProfile() {
         sequence.call(buffer);
         sequence.waitUntilIdle();
 
+        lock();
         epicsInt32 numPulses;
         getIntegerParam(profileNumPulses_, &numPulses);
         setIntegerParam(profileActualPulses_, numPulses);
+        setStringParam(profileExecuteMessage_, "Execute complete");
+        setIntegerParam(profileExecuteStatus_, PROFILE_STATUS_SUCCESS);
+        setIntegerParam(profileExecuteState_, PROFILE_EXECUTE_DONE);
         setIntegerParam(profileExecute_, 0);
         callParamCallbacks();
+        unlock();
 
         return asynSuccess;
     };
 
-    return ze::handleException(this->pasynUserSelf, action);
+    asynStatus status = ze::handleException(this->pasynUserSelf, action);
+    if (status != asynSuccess) {
+        const char *msg = "Execute failed";
+        lock();
+        setStringParam(profileExecuteMessage_, msg);
+        setIntegerParam(profileExecuteStatus_, PROFILE_STATUS_FAILURE);
+        setIntegerParam(profileExecuteState_, PROFILE_EXECUTE_DONE);
+        setIntegerParam(profileExecute_, 0);
+        callParamCallbacks();
+        unlock();
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "zaberController::runProfile: %s\n", msg);
+    }
 }
 
 asynStatus zaberController::abortProfile() {
@@ -291,21 +326,29 @@ asynStatus zaberController::readbackProfile() {
                 throw std::runtime_error("Attempted to access invalid axis at index: " + std::to_string(i));
             }
 
-            zml::ascii::AxisSettings settings = axis->axis_.getSettings();
+            std::vector<double> positions;
+            positions.reserve(numPulses);
+            for (int pointIndex = startPulses - 1; pointIndex <= endPulses - 1; pointIndex++) {
+                positions.push_back(axis->profilePositions_[pointIndex]);
+            }
+
+            // Round-trip positions through native units (microsteps) to reflect actual positions.
+            // FW guarantees that PVT IO actions are triggered at exactly the position of
+            // the preceding point in the sequence, so these deltas affect the physical error.
+            zml::UnitConversionDescriptor descriptor = axis->axis_.getSettings().getUnitConversionDescriptor("pos");
+            std::vector<double> native = zml::UnitTable::convertToNativeUnitsBatch(descriptor, positions, axis->lengthUnit_);
+            for (auto& v : native) v = std::round(v);
+            std::vector<double> quantized = zml::UnitTable::convertFromNativeUnitsBatch(descriptor, native, axis->lengthUnit_);
+
             int pulseIndex = 0;
-            for (int pt = startPulses - 1; pt <= endPulses - 1; pt++, pulseIndex++) {
-                double requested = axis->profilePositions_[pt];
-                // Round-trip through native units (microsteps) to reflect actual quantization.
-                // profileFollowingErrors_ captures quantization error, not servo following error.
-                double native  = std::round(settings.convertToNativeUnits(POSITION_SETTING, requested, axis->lengthUnit_));
-                double rounded = settings.convertFromNativeUnits(POSITION_SETTING, native, axis->lengthUnit_);
-                axis->profileReadbacks_[pulseIndex]       = rounded;
-                axis->profileFollowingErrors_[pulseIndex] = rounded - requested;
+            for (int pointIndex = startPulses - 1; pointIndex <= endPulses - 1; pointIndex++, pulseIndex++) {
+                axis->profileReadbacks_[pulseIndex] = quantized[pulseIndex];
+                axis->profileFollowingErrors_[pulseIndex] = quantized[pulseIndex] - axis->profilePositions_[pointIndex];
             }
         }
 
-        setIntegerParam(profileNumReadbacks_,  numPulses);
-        setIntegerParam(profileActualPulses_,  numPulses);
+        setIntegerParam(profileNumReadbacks_, numPulses);
+        setIntegerParam(profileActualPulses_, numPulses);
 
         for (int i = 0; i < numAxes_; i++) {
             epicsInt32 used;
