@@ -1,6 +1,7 @@
 #!/bin/bash
-# Test script for Zaber PVT circular profile move.
-# Run after the IOC is started. Requires caput/caget on PATH.
+# Test script for Zaber PVT profile move.
+# Run after the IOC is started with st.cmd.zy-stage script.
+# Requires caput/caget on PATH.
 #
 # Profile: 50 points, 1.0 second per segment, 31 sync pulses on points 10-40.
 # Circle: center=(50,50)mm, radius=40mm. Both axes stay within 10-90mm.
@@ -35,7 +36,7 @@ echo "=== Zaber Circular Profile Move Test ==="
 echo "--- Configuring profile parameters ---"
 caput "${P}NumPoints"    50
 caput "${P}TimeMode"     0          # Fixed time mode
-caput "${P}FixedTime"    0.125      # 0.125 second per segment (8x faster)
+caput "${P}FixedTime"    0.2        # 0.25 second per segment
 caput "${P}MoveMode"     0          # Absolute
 caput "${P}NumPulses"    31
 caput "${P}StartPulses"  10

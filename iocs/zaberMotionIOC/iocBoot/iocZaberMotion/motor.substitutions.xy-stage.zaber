@@ -10,7 +10,7 @@ file "$(TOP)/db/profileMoveController.template"
 {
   pattern
   {P,     R,          PORT,  NAXES, NPOINTS, NPULSES, TIMEOUT}
-  {IOC:, MyProfile:, XMCC2,      2,      50,      31,     120}
+  {IOC:, MyProfile:, XMCC2,      2,      50,       0,     120}
 }
 
 file "$(TOP)/db/profileMoveControllerZaber.template"

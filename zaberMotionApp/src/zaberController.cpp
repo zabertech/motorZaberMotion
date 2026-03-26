@@ -267,6 +267,7 @@ void zaberController::runProfile() {
         sequence.setupLive(usedAxes);
         sequence.call(buffer);
         sequence.waitUntilIdle();
+        sequence.disable();
 
         lock();
         epicsInt32 numPulses;

@@ -10,12 +10,15 @@ motorZaberMotion can also be built outside of motor by copying it's ``EXAMPLE_RE
 
 motorZaberMotion contains an example IOC that is built if ``CONFIG_SITE.local`` sets ``BUILD_IOCS = YES``.  The example IOC can be built outside of driver module.
 
-## Documentation
+## Setup
 
 This driver makes use of [Zaber Motion Library](https://software.zaber.com/motion-library/docs) (ZML), which requires c++17 or greater.
 For this reason, any epics IOC which uses this motor module must also be compiled with at least c++17.
 
-Additionally, it only supports Zaber devices with FW version >= 7.25.
+### FW Version Requirements
+
+This driver only supports Zaber devices with FW version >= 7.25.
+Additionally, this driver's profile move implementation only supports Zaber devices with FW version >= 7.37.
 
 ### Build
 
@@ -47,7 +50,7 @@ If the build must be performed without internet connectivity, then the support p
 Typically, Zaber Motion Library requires internet connectivity to identify devices: when identifying a device it will query a database service to retrieve important information such as device names, settings and conversion factors between device native units and real world units. If you would prefer that your IOC not be connected to the internet, this module exposes an ioc shell function for setting a local copy of the db (more on this in the ioc shell function section below).
 
 ### Officially supported systems and architectures:
-While ZML itself supports windows, linux and macOS, this module only officially supports linux and maxOS, specifically:
+While ZML itself supports windows, linux and macOS, this module only officially supports linux and macOS, specifically:
 - linux-aarch64
 - linux-arm
 - linux-x86_64
@@ -63,6 +66,28 @@ PRODDIR_RPATH_LDFLAGS_YES += $(PROD_DEPLIB_DIRS:%=-Wl,-rpath,%)
 PRODDIR_LDFLAGS += $(PRODDIR_RPATH_LDFLAGS_$(LINKER_USE_RPATH))
 endif
 ```
+
+### Running the Example IOC
+
+The example IOC includes a convenience script `iocs/zaberMotionIOC/iocBoot/iocZaberMotion/start.sh` that launches the IOC binary with a specified startup command file.
+
+```bash
+./start.sh [st.cmd file]
+```
+
+If no argument is given, it defaults to `st.cmd.linear-stage`. For example, to start with the XY stage configuration:
+
+```bash
+./start.sh st.cmd.xy-stage
+```
+
+**Required environment variables:**
+
+- `EPICS_HOST_ARCH` — Must be set to the target architecture (e.g. `linux-x86_64`, `darwin-aarch64`). This is used to locate the IOC binary at `../../bin/${EPICS_HOST_ARCH}/zaberMotion`. This variable is typically set by sourcing your EPICS base `setEpicsEnv.sh` script.
+
+**Optional environment variables:**
+
+- `ZABER_DB_PATH` — Path to a local copy of the [Zaber device database](https://software.zaber.com/motion-library/docs/guides/device_db) (`.sqlite` file). Set this if the IOC does not have internet access; the startup command files read this variable and pass it to `ZaberMotionSetDbPath`. If this variable is not set, the driver will fetch device information from Zaber's online service at runtime.
 
 ## Documentation
 
@@ -119,7 +144,32 @@ The following is an overview of which status flags are set during polling, and w
 
 
 ### zaberController
-Please note that profile moves have not been implemented for `zaberController`.
+
+#### Profile Moves
+
+`zaberController` supports profile moves via the standard asyn motor profile interface. Before the IOC can execute a profile move, the profile infrastructure must be initialized with the following IOC shell function:
+
+__ZaberControllerCreateProfile(port, maxPoints)__
+Initializes the profile move infrastructure for the specified controller.
+- `port`: Asyn motor port name of the controller (must already be created via `ZaberMotionCreateController`).
+- `maxPoints`: Maximum number of profile points to allocate.
+
+This function must be called once during IOC initialization, before `iocInit`.
+
+**Supported features:**
+- Absolute move mode only (relative mode is not supported).
+- Synchronized multi-axis moves using PVT (Position-Velocity-Time) sequences.
+- Optional digital output pulses during the profile, triggered over a contiguous range of profile points.
+
+**Pulse configuration constraints** (when `numPulses > 0`):
+- `startPulses` must be ≥ 2: pulses cannot be triggered at the profile start position.
+- `endPulses` must be ≤ `numPoints`.
+- `numPulses` must equal `endPulses - startPulses + 1`: the pulse range must be contiguous.
+
+**Notes:**
+- Point 0 in the profile defines the starting position. Axes are moved to this position before the PVT sequence begins.
+- Velocities between profile points are calculated automatically from the supplied positions and times.
+- Digital output pulse width is controlled by the `$(P)$(R)PulseWidthMs` PV (asyn parameter `ZABER_PULSE_WIDTH_MS`), which defaults to 10.0 ms. Using digital output pulses requires FW version >= 7.37.
 
 ### Contact
 For any comments or concerns, please contact us at `contact@zaber.com`
