@@ -3,7 +3,7 @@ import { promises as fsp } from 'fs';
 import os from 'os';
 import path from 'path';
 
-const ZML_VERSION = '8.4.0';
+const ZML_VERSION = '9.0.0';
 
 const EPICS_BASE = process.env.EPICS_BASE;
 const EPICS_SUPPORT = path.normalize(`${EPICS_BASE}/../support`);
