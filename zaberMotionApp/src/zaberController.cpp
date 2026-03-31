@@ -2,7 +2,6 @@
 
 #include <cmath>
 #include <functional>
-#include <iostream>
 
 #include <epicsEvent.h>
 #include <epicsExport.h>
@@ -163,27 +162,22 @@ asynStatus zaberController::buildProfile() {
                     zml::Measurement{pulseWidthMs, zml::Units::TIME_MILLISECONDS},
                     zml::ascii::DigitalOutputAction::OFF));
             }
-            std::vector<std::optional<zml::Measurement>> pointPositions;
-            std::vector<std::optional<zml::Measurement>> pointVelocities;
+            std::vector<std::optional<zml::Measurement>> positions;
             for (int axisNum : usedAxes) {
                 const zaberAxis *axis = getAxis(axisNum - 1);
-                pointPositions.push_back(zml::Measurement{axis->profilePositions_[i], axis->lengthUnit_});
+                positions.push_back(zml::Measurement{axis->profilePositions_[i], axis->lengthUnit_});
             }
             // Point 0 is the starting position.
             // This driver will move the device to this starting position when the profile is executed.
             partialItems.push_back(zml::ascii::PvtPartialPoint(
-                pointPositions,
-                pointVelocities,
+                std::move(positions),
+                /*velocities=*/{},
                 zml::Measurement{i == 0 ? 0.0 : profileTimes_[i], zml::Units::TIME_SECONDS},
                 /*relative=*/false));
         }
 
         std::vector<zml::ascii::PvtSequenceItem> sequenceData =
             zml::ascii::PvtSequence::generateVelocities(partialItems);
-
-        for (const zml::ascii::PvtSequenceItem& item : sequenceData) {
-            std::cout << zml::ascii::PvtSequenceItem_toString(item) << std::endl;
-        }
 
         zml::ascii::Pvt pvt = device_.getPvt();
         zml::ascii::PvtSequence sequence = pvt.getSequence(PVT_SEQUENCE_ID);
