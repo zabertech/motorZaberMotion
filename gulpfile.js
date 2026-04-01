@@ -47,7 +47,11 @@ const update_support_configs = async () => {
   await update_release_for_module(`${EPICS_SUPPORT}/sequencer`);
   await update_release_for_module(`${EPICS_SUPPORT}/motor`);
 
-  // asyn-specific changes for linux
+  // asyn-specific changes
+  const asynReleasePath = `${EPICS_SUPPORT}/asyn/configure/RELEASE`;
+  const asynReleaseContents = await fsp.readFile(asynReleasePath, 'utf8');
+  await fsp.writeFile(asynReleasePath, asynReleaseContents
+    .replace(/^#?\s*SNCSEQ\s*=.*/m, `SNCSEQ=${EPICS_SUPPORT}/sequencer`));
   if (process.platform === 'linux') {
     const asynPath = `${EPICS_SUPPORT}/asyn/configure/CONFIG_SITE`;
     console.log('updating file with asyn path: ', asynPath);
@@ -55,6 +59,12 @@ const update_support_configs = async () => {
     const newContents = asynContents.replace(/^#? *TIRPC *=.*/m, `TIRPC = YES`);
     await fsp.writeFile(asynPath, newContents);
   }
+
+  // busy-specific changes
+  const busyReleasePath = `${EPICS_SUPPORT}/busy/configure/RELEASE`;
+  const busyReleaseContents = await fsp.readFile(busyReleasePath, 'utf8');
+  await fsp.writeFile(busyReleasePath, busyReleaseContents
+    .replace(/^#?\s*BUSY\s*=.*/m, `BUSY=${EPICS_SUPPORT}/busy`));
 
   // motor-specific changes
   const motorReleasePath = `${EPICS_SUPPORT}/motor/configure/RELEASE`;
