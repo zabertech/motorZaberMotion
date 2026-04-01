@@ -1,19 +1,20 @@
-[project]
-name = "motorzabermotion"
-version = "0.1.0"
-description = "End-to-end tests for the motorZaberMotion EPICS driver."
-readme = "README.md"
-requires-python = ">=3.12"
-dependencies = [
-    "zaber-ascii-mock",
-]
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.uv.sources]
-zaber-ascii-mock = { path = "vendor/zaber-ascii-mock", editable = true }
+[project]
+name = "zaber-ascii-mock"
+version = "0.1.0"
+description = "TCP mock server for Zaber ASCII protocol devices, for use in integration tests."
+authors = [{ name = "Zaber Technologies Inc.", email = "contact@zaber.com" }]
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [dependency-groups]
 dev = [
-    "aioca",
     "pytest",
     "pytest-asyncio",
     "pyright",
@@ -29,14 +30,12 @@ extend = "zaber-python-tooling-config/zaber-ruff.toml"
     "D101",    # test class names are self-documenting
     "D102",    # test method names are self-documenting
     "D103",    # fixture names are self-documenting
-    "PLR2004", # magic values in assertions are expected values
+    "PLR2004", # magic values in assertions are intentional expected values
 ]
 
 [tool.pyright]
 extends = "zaber-python-tooling-config/zaber-pyright.toml"
-extraPaths = ["tests"]
+extraPaths = ["src", "."]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "session"
-asyncio_default_test_loop_scope = "session"

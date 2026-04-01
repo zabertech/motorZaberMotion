@@ -1,0 +1,3 @@
+[submodule "zaber-python-tooling-config"]
+	path = zaber-python-tooling-config
+	url = https://gitlab.izaber.com/prog-std/python-tooling-config.git

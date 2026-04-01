@@ -75,7 +75,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "zaber-ascii-mock", editable = "../../../../../zaber/zaber-ascii-mock" }]
+requires-dist = [{ name = "zaber-ascii-mock", editable = "vendor/zaber-ascii-mock" }]
 
 [package.metadata.requires-dev]
 dev = [
@@ -284,7 +284,7 @@ wheels = [
 [[package]]
 name = "zaber-ascii-mock"
 version = "0.1.0"
-source = { editable = "../../../../../zaber/zaber-ascii-mock" }
+source = { editable = "vendor/zaber-ascii-mock" }
 
 [package.metadata]
 

@@ -1,0 +1,17 @@
+stages:
+  - test
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+test:
+  stage: test
+  tags:
+    - osx-arm
+  script:
+    - echo "=== Building and Testing Zaber ASCII Mock ==="
+    - uv --version
+    - uv sync --all-groups
+    - uv run ruff check src/ tests/
+    - uv run pyright src/ tests/
+    - uv run pytest tests/
