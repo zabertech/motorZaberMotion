@@ -41,6 +41,7 @@ RUN cd $HOME/EPICS/support \
     && git clone --branch R7-4    https://github.com/epics-modules/motor \
     && git clone --branch R4-35   https://github.com/epics-modules/asyn \
     && git clone --branch R2-2-6  https://github.com/epics-modules/sequencer \
+    && git clone --branch R5-8    https://github.com/epics-modules/autosave \
     && git clone --branch R1-7-1  https://github.com/epics-modules/busy
 
 # set env vars for EPICS and UV
