@@ -45,8 +45,9 @@ const update_release_for_module = async modulePath => {
 const update_support_configs = async () => {
   await update_release_for_module(`${EPICS_SUPPORT}/asyn`);
   await update_release_for_module(`${EPICS_SUPPORT}/sequencer`);
-  await update_release_for_module(`${EPICS_SUPPORT}/motor`);
+  await update_release_for_module(`${EPICS_SUPPORT}/autosave`);
   await update_release_for_module(`${EPICS_SUPPORT}/busy`);
+  await update_release_for_module(`${EPICS_SUPPORT}/motor`);
 
   // asyn-specific changes
   const asynReleasePath = `${EPICS_SUPPORT}/asyn/configure/RELEASE`;
@@ -97,6 +98,7 @@ export const build = async () => {
   // run make in all support modules
   await exec(`make -C ${EPICS_SUPPORT}/sequencer`);
   await exec(`make -C ${EPICS_SUPPORT}/asyn`);
+  await exec(`make -C ${EPICS_SUPPORT}/autosave`);
   await exec(`make -C ${EPICS_SUPPORT}/busy`);
   await build_motor();
 }
