@@ -3,7 +3,7 @@ name = "motorzabermotion"
 version = "0.1.0"
 description = "End-to-end tests for the motorZaberMotion EPICS driver."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 dependencies = [
     "zaber-ascii-mock",
 ]

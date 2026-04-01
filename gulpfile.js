@@ -2,6 +2,8 @@ import childProcess from 'child_process';
 import { promises as fsp } from 'fs';
 import os from 'os';
 import path from 'path';
+import { config } from 'process';
+import { fileURLToPath } from 'url';
 
 const ZML_VERSION = '9.0.0';
 
@@ -55,12 +57,12 @@ const update_support_configs = async () => {
   }
 
   // motor-specific changes
-  const releasePath = `${EPICS_SUPPORT}/motor/configure/RELEASE`;
-  const releaseContents = await fsp.readFile(releasePath, 'utf8');
-  const newContents = releaseContents
+  const motorReleasePath = `${EPICS_SUPPORT}/motor/configure/RELEASE`;
+  const motorReleaseContents = await fsp.readFile(motorReleasePath, 'utf8');
+  const newMotorReleaseContents = motorReleaseContents
     .replace(/^#?\s*ASYN\s*=.*/m, `ASYN=${EPICS_SUPPORT}/asyn`)
     .replace(/^#?\s*SNCSEQ\s*=.*/m, `SNCSEQ=${EPICS_SUPPORT}/sequencer`);
-  await fsp.writeFile(releasePath, newContents);
+  await fsp.writeFile(motorReleasePath, newMotorReleaseContents);
 
   const modulePath = `${EPICS_SUPPORT}/motor/modules/Makefile`;
   const moduleContents = await fsp.readFile(modulePath, 'utf8');
@@ -68,6 +70,11 @@ const update_support_configs = async () => {
     .replaceAll(/^SUBMODULES\s*\+=(.*)/gm, '#SUBMODULES=$1')
     .replace(/^#SUBMODULES.*/m, 'SUBMODULES += motorZaberMotion');
   await fsp.writeFile(modulePath, newModuleContents);
+
+  // changes specific to this module
+  const motorZaberMotionPath = path.dirname(fileURLToPath(import.meta.url));
+  const configSitePath = path.join(motorZaberMotionPath, 'configure', 'CONFIG_SITE.local');
+  await fsp.writeFile(configSitePath, `BUILD_IOCS=YES${os.EOL}`);
 }
 
 export const build = async () => {
