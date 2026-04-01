@@ -1,5 +1,4 @@
 #include "zaberUtils.h"
-#include <iostream>
 
 #include <epicsExport.h>
 #include <epicsStdio.h>

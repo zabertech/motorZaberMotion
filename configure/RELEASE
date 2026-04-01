@@ -1,8 +1,4 @@
 # RELEASE - Location of external support modules
-EPICS_BASE=/Users/colby.sparks/EPICS/base-7.0.8.1
-SUPPORT=$(EPICS_BASE)/../support
-MOTOR=$(SUPPORT)/motor
-ASYN=$(SUPPORT)/asyn
 
 # Use motor/module's generated release file when buidling inside motor
 -include $(TOP)/../RELEASE.$(EPICS_HOST_ARCH).local
