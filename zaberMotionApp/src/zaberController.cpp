@@ -59,7 +59,7 @@ zaberController::zaberController(const char *portName, int numAxes, double movin
     for(int i = 0; i < numAxes; i++) {
         new zaberAxis(this, i);
     }
-    startPoller(static_cast<double>(movingPollPeriod) / 1000.0, static_cast<double>(idlePollPeriod) / 1000.0, 2);
+    startPoller(movingPollPeriod / 1000.0, idlePollPeriod / 1000.0, 2);
 
     profileExecuteEvent_ = epicsEventMustCreate(epicsEventEmpty);
     epicsThreadCreate("ZaberProfile",

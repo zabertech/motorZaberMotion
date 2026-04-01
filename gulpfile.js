@@ -103,4 +103,5 @@ export const test = async () => {
     && make -j${os.cpus().length} \
     && ctest --verbose
   `);
+  await exec('uv run pytest tests');
 }

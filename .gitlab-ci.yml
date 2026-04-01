@@ -6,6 +6,7 @@ build_linux_amd64:
     - mkdir -p $HOME/EPICS/support/motor/modules/motorZaberMotion
     - mv * $HOME/EPICS/support/motor/modules/motorZaberMotion
     - cd $HOME/EPICS/support/motor/modules/motorZaberMotion
+    - uv sync
     - npm install
     - echo "===== Running build"
     - npm exec gulp -- build

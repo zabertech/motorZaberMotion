@@ -22,3 +22,7 @@ node_modules/
 **/.DS_Store
 **/.iocsh_history
 
+# python
+__pycache__
+.pytest_cache
+.ruff_cache
