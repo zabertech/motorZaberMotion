@@ -2,7 +2,6 @@ import childProcess from 'child_process';
 import { promises as fsp } from 'fs';
 import os from 'os';
 import path from 'path';
-import { config } from 'process';
 import { fileURLToPath } from 'url';
 
 const ZML_VERSION = '9.0.0';

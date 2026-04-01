@@ -17,7 +17,11 @@ DB_INSTALLS += $(MOTOR)/db/profileMoveController.template
 DB_INSTALLS += $(MOTOR)/db/profileMoveController_settings.req
 DB_INSTALLS += $(MOTOR)/db/profileMoveAxis.template
 DB_INSTALLS += $(MOTOR)/db/profileMoveAxis_settings.req
+ifdef MOTOR_ZABER
+DB_INSTALLS += $(MOTOR_ZABER)/db/profileMoveControllerZaber.template
+else
 DB_INSTALLS += $(MOTOR)/db/profileMoveControllerZaber.template
+endif
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add
