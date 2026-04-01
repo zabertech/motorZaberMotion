@@ -82,9 +82,10 @@ export const build = async () => {
   await update_support_configs();
 
   // run make in all support modules
-  await exec(`make -C ${EPICS_SUPPORT}/asyn`);
   await exec(`make -C ${EPICS_SUPPORT}/sequencer`);
-  build_motor();
+  await exec(`make -C ${EPICS_SUPPORT}/asyn`);
+  await exec(`make -C ${EPICS_SUPPORT}/busy`);
+  await build_motor();
 }
 
 export const build_motor = async () => {
