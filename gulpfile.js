@@ -65,6 +65,7 @@ const update_support_configs = async () => {
   const busyReleasePath = `${EPICS_SUPPORT}/busy/configure/RELEASE`;
   const busyReleaseContents = await fsp.readFile(busyReleasePath, 'utf8');
   await fsp.writeFile(busyReleasePath, busyReleaseContents
+    .replace(/^#?\s*ASYN\s*=.*/m, `ASYN=${EPICS_SUPPORT}/asyn`)
     .replace(/^#?\s*BUSY\s*=.*/m, `BUSY=${EPICS_SUPPORT}/busy`));
 
   // motor-specific changes
