@@ -76,7 +76,8 @@ const update_support_configs = async () => {
   const newMotorReleaseContents = motorReleaseContents
     .replace(/^#?\s*ASYN\s*=.*/m, `ASYN=${EPICS_SUPPORT}/asyn`)
     .replace(/^#?\s*BUSY\s*=.*/m, `BUSY=${EPICS_SUPPORT}/busy`)
-    .replace(/^#?\s*SNCSEQ\s*=.*/m, `SNCSEQ=${EPICS_SUPPORT}/sequencer`);
+    .replace(/^#?\s*SNCSEQ\s*=.*/m, `SNCSEQ=${EPICS_SUPPORT}/sequencer`)
+    .replace(/^#?\s*IPAC\s*=(.*)/m, '#IPAC=$1');
   await fsp.writeFile(motorReleasePath, newMotorReleaseContents);
 
   const modulePath = `${EPICS_SUPPORT}/motor/modules/Makefile`;
