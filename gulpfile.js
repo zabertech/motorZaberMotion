@@ -46,6 +46,7 @@ const update_support_configs = async () => {
   await update_release_for_module(`${EPICS_SUPPORT}/asyn`);
   await update_release_for_module(`${EPICS_SUPPORT}/sequencer`);
   await update_release_for_module(`${EPICS_SUPPORT}/motor`);
+  await update_release_for_module(`${EPICS_SUPPORT}/busy`);
 
   // asyn-specific changes
   const asynReleasePath = `${EPICS_SUPPORT}/asyn/configure/RELEASE`;
