@@ -83,11 +83,21 @@ If no argument is given, it defaults to `st.cmd.linear-stage`. For example, to s
 
 **Required environment variables:**
 
-- `EPICS_HOST_ARCH` — Must be set to the target architecture (e.g. `linux-x86_64`, `darwin-aarch64`). This is used to locate the IOC binary at `../../bin/${EPICS_HOST_ARCH}/zaberMotion`. This variable is typically set by sourcing your EPICS base `setEpicsEnv.sh` script.
+`EPICS_HOST_ARCH`: This must be set to the target architecture (e.g. `linux-x86_64`, `darwin-aarch64`)
+and is used to locate the IOC binary at `../../bin/${EPICS_HOST_ARCH}/zaberMotion`.
+This variable is typically set by sourcing your EPICS base `setEpicsEnv.sh` script.
 
 **Optional environment variables:**
 
-- `ZABER_DB_PATH` — Path to a local copy of the [Zaber device database](https://software.zaber.com/motion-library/docs/guides/device_db) (`.sqlite` file). Set this if the IOC does not have internet access; the startup command files read this variable and pass it to `ZaberMotionSetDbPath`. If this variable is not set, the driver will fetch device information from Zaber's online service at runtime.
+`ZABER_DB_PATH`: This is the path to a local copy of the [Zaber device database](https://software.zaber.com/motion-library/docs/guides/device_db) `.sqlite` file.
+If your IOC does not have internet access, download the device database, set `ZABER_DB_PATH` and uncomment the following line from the `st.cmd.*` script you plan to run:
+
+```
+#< motor.cmd.db-path.zaber
+```
+
+This `motor.cmd.db-path.zaber` command script reads this variable and passes it to the `ZaberMotionSetDbPath` IOC shell function.
+If `motor.cmd.db-path.zaber` remains commented out, the driver will fetch device information from Zaber's online service at runtime.
 
 ## Documentation
 
