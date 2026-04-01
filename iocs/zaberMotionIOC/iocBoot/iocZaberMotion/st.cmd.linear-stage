@@ -11,6 +11,7 @@ dbLoadRecords("$(MOTOR)/db/motorUtil.db", "P=zaberMotion:")
 
 cd "${TOP}/iocBoot/${IOC}"
 
+< motor.cmd.db-path.zaber
 < motor.cmd.linear-stage.zaber
 
 iocInit

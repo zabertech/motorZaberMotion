@@ -11,15 +11,9 @@ dbLoadRecords("$(MOTOR)/db/motorUtil.db", "P=zaberMotion:")
 
 cd "${TOP}/iocBoot/${IOC}"
 
+< motor.cmd.db-path.zaber
 < motor.cmd.xy-stage.zaber
-
-###
-# ZaberControllerCreateProfile(
-#    asyn motor port (must already be created),
-#    num points
-# )
-###
-ZaberControllerCreateProfile("XMCC2", 50)
+< motor.cmd.profile.zaber
 
 iocInit
 
