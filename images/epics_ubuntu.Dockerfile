@@ -32,12 +32,16 @@ RUN cd $HOME/EPICS \
     && cd base-7.0.8.1 \
     && make
 
-# add support modules
+# add motor support module and its dependencies
+# specific versions are those recommended in motor's configure/RELEASE file.
+# if you want to update these versions, please refer to that file:
+# https://github.com/epics-modules/motor/blob/R7-4/configure/RELEASE
 RUN mkdir $HOME/EPICS/support
 RUN cd $HOME/EPICS/support \
-    && git clone https://github.com/epics-modules/sequencer \
-    && git clone https://github.com/epics-modules/asyn \
-    && git clone https://github.com/epics-modules/motor
+    && git clone --branch R7-4    https://github.com/epics-modules/motor \
+    && git clone --branch R4-35   https://github.com/epics-modules/asyn \
+    && git clone --branch R2-2-6  https://github.com/epics-modules/sequencer \
+    && git clone --branch R1-7-1  https://github.com/epics-modules/busy
 
 # set env vars for EPICS and UV
 ENV EPICS_BASE=$HOME/EPICS/base-7.0.8.1

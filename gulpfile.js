@@ -61,6 +61,7 @@ const update_support_configs = async () => {
   const motorReleaseContents = await fsp.readFile(motorReleasePath, 'utf8');
   const newMotorReleaseContents = motorReleaseContents
     .replace(/^#?\s*ASYN\s*=.*/m, `ASYN=${EPICS_SUPPORT}/asyn`)
+    .replace(/^#?\s*BUSY\s*=.*/m, `BUSY=${EPICS_SUPPORT}/busy`)
     .replace(/^#?\s*SNCSEQ\s*=.*/m, `SNCSEQ=${EPICS_SUPPORT}/sequencer`);
   await fsp.writeFile(motorReleasePath, newMotorReleaseContents);
 
