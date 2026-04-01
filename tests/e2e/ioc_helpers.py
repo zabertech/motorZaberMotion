@@ -6,6 +6,7 @@ hard-coded Zaber TCP address with the mock server's port.
 """
 
 import asyncio
+import platform
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -15,7 +16,8 @@ from aioca import caget  # type: ignore[import-untyped]
 # Absolute paths derived from repo layout — adjust if the IOC moves.
 _REPO_ROOT = Path(__file__).parent.parent.parent
 _IOC_ROOT = _REPO_ROOT / "iocs/zaberMotionIOC"
-_IOC_BINARY = _IOC_ROOT / "bin/darwin-aarch64/zaberMotion"
+_arch = "linux-x86_64" if platform.system() == "Linux" else "darwin-aarch64"
+_IOC_BINARY = _IOC_ROOT / f"bin/{_arch}/zaberMotion"
 _ENV_PATHS = _IOC_ROOT / "iocBoot/iocZaberMotion/envPaths"
 
 # PV that becomes readable once iocInit and motorUtilInit have completed.
