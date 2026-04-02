@@ -10,7 +10,7 @@ motorZaberMotion can also be built outside of motor by copying it's ``EXAMPLE_RE
 
 motorZaberMotion contains an example IOC that is built if ``CONFIG_SITE.local`` sets ``BUILD_IOCS = YES``.  The example IOC can be built outside of driver module.
 
-## Documentation
+## Setup
 
 This driver makes use of [Zaber Motion Library](https://software.zaber.com/motion-library/docs) (ZML), which requires c++17 or greater.
 For this reason, any epics IOC which uses this motor module must also be compiled with at least c++17.
@@ -47,7 +47,7 @@ If the build must be performed without internet connectivity, then the support p
 Typically, Zaber Motion Library requires internet connectivity to identify devices: when identifying a device it will query a database service to retrieve important information such as device names, settings and conversion factors between device native units and real world units. If you would prefer that your IOC not be connected to the internet, this module exposes an ioc shell function for setting a local copy of the db (more on this in the ioc shell function section below).
 
 ### Officially supported systems and architectures:
-While ZML itself supports windows, linux and macOS, this module only officially supports linux and maxOS, specifically:
+While ZML itself supports windows, linux and macOS, this module only officially supports linux and macOS, specifically:
 - linux-aarch64
 - linux-arm
 - linux-x86_64
@@ -63,6 +63,38 @@ PRODDIR_RPATH_LDFLAGS_YES += $(PROD_DEPLIB_DIRS:%=-Wl,-rpath,%)
 PRODDIR_LDFLAGS += $(PRODDIR_RPATH_LDFLAGS_$(LINKER_USE_RPATH))
 endif
 ```
+
+### Running the Example IOC
+
+The example IOC includes a convenience script `iocs/zaberMotionIOC/iocBoot/iocZaberMotion/start.sh` that launches the IOC binary with a specified startup command file.
+
+```bash
+./start.sh [st.cmd file]
+```
+
+If no argument is given, it defaults to `st.cmd.linear-stage`. For example, to start with the XY stage configuration:
+
+```bash
+./start.sh st.cmd.xy-stage
+```
+
+**Required environment variables:**
+
+`EPICS_HOST_ARCH`: This must be set to the target architecture (e.g. `linux-x86_64`, `darwin-aarch64`)
+and is used to locate the IOC binary at `../../bin/${EPICS_HOST_ARCH}/zaberMotion`.
+This variable is typically set by sourcing your EPICS base `setEpicsEnv.sh` script.
+
+**Optional environment variables:**
+
+`ZABER_DB_PATH`: This is the path to a local copy of the [Zaber device database](https://software.zaber.com/motion-library/docs/guides/device_db) `.sqlite` file.
+If your IOC does not have internet access, download the device database, set `ZABER_DB_PATH` and uncomment the following line from the `st.cmd.*` script you plan to run:
+
+```
+#< motor.cmd.db-path.zaber
+```
+
+This `motor.cmd.db-path.zaber` command script reads this variable and passes it to the `ZaberMotionSetDbPath` IOC shell function.
+If `motor.cmd.db-path.zaber` remains commented out, the driver will fetch device information from Zaber's online service at runtime.
 
 ## Documentation
 

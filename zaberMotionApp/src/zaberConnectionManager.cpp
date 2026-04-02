@@ -1,7 +1,6 @@
 #include "zaberConnectionManager.h"
 
 #include <regex>
-#include <iostream>
 
 using namespace zaber::epics;
 
