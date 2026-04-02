@@ -150,7 +150,7 @@ asynStatus zaberController::buildProfile() {
             getIntegerParam(i, profileUseAxis_, &used);
             if (used) {
                 if (getAxis(i) == nullptr) {
-                    throw std::runtime_error("Attempted to access invalid axis at index: " + std::to_string(i));
+                    throw ze::MotorZaberMotionException("Attempted to access invalid axis at index: " + std::to_string(i));
                 }
                 usedAxes.push_back(i + 1);
             }

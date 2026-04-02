@@ -10,7 +10,7 @@ file "$(TOP)/db/profileMoveController.template"
 {
   pattern
   {P,     R,          PORT,  NAXES, NPOINTS, NPULSES, TIMEOUT}
-  {IOC:, MyProfile:, XMCC2,      2,      50,       0,     120}
+  {IOC:, MyProfile:, XMCC2,      2,      50,      50,     120}
 }
 
 file "$(TOP)/db/profileMoveControllerZaber.template"
@@ -24,6 +24,6 @@ file "$(TOP)/db/profileMoveAxis.template"
 {
   pattern
   {P,     R,         M,  PORT,  ADDR, NPOINTS, NREADBACK,           MOTOR, PREC, TIMEOUT}
-  {IOC:, MyProfile:, 1, XMCC2,    0,      50,        31, XY_STAGE:axis1,    3,     120}
-  {IOC:, MyProfile:, 2, XMCC2,    1,      50,        31, XY_STAGE:axis2,    3,     120}
+  {IOC:, MyProfile:, 1, XMCC2,    0,       50,        50,  XY_STAGE:axis1,    3,     120}
+  {IOC:, MyProfile:, 2, XMCC2,    1,       50,        50,  XY_STAGE:axis2,    3,     120}
 }
