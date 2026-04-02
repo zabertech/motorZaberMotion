@@ -28,16 +28,25 @@ RUN cd $HOME/EPICS \
     && cd base-7.0.8.1 \
     && make
 
-# add support modules
+# add motor support module and its dependencies
+# specific versions are those recommended in motor's configure/RELEASE file.
+# if you want to update these versions, please refer to that file:
+# https://github.com/epics-modules/motor/blob/R7-4/configure/RELEASE
 RUN mkdir $HOME/EPICS/support
 RUN cd $HOME/EPICS/support \
-    && git clone https://github.com/epics-modules/sequencer \
-    && git clone https://github.com/epics-modules/asyn \
-    && git clone https://github.com/epics-modules/motor
+    && git clone --branch R7-4    https://github.com/epics-modules/motor \
+    && git clone --branch R4-35   https://github.com/epics-modules/asyn \
+    && git clone --branch R2-2-6  https://github.com/epics-modules/sequencer \
+    && git clone --branch R5-8    https://github.com/epics-modules/autosave \
+    && git clone --branch R1-7-1  https://github.com/epics-modules/busy
 
-# set epics env vars
+# set env vars for EPICS and UV
 ENV HOME=/home/ubuntu
 ENV EPICS_BASE=$HOME/EPICS/base-7.0.8.1
 RUN export EPICS_HOST_ARCH=$($EPICS_BASE/startup/EpicsHostArch) \
     && echo "export EPICS_HOST_ARCH=$EPICS_HOST_ARCH" >> /home/ubuntu/.bashrc
 ENV PATH=$EPICS_BASE/bin/$EPICS_HOST_ARCH:$PATH
+ENV PATH="$HOME/.local/bin:$PATH"
+
+# py
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh

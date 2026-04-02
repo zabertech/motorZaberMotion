@@ -99,7 +99,11 @@ asynStatus zaberController::buildProfile() {
     setIntegerParam(profileBuildStatus_, PROFILE_STATUS_UNDEFINED);
     callParamCallbacks();
 
-    asynMotorController::buildProfile();
+    // The base class method will build the time array if time mode is fixed
+    asynStatus status = asynMotorController::buildProfile();
+    if (status != asynSuccess) {
+        return status;
+    }
 
     epicsInt32 moveMode;
     getIntegerParam(profileMoveMode_, &moveMode);
@@ -196,7 +200,7 @@ asynStatus zaberController::buildProfile() {
         return asynSuccess;
     };
 
-    asynStatus status = ze::handleException(this->pasynUserSelf, action);
+    status = ze::handleException(this->pasynUserSelf, action);
     if (status != asynSuccess) {
         const char *msg = "Profile build failed";
         setStringParam(profileBuildMessage_, msg);
