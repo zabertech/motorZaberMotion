@@ -1,0 +1,6 @@
+file "$(MOTOR)/motorApp/Db/asyn_motor.db"
+{
+  pattern
+  {P,           N,          M,        DTYP,    PORT, ADDR,   DESC,  EGU, DIR,  VELO, VBAS, ACCL, BDST, BVEL, BACC,   MRES, PREC, DLLM, DHLM, INIT}
+  {LINEAR_STAGE:, 1, "axis$(N)", "asynMotor",  LSM,    0, "Axis 1",  mm, Pos,  20.0,  5.0,  0.5,    0,    1,  0.2, 0.001,    3,    0,  150,   ""}
+}

@@ -3,7 +3,6 @@
 
 #include <asynDriver.h>
 #include <functional>
-#include <iostream>
 #include <zaber/motion/exceptions/motion_lib_exception.h>
 
 namespace zml = zaber::motion;
