@@ -5,3 +5,25 @@ file "$(MOTOR)/motorApp/Db/asyn_motor.db"
   {XY_STAGE:, 1, "axis$(N)", "asynMotor", XMCC2,    0, "Axis 1",  mm, Pos,  20.0,  5.0,  0.5,    0,    1,  0.2, 0.001,    3,    0,  100,   ""}
   {XY_STAGE:, 2, "axis$(N)", "asynMotor", XMCC2,    1, "Axis 2",  mm, Pos,  20.0,  5.0,  0.5,    0,    1,  0.2, 0.001,    3,    0,  120,   ""}
 }
+
+file "$(TOP)/db/profileMoveController.template"
+{
+  pattern
+  {P,     R,          PORT,  NAXES, NPOINTS, NPULSES, TIMEOUT}
+  {IOC:, MyProfile:, XMCC2,      2,      50,      50,     120}
+}
+
+file "$(TOP)/db/profileMoveControllerZaber.template"
+{
+  pattern
+  {P,     R,          PORT, TIMEOUT}
+  {IOC:, MyProfile:, XMCC2,     120}
+}
+
+file "$(TOP)/db/profileMoveAxis.template"
+{
+  pattern
+  {P,     R,         M,  PORT,  ADDR, NPOINTS, NREADBACK,           MOTOR, PREC, TIMEOUT}
+  {IOC:, MyProfile:, 1, XMCC2,    0,       50,        50,  XY_STAGE:axis1,    3,     120}
+  {IOC:, MyProfile:, 2, XMCC2,    1,       50,        50,  XY_STAGE:axis2,    3,     120}
+}

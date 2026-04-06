@@ -1,0 +1,7 @@
+###
+# ZaberControllerCreateProfile(
+#    asyn motor port (must already be created),
+#    num points
+# )
+###
+ZaberControllerCreateProfile("XMCC2", 50)

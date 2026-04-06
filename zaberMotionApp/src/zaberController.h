@@ -5,6 +5,7 @@
 
 #include "zaberAxis.h"
 #include <asynMotorController.h>
+#include <epicsEvent.h>
 #include <zaber/motion/ascii/axis.h>
 #include <zaber/motion/ascii/connection.h>
 #include <zaber/motion/ascii/device.h>
@@ -12,6 +13,8 @@
 class zaberAxis;
 
 namespace zml = zaber::motion;
+
+#define ZaberPulseWidthMsString "ZABER_PULSE_WIDTH_MS"
 
 class epicsShareClass zaberController : public asynMotorController {
     public:
@@ -27,9 +30,14 @@ class epicsShareClass zaberController : public asynMotorController {
     asynStatus abortProfile() override;
     asynStatus readbackProfile() override;
 
+    void profileThread();
+    void runProfile();
+
     private:
     std::shared_ptr<zml::ascii::Connection> connection_;
     zml::ascii::Device device_;
+    int zaberPulseWidthMs_;
+    epicsEventId profileExecuteEvent_;
 
     friend zaberAxis;
     zml::ascii::Axis getDeviceAxis(int axisNo);

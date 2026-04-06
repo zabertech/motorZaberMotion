@@ -16,8 +16,7 @@ int zaberMotionCreateController(
         int idlePollPeriod,     /* Time to poll (msec) when an axis is idle. 0 for no polling */
         const char *zaberPort,  /* Zaber Device TCP address or serial port name (prefixed with tcp:// or serial://) */
         int zaberDeviceNumber   /* Zaber Device number on the port (1-indexed) */
-    )
-{
+) {
     zaberController *pController = new zaberController(portName, numAxes, static_cast<double>(movingPollPeriod), static_cast<double>(idlePollPeriod), zaberPort, zaberDeviceNumber);
     (void)pController;
     return (asynSuccess);
@@ -39,6 +38,38 @@ static const iocshFuncDef zaberMotionControllerDef = {"ZaberMotionCreateControll
 static void zaberMotionCreateControllerCallFunc(const iocshArgBuf *args) {
     zaberMotionCreateController(args[0].sval, args[1].ival, args[2].ival, args[3].ival, args[4].sval, args[5].ival);
 }
+
+// Create Profile
+
+asynStatus ZaberControllerCreateProfile(
+    const char *name, /* specify which controller by port name */
+    int maxPoints     /* maximum number of profile points */
+) {
+  zaberController *pC;
+  static const char *functionName = "ZaberControllerCreateProfile";
+
+  pC = (zaberController*) findAsynPortDriver(name);
+  if (!pC) {
+    printf("%s:%s Error : Port %s not found\n",
+           "ZaberController", functionName, name);
+    return asynError;
+  }
+  pC->lock();
+  pC->initializeProfile(maxPoints);
+  pC->unlock();
+  return asynSuccess;
+}
+
+static const iocshArg ZaberControllerCreateProfileArg0 = {"Controller port name", iocshArgString};
+static const iocshArg ZaberControllerCreateProfileArg1 = {"Max points", iocshArgInt};
+static const iocshArg * const ZaberControllerCreateProfileArgs[] = {&ZaberControllerCreateProfileArg0,
+                                                                    &ZaberControllerCreateProfileArg1};
+static const iocshFuncDef configZaberControllerProfile = {"ZaberControllerCreateProfile", 2, ZaberControllerCreateProfileArgs};
+
+static void configZaberControllerProfileCallFunc(const iocshArgBuf *args) {
+  ZaberControllerCreateProfile(args[0].sval, args[1].ival);
+}
+
 
 // Zaber Motion Device DB
 
@@ -66,6 +97,7 @@ static void zaberMotionSetDbPathCallFunc(const iocshArgBuf *args) {
 static void zaberMotionAsynRegister(void) {
     iocshRegister(&zaberMotionControllerDef, zaberMotionCreateControllerCallFunc);
     iocshRegister(&zaberMotionDbPathDef, zaberMotionSetDbPathCallFunc);
+    iocshRegister(&configZaberControllerProfile, configZaberControllerProfileCallFunc);
 }
 
 extern "C" {
