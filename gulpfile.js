@@ -2,8 +2,9 @@ import childProcess from 'child_process';
 import { promises as fsp } from 'fs';
 import os from 'os';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const ZML_VERSION = '8.3.0';
+const ZML_VERSION = '9.0.0';
 
 const EPICS_BASE = process.env.EPICS_BASE;
 const EPICS_SUPPORT = path.normalize(`${EPICS_BASE}/../support`);
@@ -43,9 +44,15 @@ const update_release_for_module = async modulePath => {
 const update_support_configs = async () => {
   await update_release_for_module(`${EPICS_SUPPORT}/asyn`);
   await update_release_for_module(`${EPICS_SUPPORT}/sequencer`);
+  await update_release_for_module(`${EPICS_SUPPORT}/autosave`);
+  await update_release_for_module(`${EPICS_SUPPORT}/busy`);
   await update_release_for_module(`${EPICS_SUPPORT}/motor`);
 
-  // asyn-specific changes for linux
+  // asyn-specific changes
+  const asynReleasePath = `${EPICS_SUPPORT}/asyn/configure/RELEASE`;
+  const asynReleaseContents = await fsp.readFile(asynReleasePath, 'utf8');
+  await fsp.writeFile(asynReleasePath, asynReleaseContents
+    .replace(/^#?\s*SNCSEQ\s*=.*/m, `SNCSEQ=${EPICS_SUPPORT}/sequencer`));
   if (process.platform === 'linux') {
     const asynPath = `${EPICS_SUPPORT}/asyn/configure/CONFIG_SITE`;
     console.log('updating file with asyn path: ', asynPath);
@@ -54,13 +61,23 @@ const update_support_configs = async () => {
     await fsp.writeFile(asynPath, newContents);
   }
 
-  // motor-specific changes
-  const releasePath = `${EPICS_SUPPORT}/motor/configure/RELEASE`;
-  const releaseContents = await fsp.readFile(releasePath, 'utf8');
-  const newContents = releaseContents
+  // busy-specific changes
+  const busyReleasePath = `${EPICS_SUPPORT}/busy/configure/RELEASE`;
+  const busyReleaseContents = await fsp.readFile(busyReleasePath, 'utf8');
+  await fsp.writeFile(busyReleasePath, busyReleaseContents
     .replace(/^#?\s*ASYN\s*=.*/m, `ASYN=${EPICS_SUPPORT}/asyn`)
-    .replace(/^#?\s*SNCSEQ\s*=.*/m, `SNCSEQ=${EPICS_SUPPORT}/sequencer`);
-  await fsp.writeFile(releasePath, newContents);
+    .replace(/^#?\s*BUSY\s*=.*/m, `BUSY=${EPICS_SUPPORT}/busy`)
+    .replace(/^#?\s*AUTOSAVE\s*=.*/m, `AUTOSAVE=${EPICS_SUPPORT}/autosave`));
+
+  // motor-specific changes
+  const motorReleasePath = `${EPICS_SUPPORT}/motor/configure/RELEASE`;
+  const motorReleaseContents = await fsp.readFile(motorReleasePath, 'utf8');
+  const newMotorReleaseContents = motorReleaseContents
+    .replace(/^#?\s*ASYN\s*=.*/m, `ASYN=${EPICS_SUPPORT}/asyn`)
+    .replace(/^#?\s*BUSY\s*=.*/m, `BUSY=${EPICS_SUPPORT}/busy`)
+    .replace(/^#?\s*SNCSEQ\s*=.*/m, `SNCSEQ=${EPICS_SUPPORT}/sequencer`)
+    .replace(/^#?\s*IPAC\s*=(.*)/m, '#IPAC=$1');
+  await fsp.writeFile(motorReleasePath, newMotorReleaseContents);
 
   const modulePath = `${EPICS_SUPPORT}/motor/modules/Makefile`;
   const moduleContents = await fsp.readFile(modulePath, 'utf8');
@@ -68,15 +85,22 @@ const update_support_configs = async () => {
     .replaceAll(/^SUBMODULES\s*\+=(.*)/gm, '#SUBMODULES=$1')
     .replace(/^#SUBMODULES.*/m, 'SUBMODULES += motorZaberMotion');
   await fsp.writeFile(modulePath, newModuleContents);
+
+  // changes specific to this module
+  const motorZaberMotionPath = path.dirname(fileURLToPath(import.meta.url));
+  const configSitePath = path.join(motorZaberMotionPath, 'configure', 'CONFIG_SITE.local');
+  await fsp.writeFile(configSitePath, `BUILD_IOCS=YES${os.EOL}`);
 }
 
 export const build = async () => {
   await update_support_configs();
 
   // run make in all support modules
-  await exec(`make -C ${EPICS_SUPPORT}/asyn`);
   await exec(`make -C ${EPICS_SUPPORT}/sequencer`);
-  build_motor();
+  await exec(`make -C ${EPICS_SUPPORT}/asyn`);
+  await exec(`make -C ${EPICS_SUPPORT}/autosave`);
+  await exec(`make -C ${EPICS_SUPPORT}/busy`);
+  await build_motor();
 }
 
 export const build_motor = async () => {

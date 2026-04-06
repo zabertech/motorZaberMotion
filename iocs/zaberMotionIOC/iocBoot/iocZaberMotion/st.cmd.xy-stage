@@ -13,6 +13,7 @@ cd "${TOP}/iocBoot/${IOC}"
 
 #< motor.cmd.db-path.zaber
 < motor.cmd.xy-stage.zaber
+< motor.cmd.profile.zaber
 
 iocInit
 

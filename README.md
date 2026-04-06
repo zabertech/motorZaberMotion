@@ -15,7 +15,10 @@ motorZaberMotion contains an example IOC that is built if ``CONFIG_SITE.local`` 
 This driver makes use of [Zaber Motion Library](https://software.zaber.com/motion-library/docs) (ZML), which requires c++17 or greater.
 For this reason, any epics IOC which uses this motor module must also be compiled with at least c++17.
 
-Additionally, it only supports Zaber devices with FW version >= 7.25.
+### FW Version Requirements
+
+This driver only supports Zaber devices with FW version >= 7.25.
+Additionally, this driver's profile move implementation only supports Zaber devices with FW version >= 7.37.
 
 ### Build
 
@@ -151,7 +154,32 @@ The following is an overview of which status flags are set during polling, and w
 
 
 ### zaberController
-Please note that profile moves have not been implemented for `zaberController`.
+
+#### Profile Moves
+
+`zaberController` supports profile moves via the standard asyn motor profile interface. Before the IOC can execute a profile move, the profile infrastructure must be initialized with the following IOC shell function:
+
+__ZaberControllerCreateProfile(port, maxPoints)__
+Initializes the profile move infrastructure for the specified controller.
+- `port`: Asyn motor port name of the controller (must already be created via `ZaberMotionCreateController`).
+- `maxPoints`: Maximum number of profile points to allocate.
+
+This function must be called once during IOC initialization, before `iocInit`.
+
+**Supported features:**
+- Absolute move mode only (relative mode is not supported).
+- Synchronized multi-axis moves using PVT (Position-Velocity-Time) sequences.
+- Optional digital output pulses during the profile, triggered over a contiguous range of profile points.
+
+**Pulse configuration constraints** (when `numPulses > 0`):
+- `startPulses` must be ≥ 2: pulses cannot be triggered at the profile start position.
+- `endPulses` must be ≤ `numPoints`.
+- `numPulses` must equal `endPulses - startPulses + 1`: the pulse range must be contiguous.
+
+**Notes:**
+- Point 0 in the profile defines the starting position. Axes are moved to this position before the PVT sequence begins.
+- Velocities between profile points are calculated automatically from the supplied positions and times.
+- Digital output pulse width is controlled by the `$(P)$(R)PulseWidthMs` PV (asyn parameter `ZABER_PULSE_WIDTH_MS`), which defaults to 10.0 ms. Using digital output pulses requires FW version >= 7.37.
 
 ### Contact
 For any comments or concerns, please contact us at `contact@zaber.com`

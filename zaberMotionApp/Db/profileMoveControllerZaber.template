@@ -1,0 +1,19 @@
+# Database for Zaber-specific profile move parameters.
+# Load alongside profileMoveController.template for the same port.
+#
+# Macro parameters:
+#   $(P)        - PV name prefix
+#   $(R)        - PV base record name
+#   $(PORT)     - asyn port for this controller
+#   $(TIMEOUT)  - asyn timeout
+
+# Width of each digital output pulse fired at PVT points (milliseconds).
+# Requires firmware 7.37 or later.
+record(ao, "$(P)$(R)PulseWidthMs") {
+    field(DESC, "PVT pulse output width (ms)")
+    field(PINI, "YES")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(PORT),0,$(TIMEOUT))ZABER_PULSE_WIDTH_MS")
+    field(VAL,  "10.0")
+    field(PREC, "3")
+}

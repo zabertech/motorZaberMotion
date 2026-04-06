@@ -8,7 +8,7 @@ ifndef ZML_HOST_ARCH
 $(error "motorZaberMotion: Unsupported architecture: $(EPICS_HOST_ARCH)")
 endif
 
-ZML_VERSION     = 8.3.0
+ZML_VERSION     = 9.0.0
 ZML_SUPPORT_DIR = $(TOP)/zaberMotionSupport/ZaberMotionCppSupport
 ZML_ZIP         = $(TOP)/zaberMotionSupport/ZaberMotionCppSupport-$(ZML_VERSION).zip
 ZML_URL         = https://www.zaber.com/support/software-downloads.php?product=zml_cpp_support&version=$(ZML_VERSION)

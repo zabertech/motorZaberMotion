@@ -3,12 +3,18 @@
 
 #include <asynDriver.h>
 #include <functional>
+#include <exception>
 #include <zaber/motion/exceptions/motion_lib_exception.h>
 
 namespace zml = zaber::motion;
 
 namespace zaber {
 namespace epics {
+
+class MotorZaberMotionException: public std::runtime_error {
+    public:
+    MotorZaberMotionException(const std::string& message);
+};
 
 inline asynStatus handleException(
     asynUser *usr, const std::function<asynStatus()> &action, const std::function<void()> &onError = nullptr) {
