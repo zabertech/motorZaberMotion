@@ -45,12 +45,12 @@ zaberAxis::zaberAxis(zaberController *pC, int axisNo) :
         asynStatus status = asynSuccess;
         switch(axis_.getAxisType()) {
             case zml::ascii::AxisType::LINEAR:
-                lengthUnit_ = zml::Units::LENGTH_MICROMETRES;
-                velocityUnit_ = zml::Units::VELOCITY_MICROMETRES_PER_SECOND;
-                accelUnit_ = zml::Units::ACCELERATION_MICROMETRES_PER_SECOND_SQUARED;
+                positionUnit_ = zml::Units::LENGTH_MILLIMETRES;
+                velocityUnit_ = zml::Units::VELOCITY_MILLIMETRES_PER_SECOND;
+                accelUnit_ = zml::Units::ACCELERATION_MILLIMETRES_PER_SECOND_SQUARED;
                 break;
             case zml::ascii::AxisType::ROTARY:
-                lengthUnit_ = zml::Units::ANGLE_DEGREES;
+                positionUnit_ = zml::Units::ANGLE_DEGREES;
                 velocityUnit_ = zml::Units::ANGULAR_VELOCITY_DEGREES_PER_SECOND;
                 accelUnit_ = zml::Units::ANGULAR_ACCELERATION_DEGREES_PER_SECOND_SQUARED;
                 break;
@@ -122,10 +122,11 @@ asynStatus zaberAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
     (void)minVelocity;
 
     std::function<asynStatus()> action = [this, maxVelocity, acceleration]() {
+        double scale = getStepScale(/*warnIfUnset=*/true);
         zml::ascii::Axis::MoveVelocityOptions options{
-            .acceleration = acceleration,
+            .acceleration = acceleration * scale,
             .accelerationUnit = accelUnit_};
-        axis_.moveVelocity(maxVelocity, velocityUnit_, options);
+        axis_.moveVelocity(maxVelocity * scale, velocityUnit_, options);
         return asynSuccess;
     };
     asynStatus status = zaber::epics::handleException(pC_->pasynUserSelf, action);
@@ -162,8 +163,9 @@ asynStatus zaberAxis::home(double minVelocity, double maxVelocity, double accele
  */
 asynStatus zaberAxis::stop(double acceleration) {
     std::function<asynStatus()> action = [this, acceleration]() {
+        double scale = getStepScale(/*warnIfUnset=*/true);
         zml::ascii::Axis::MoveVelocityOptions options{
-            .acceleration = acceleration,
+            .acceleration = acceleration * scale,
             .accelerationUnit = accelUnit_};
         axis_.moveVelocity(0., velocityUnit_, options);
         return asynSuccess;
@@ -183,7 +185,7 @@ asynStatus zaberAxis::poll(bool *moving) {
         setIntegerParam(pC_->motorStatusMoving_, static_cast<int>(*moving));
         setIntegerParam(pC_->motorStatusHomed_, static_cast<int>(axis_.isHomed()));
 
-        double pos = axis_.getPosition(lengthUnit_);
+        double pos = axis_.getPosition(positionUnit_) / getStepScale();
         setDoubleParam(pC_->motorPosition_, pos);
         setIntegerParam(pC_->motorStatusCommsError_, 0);
 
@@ -221,7 +223,8 @@ asynStatus zaberAxis::poll(bool *moving) {
  */
 asynStatus zaberAxis::setPosition(double position) {
     std::function<asynStatus()> action = [this, position]() {
-        axis_.getSettings().set("pos", position, lengthUnit_);
+        double scale = getStepScale(/*warnIfUnset=*/true);
+        axis_.getSettings().set("pos", position * scale, positionUnit_);
         return asynSuccess;
     };
     return zaber::epics::handleException(pC_->pasynUserSelf, action);
@@ -229,15 +232,37 @@ asynStatus zaberAxis::setPosition(double position) {
 
 /* Private member functions */
 
+
+/**
+ * Get physical units (positionUnit_) per motor-record step.
+ *
+ * @param warnIfUnset Log a warning message if resolution has not yet been set for this axis.
+ */
+double zaberAxis::getStepScale(bool warnIfUnset) const {
+    double mres = 0.0;
+    pC_->getDoubleParam(axisNo_, pC_->motorRecResolution_, &mres);
+    if (mres != 0.0) {
+        return mres;
+    }
+    if (warnIfUnset) {
+        asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR,
+            "zaberAxis::getStepScale: axis %d MRES record has no value (MOTOR_REC_RESOLUTION is 0). "
+            "Defaulting to unit scale of 1.0. Ensure the record's resolution ao is set.\n", axisNo_
+        );
+    }
+    return 1.0;
+}
+
 asynStatus zaberAxis::doAbsoluteMove(double position, double velocity, double acceleration) {
     std::function<asynStatus()> action = [this, position, velocity, acceleration]() {
+        double scale = getStepScale(/*warnIfUnset=*/true);
         zml::ascii::Axis::MoveAbsoluteOptions options{
             .waitUntilIdle = false,
-            .velocity = velocity,
+            .velocity = velocity * scale,
             .velocityUnit = velocityUnit_,
-            .acceleration = acceleration,
+            .acceleration = acceleration * scale,
             .accelerationUnit = accelUnit_};
-        axis_.moveAbsolute(position, lengthUnit_, options);
+        axis_.moveAbsolute(position * scale, positionUnit_, options);
         return asynSuccess;
     };
     return zaber::epics::handleException(pC_->pasynUserSelf, action);
@@ -245,13 +270,14 @@ asynStatus zaberAxis::doAbsoluteMove(double position, double velocity, double ac
 
 asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double acceleration) {
     std::function<asynStatus()> action = [this, distance, velocity, acceleration]() {
+        double scale = getStepScale(/*warnIfUnset=*/true);
         zml::ascii::Axis::MoveRelativeOptions options{
             .waitUntilIdle = false,
-            .velocity = velocity,
+            .velocity = velocity * scale,
             .velocityUnit = velocityUnit_,
-            .acceleration = acceleration,
+            .acceleration = acceleration * scale,
             .accelerationUnit = accelUnit_};
-        axis_.moveRelative(distance, lengthUnit_, options);
+        axis_.moveRelative(distance * scale, positionUnit_, options);
         return asynSuccess;
     };
     return zaber::epics::handleException(pC_->pasynUserSelf, action);

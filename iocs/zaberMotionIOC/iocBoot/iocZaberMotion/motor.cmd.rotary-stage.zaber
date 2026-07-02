@@ -1,0 +1,13 @@
+dbLoadTemplate("motor.substitutions.rotary-stage.zaber")
+
+###
+# ZaberMotionCreateController(
+#    asyn motor port (will be created),
+#    num axes,
+#    moving poll period (ms),
+#    idle poll period (ms),
+#    address or serial port name of zaber device (prefixed with tcp:// or serial://),
+#    zaber device number (1-indexed)
+# )
+###
+ZaberMotionCreateController("X-RSW", 1, 100, 5000, "serial:///dev/ttyUSB0", 1)
