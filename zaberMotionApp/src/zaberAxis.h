@@ -29,12 +29,14 @@ class epicsShareClass zaberAxis : public asynMotorAxis {
     static const std::unordered_map<std::string, std::string> ZML_FAULT_TO_MESSAGE;
     zaberController *pC_;
     zml::ascii::Axis axis_;
-    zml::Units lengthUnit_;
+    zml::Units positionUnit_;
     zml::Units velocityUnit_;
     zml::Units accelUnit_;
 
     asynStatus doAbsoluteMove(double position, double velocity, double acceleration);
     asynStatus doRelativeMove(double distance, double velocity, double acceleration);
+
+    double getStepScale(bool warnIfUnset = false) const;
     inline bool checkAllFlags(std::unordered_set<std::string> flags);
     inline void updateStatusFromFlag(const std::string& flag);
 

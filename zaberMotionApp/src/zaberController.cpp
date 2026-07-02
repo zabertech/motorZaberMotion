@@ -169,7 +169,7 @@ asynStatus zaberController::buildProfile() {
             std::vector<std::optional<zml::Measurement>> positions;
             for (int axisNum : usedAxes) {
                 const zaberAxis *axis = getAxis(axisNum - 1);
-                positions.push_back(zml::Measurement{axis->profilePositions_[i], axis->lengthUnit_});
+                positions.push_back(zml::Measurement{axis->profilePositions_[i] * axis->getStepScale(), axis->positionUnit_});
             }
             // Point 0 is the starting position.
             // This driver will move the device to this starting position when the profile is executed.
@@ -249,7 +249,7 @@ void zaberController::runProfile() {
             for (int axisNum : usedAxes) {
                 // Move to start position using device's current velocity/acceleration settings.
                 zaberAxis *axis = getAxis(axisNum - 1);
-                axis->axis_.moveAbsolute(axis->profilePositions_[0], axis->lengthUnit_, /*waitUntilIdle=*/true);
+                axis->axis_.moveAbsolute(axis->profilePositions_[0] * axis->getStepScale(), axis->positionUnit_, /*waitUntilIdle=*/true);
             }
         }
 
@@ -325,24 +325,25 @@ asynStatus zaberController::readbackProfile() {
                 throw std::runtime_error("Attempted to access invalid axis at index: " + std::to_string(i));
             }
 
+            const double scale = axis->getStepScale();
             std::vector<double> positions;
             positions.reserve(numPulses);
             for (int pointIndex = startPulses - 1; pointIndex <= endPulses - 1; pointIndex++) {
-                positions.push_back(axis->profilePositions_[pointIndex]);
+                positions.push_back(axis->profilePositions_[pointIndex] * scale);
             }
 
             // Round-trip positions through native units (microsteps) to reflect actual positions.
             // FW guarantees that PVT IO actions are triggered at exactly the position of
             // the preceding point in the sequence, so these deltas affect the physical error.
             zml::UnitConversionDescriptor descriptor = axis->axis_.getSettings().getUnitConversionDescriptor("pos");
-            std::vector<double> native = zml::UnitTable::convertToNativeUnitsBatch(descriptor, positions, axis->lengthUnit_);
+            std::vector<double> native = zml::UnitTable::convertToNativeUnitsBatch(descriptor, positions, axis->positionUnit_);
             for (auto& v : native) v = std::round(v);
-            std::vector<double> quantized = zml::UnitTable::convertFromNativeUnitsBatch(descriptor, native, axis->lengthUnit_);
+            std::vector<double> quantized = zml::UnitTable::convertFromNativeUnitsBatch(descriptor, native, axis->positionUnit_);
 
             int pulseIndex = 0;
             for (int pointIndex = startPulses - 1; pointIndex <= endPulses - 1; pointIndex++, pulseIndex++) {
-                axis->profileReadbacks_[pulseIndex] = quantized[pulseIndex];
-                axis->profileFollowingErrors_[pulseIndex] = quantized[pulseIndex] - axis->profilePositions_[pointIndex];
+                axis->profileReadbacks_[pulseIndex] = quantized[pulseIndex] / scale;
+                axis->profileFollowingErrors_[pulseIndex] = quantized[pulseIndex] / scale - axis->profilePositions_[pointIndex];
             }
         }
 
