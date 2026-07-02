@@ -1,6 +1,6 @@
 # motorZaberMotion Releases
 
-## __R2-1-0 (2026-03-09)__
+## __R2-1-0 (2026-07-02)__
 R2-1-0 is a tagged release (git tag v2.1.0)
 
 ### Changes since R2-0-0
