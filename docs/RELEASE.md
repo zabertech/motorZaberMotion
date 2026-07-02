@@ -1,5 +1,21 @@
 # motorZaberMotion Releases
 
+## __R2-1-0 (2026-03-09)__
+R2-1-0 is a tagged release (git tag v2.1.0)
+
+### Changes since R2-0-0
+
+#### Bugfixes and Improvements
+* Commit [94099d06](https://github.com/zabertech/motorZaberMotion/commit/94099d062cc42312cb7d1ee0eee2a08971f2b1ca)
+    * Adds support for variable MRES record values.
+        * Users can now set their preferred decimal precision for axes and the driver will perform scaling before sending commands to the device.
+        * Linear and rotary devices still use millimetres and degrees, respectively.
+
+#### New Features
+* Commit [52c066cb](https://github.com/zabertech/motorZaberMotion/commit/52c066cb9f63b7bd29c9f6aea8e2a294299ddbf9)
+    * Adds support for profile moves (beta).
+        * Note that this feature is still being tested and may be changed before it is officially released.
+
 ## __R2-0-0 (2026-03-09)__
 R2-0-0 is a tagged release (git tag v2.0.0)
 
