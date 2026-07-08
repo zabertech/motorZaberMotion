@@ -37,8 +37,7 @@ class epicsShareClass zaberAxis : public asynMotorAxis {
     asynStatus doRelativeMove(double distance, double velocity, double acceleration);
 
     double getStepScale(bool warnIfUnset = false) const;
-    inline bool checkAllFlags(std::unordered_set<std::string> flags);
-    inline void updateStatusFromFlag(const std::string& flag);
+    inline bool checkAllFlags(const std::unordered_set<std::string> &flags);
 
     friend class zaberController;
 };

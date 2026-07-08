@@ -1,0 +1,51 @@
+[project]
+name = "motorzabermotion"
+version = "0.1.0"
+description = "End-to-end tests for the motorZaberMotion EPICS driver."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "aioca~=2.1",
+    "pytest",
+    "pytest-asyncio",
+    "pyright",
+    "ruff~=0.14.0",
+    "zaber-ascii-mock~=0.1.2",
+]
+
+[tool.uv.sources]
+zaber-ascii-mock = { index = "izaber" }
+
+[[tool.uv.index]]
+name = "izaber"
+url = "https://gitlab.izaber.com/api/v4/projects/1245/packages/pypi/simple"
+explicit = true
+
+[tool.ruff]
+extend = "zaber-python-tooling-config/zaber-ruff.toml"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "S101",     # assert is how pytest works
+    "D101",     # test class names are self-documenting
+    "D102",     # test method names are self-documenting
+    "D103",     # fixture names are self-documenting
+    "PLR0913",  # function param number limit
+    "PLR2004",  # magic values in assertions are expected values
+    "ASYNC109", # timeout params mirror aioca's API and are passed straight through
+    "TRY003",   # inline f-string messages on TimeoutError are fine in test helpers
+]
+
+[tool.pyright]
+extends = "zaber-python-tooling-config/zaber-pyright.toml"
+extraPaths = ["tests"]
+stubPath = "tests/typings"
+
+[tool.pytest.ini_options]
+pythonpath = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"

@@ -31,7 +31,7 @@ PointerAlignment: Right
 QualifierAlignment: Left
 SpaceAfterTemplateKeyword: false
 SpaceBeforeCpp11BracedList: false
-SpaceBeforeParens: Never
+SpaceBeforeParens: ControlStatements
 SpacesInContainerLiterals: false
 SpaceInEmptyBlock: false
 TabWidth: 4
