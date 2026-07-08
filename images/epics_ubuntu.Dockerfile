@@ -14,11 +14,15 @@ RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && apt-get install
 RUN npm install -g npm@8.19.4
 RUN apt-get install -y firefox
 
-# add user
+# add user and set home directory
 RUN apt-get install -y sudo
 RUN useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1001 ubuntu
 RUN echo "ubuntu ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 USER ubuntu
+ENV HOME=/home/ubuntu
+
+# py
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # get and build epics base
 RUN mkdir -p $HOME/EPICS

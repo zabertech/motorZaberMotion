@@ -1,10 +1,8 @@
 #include "zaberAxis.h"
 #include "zaberController.h"
 #include "zaberUtils.h"
-
 #include <string>
 #include <vector>
-
 #include <zaber/motion/ascii/axis_settings.h>
 #include <zaber/motion/ascii/warning_flags.h>
 #include <zaber/motion/ascii/warnings.h>
@@ -43,7 +41,7 @@ zaberAxis::zaberAxis(zaberController *pC, int axisNo) :
     axis_ = pC->getDeviceAxis(axisNo);
     std::function<asynStatus()> action = [this]() {
         asynStatus status = asynSuccess;
-        switch(axis_.getAxisType()) {
+        switch (axis_.getAxisType()) {
             case zml::ascii::AxisType::LINEAR:
                 positionUnit_ = zml::Units::LENGTH_MILLIMETRES;
                 velocityUnit_ = zml::Units::VELOCITY_MILLIMETRES_PER_SECOND;
@@ -72,7 +70,7 @@ void zaberAxis::report(FILE *fp, int details) {
         fprintf(fp, "  Zaber Motion Axis: %d\n", axisNo_);
         fprintf(fp, "    %s\n", axis_.toString().c_str());
 
-        if(details > 0) {
+        if (details > 0) {
             double velocity, position, acceleration;
             pC_->lock();
             pC_->getDoubleParam(pC_->motorVelocity_, &velocity);
@@ -102,7 +100,7 @@ asynStatus zaberAxis::move(double position, int relative, double minVelocity, do
     (void)minVelocity;
 
     asynStatus status = asynSuccess;
-    if(relative) {
+    if (relative) {
         status = doRelativeMove(position, maxVelocity, acceleration);
     } else {
         status = doAbsoluteMove(position, maxVelocity, acceleration);
@@ -247,8 +245,8 @@ double zaberAxis::getStepScale(bool warnIfUnset) const {
     if (warnIfUnset) {
         asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR,
             "zaberAxis::getStepScale: axis %d MRES record has no value (MOTOR_REC_RESOLUTION is 0). "
-            "Defaulting to unit scale of 1.0. Ensure the record's resolution ao is set.\n", axisNo_
-        );
+            "Defaulting to unit scale of 1.0. Ensure the record's resolution ao is set.\n",
+            axisNo_);
     }
     return 1.0;
 }
@@ -283,12 +281,14 @@ asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double ac
     return zaber::epics::handleException(pC_->pasynUserSelf, action);
 }
 
-bool zaberAxis::checkAllFlags(std::unordered_set<std::string> flags) {
+bool zaberAxis::checkAllFlags(const std::unordered_set<std::string>& flags) {
     bool fault = false;
-    std::string message = "";
+    bool followingError = false;
+    bool limitError = false;
+    std::string message;
 
     for (const std::string &flag : flags) {
-        if (flag.length() == 0) {
+        if (flag.empty()) {
             continue;
         }
 
@@ -307,18 +307,15 @@ bool zaberAxis::checkAllFlags(std::unordered_set<std::string> flags) {
             asynPrint(pC_->pasynUserSelf, ASYN_TRACE_WARNING, "Zaber Motion Warning -- %s: %s\n", flag.c_str(), "Limit warning");
         }
 
-        updateStatusFromFlag(flag);
+        if (flag == zml::ascii::warning_flags::STALLED_AND_STOPPED || flag == zml::ascii::warning_flags::INTERPOLATED_PATH_DEVIATION) {
+            followingError = true;
+        } else if (flag == zml::ascii::warning_flags::LIMIT_ERROR) {
+            limitError = true;
+        }
     }
-    return fault;
-}
 
-void zaberAxis::updateStatusFromFlag(const std::string& flag) {
-    if (flag == zml::ascii::warning_flags::STALLED_AND_STOPPED) {
-        pC_->setIntegerParam(pC_->motorStatusFollowingError_, 1);
-    } else if (flag == zml::ascii::warning_flags::INTERPOLATED_PATH_DEVIATION) {
-        pC_->setIntegerParam(pC_->motorStatusFollowingError_, 1);
-    } else if (flag == zml::ascii::warning_flags::LIMIT_ERROR) {
-        pC_->setIntegerParam(pC_->motorStatusLowLimit_, 1);
-        pC_->setIntegerParam(pC_->motorStatusHighLimit_, 1);
-    }
+    setIntegerParam(pC_->motorStatusFollowingError_, static_cast<int>(followingError));
+    setIntegerParam(pC_->motorStatusLowLimit_, static_cast<int>(limitError));
+    setIntegerParam(pC_->motorStatusHighLimit_, static_cast<int>(limitError));
+    return fault;
 }

@@ -59,7 +59,7 @@ zaberController::zaberController(const char *portName, int numAxes, double movin
     for(int i = 0; i < numAxes; i++) {
         new zaberAxis(this, i);
     }
-    startPoller(static_cast<double>(movingPollPeriod) / 1000.0, static_cast<double>(idlePollPeriod) / 1000.0, 2);
+    startPoller(movingPollPeriod / 1000.0, idlePollPeriod / 1000.0, 2);
 
     profileExecuteEvent_ = epicsEventMustCreate(epicsEventEmpty);
     epicsThreadCreate("ZaberProfile",
@@ -159,13 +159,6 @@ asynStatus zaberController::buildProfile() {
         std::vector<zml::ascii::PvtPartialSequenceItem> partialItems;
         partialItems.reserve(numPoints + numPulses);
         for (int i = 0; i < numPoints; i++) {
-            if (numPulses > 0 && i >= startPulses - 1 && i <= endPulses - 1) {
-                partialItems.push_back(zml::ascii::PvtSetDigitalOutputAction(
-                    PULSE_OUTPUT_CHANNEL,
-                    zml::ascii::DigitalOutputAction::ON,
-                    zml::Measurement{pulseWidthMs, zml::Units::TIME_MILLISECONDS},
-                    zml::ascii::DigitalOutputAction::OFF));
-            }
             std::vector<std::optional<zml::Measurement>> positions;
             for (int axisNum : usedAxes) {
                 const zaberAxis *axis = getAxis(axisNum - 1);
@@ -178,6 +171,14 @@ asynStatus zaberController::buildProfile() {
                 /*velocities=*/{},
                 zml::Measurement{i == 0 ? 0.0 : profileTimes_[i], zml::Units::TIME_SECONDS},
                 /*relative=*/false));
+
+            if (numPulses > 0 && i >= startPulses - 1 && i <= endPulses - 1) {
+                partialItems.push_back(zml::ascii::PvtSetDigitalOutputAction(
+                    PULSE_OUTPUT_CHANNEL,
+                    zml::ascii::DigitalOutputAction::ON,
+                    zml::Measurement{pulseWidthMs, zml::Units::TIME_MILLISECONDS},
+                    zml::ascii::DigitalOutputAction::OFF));
+            }
         }
 
         std::vector<zml::ascii::PvtSequenceItem> sequenceData =

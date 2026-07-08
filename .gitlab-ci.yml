@@ -2,10 +2,13 @@ build_linux_amd64:
   stage: build
   interruptible: true
   image: registry.izaber.com/software-public/zaber-motion-epics/linux_amd64
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
   script:
     - mkdir -p $HOME/EPICS/support/motor/modules/motorZaberMotion
     - mv * $HOME/EPICS/support/motor/modules/motorZaberMotion
     - cd $HOME/EPICS/support/motor/modules/motorZaberMotion
+    - uv sync
     - npm install
     - echo "===== Running build"
     - npm exec gulp -- build
