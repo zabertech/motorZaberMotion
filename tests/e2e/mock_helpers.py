@@ -12,14 +12,14 @@ STEPS_PER_MM = 8062.992125984
 """Linear resolution of the mock's stage (native microsteps per mm)."""
 
 
-def microsteps(position_mm: float) -> int:
+def mm_to_microsteps(position_mm: float) -> int:
     """Native microstep target the driver sends for a position in mm."""
     return round(position_mm * STEPS_PER_MM)
 
 
 def roundtrip_mm(position_mm: float) -> float:
     """Return a position in mm after native-microstep quantization."""
-    return microsteps(position_mm) / STEPS_PER_MM
+    return mm_to_microsteps(position_mm) / STEPS_PER_MM
 
 
 @contextlib.asynccontextmanager

@@ -8,7 +8,7 @@ import pytest
 from zaber_ascii_mock import MockDevice
 
 from tests.e2e.ca_helpers import get_float, get_int, put
-from tests.e2e.mock_helpers import completing_moves, microsteps
+from tests.e2e.mock_helpers import completing_moves, mm_to_microsteps
 
 _AXIS = "LINEAR_TEST:axis1"
 """LINEAR_TEST:axis1 motor record from motor.substitutions.xy-stage.zaber (EGU = mm)."""
@@ -71,7 +71,7 @@ async def test_absolute_move(mock_device: MockDevice) -> None:
     async with completing_moves(mock_device):
         await put(f"{_AXIS}.VAL", 5.0, wait=True, timeout=30)
 
-    assert mock_device.axis(1).position == microsteps(5.0)
+    assert mock_device.axis(1).position == mm_to_microsteps(5.0)
     assert abs(await get_float(f"{_AXIS}.RBV") - 5.0) < 1e-9
     assert await get_int(f"{_AXIS}.DMOV") == 1
 
@@ -84,7 +84,7 @@ async def test_relative_move(mock_device: MockDevice) -> None:
         await put(f"{_AXIS}.VAL", 5.0, wait=True, timeout=30)   # start at 5 mm
         await put(f"{_AXIS}.RLV", 2.0, wait=True, timeout=30)   # end at 7 mm
 
-    assert mock_device.axis(1).position == microsteps(7.0)
+    assert mock_device.axis(1).position == mm_to_microsteps(7.0)
     assert abs(await get_float(f"{_AXIS}.RBV") - 7.0) < 1e-9
 
 
@@ -92,7 +92,7 @@ async def test_relative_move(mock_device: MockDevice) -> None:
 @pytest.mark.usefixtures("ioc_process")
 async def test_home(mock_device: MockDevice) -> None:
     """Writing to HOMF homes the axis and sets the homed status bit."""
-    mock_device.axis(1).position = microsteps(5.0) # start away from home
+    mock_device.axis(1).position = mm_to_microsteps(5.0) # start away from home
 
     async with completing_moves(mock_device):
         await put(f"{_AXIS}.HOMF", 1, wait=True, timeout=30)
