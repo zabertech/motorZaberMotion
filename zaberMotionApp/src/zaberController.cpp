@@ -45,10 +45,10 @@ static void zaberProfileThreadC(void *pPvt) {
  * \param[in] idlePollPeriod    The time between polls when no axis is moving
  * \param[in] devicePort        The tcp or serial port that the zaber device is connected to
  * \param[in] deviceNumber      The number of the device on the port (1-indexed)
- * \param[in] unitsPerStep      The per-axis step size, expressed as a fraction of the driver's default motion units
+ * \param[in] stepScaleFactor      The per-axis step size, expressed as a fraction of the driver's default motion units
  *                              (microns for linear devices and degrees for rotary).
  */
-zaberController::zaberController(const char *portName, int numAxes, double movingPollPeriod, double idlePollPeriod, const char *devicePort, int deviceNumber, const std::vector<double> &unitsPerStep) :
+zaberController::zaberController(const char *portName, int numAxes, double movingPollPeriod, double idlePollPeriod, const char *devicePort, int deviceNumber, const std::vector<double> &stepScaleFactor) :
         asynMotorController(portName, numAxes, 1, 0, 0, ASYN_CANBLOCK | ASYN_MULTIDEVICE, 1 /* autoconnect */, 0, 0) {
     createParam(ZaberPulseWidthMsString, asynParamFloat64, &zaberPulseWidthMs_);
     try {
@@ -59,11 +59,11 @@ zaberController::zaberController(const char *portName, int numAxes, double movin
         fprintf(stderr, "zaberController: Initialization failed\n\t%s\n", e.what());
     }
     for(int i = 0; i < numAxes; i++) {
-        double axisUnitsPerStep = 1.0;
-        if (i < static_cast<int>(unitsPerStep.size())) {
-            axisUnitsPerStep = unitsPerStep[i];
+        double axisStepScaleFactor = 1.0;
+        if (i < static_cast<int>(stepScaleFactor.size())) {
+            axisStepScaleFactor = stepScaleFactor[i];
         }
-        new zaberAxis(this, i, axisUnitsPerStep);
+        new zaberAxis(this, i, axisStepScaleFactor);
     }
     startPoller(movingPollPeriod / 1000.0, idlePollPeriod / 1000.0, 2);
 
@@ -168,7 +168,7 @@ asynStatus zaberController::buildProfile() {
             std::vector<std::optional<zml::Measurement>> positions;
             for (int axisNum : usedAxes) {
                 const zaberAxis *axis = getAxis(axisNum - 1);
-                positions.push_back(zml::Measurement{axis->profilePositions_[i] * axis->unitsPerStep_, axis->positionUnit_});
+                positions.push_back(zml::Measurement{axis->profilePositions_[i] * axis->stepScaleFactor_, axis->positionUnit_});
             }
             // Point 0 is the starting position.
             // This driver will move the device to this starting position when the profile is executed.
@@ -256,7 +256,7 @@ void zaberController::runProfile() {
             for (int axisNum : usedAxes) {
                 // Move to start position using device's current velocity/acceleration settings.
                 zaberAxis *axis = getAxis(axisNum - 1);
-                axis->axis_.moveAbsolute(axis->profilePositions_[0] * axis->unitsPerStep_, axis->positionUnit_, /*waitUntilIdle=*/true);
+                axis->axis_.moveAbsolute(axis->profilePositions_[0] * axis->stepScaleFactor_, axis->positionUnit_, /*waitUntilIdle=*/true);
             }
         }
 
@@ -332,7 +332,7 @@ asynStatus zaberController::readbackProfile() {
                 throw std::runtime_error("Attempted to access invalid axis at index: " + std::to_string(i));
             }
 
-            const double scale = axis->unitsPerStep_;
+            const double scale = axis->stepScaleFactor_;
             std::vector<double> positions;
             positions.reserve(numPulses);
             for (int pointIndex = startPulses - 1; pointIndex <= endPulses - 1; pointIndex++) {

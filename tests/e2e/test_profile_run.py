@@ -3,11 +3,11 @@
 import pytest
 
 from tests.e2e.ca_helpers import get_float_array, get_int, get_message, put, wait_until_done
+from tests.e2e.mock_helpers import roundtrip_mm
 from tests.e2e.profile_helpers import (
     M1,
     M2,
     STATUS_SUCCESS,
-    STEPS_PER_MM,
     P,
     PulseParams,
     assert_build_succeeds,
@@ -28,10 +28,6 @@ _AXIS2_POSITIONS = [20.0, 20.0, 20.0, 20.0]
 # The points that carry pulses (1-based StartPulses..EndPulses → indices 1, 2).
 _AXIS1_PULSE_POSITIONS = [11.0, 12.0]
 _AXIS2_PULSE_POSITIONS = [20.0, 20.0]
-
-def _microstep_roundtrip(position_mm: float) -> float:
-    """Quantize a position to the nearest microstep, exactly as readbackProfile does."""
-    return round(position_mm * STEPS_PER_MM) / STEPS_PER_MM
 
 
 async def _build_profile_with_pulses() -> None:
@@ -91,16 +87,16 @@ async def test_readback_profile_quantizes_pulse_positions() -> None:
 
     # Each readback must equal the requested position quantized to the nearest microstep.
     for got, req in zip(m1_readbacks, _AXIS1_PULSE_POSITIONS, strict=True):
-        assert abs(got - _microstep_roundtrip(req)) < 1e-12, (
+        assert abs(got - roundtrip_mm(req)) < 1e-12, (
             f"M1 readback {got} != microstep round-trip of {req}"
         )
     for got, req in zip(m2_readbacks, _AXIS2_PULSE_POSITIONS, strict=True):
-        assert abs(got - _microstep_roundtrip(req)) < 1e-12, (
+        assert abs(got - roundtrip_mm(req)) < 1e-12, (
             f"M2 readback {got} != microstep round-trip of {req}"
         )
 
     # FollowingError is the quantization error: (quantized position) - requested.
     for err, req in zip(m1_errors, _AXIS1_PULSE_POSITIONS, strict=True):
-        assert abs(err - (_microstep_roundtrip(req) - req)) < 1e-12, (
+        assert abs(err - (roundtrip_mm(req) - req)) < 1e-12, (
             f"M1 error {err} != expected quantization error for {req}"
         )

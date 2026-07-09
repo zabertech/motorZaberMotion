@@ -13,15 +13,15 @@
 // Zaber Motion Controller
 
 int zaberMotionCreateController(
-        const char *portName,                   /* ZaberMotion Motor Asyn Port name */
-        int numAxes,                            /* Number of axes this controller supports */
-        int movingPollPeriod,                   /* Time to poll (msec) when an axis is in motion */
-        int idlePollPeriod,                     /* Time to poll (msec) when an axis is idle. 0 for no polling */
-        const char *zaberPort,                  /* Zaber Device TCP address or serial port name (prefixed with tcp:// or serial://) */
-        int zaberDeviceNumber,                  /* Zaber Device number on the port (1-indexed) */
-        const std::vector<double> &unitsPerStep /* Per-axis size of one motor step in um (linear) or deg (rotary) -- the step the record MRES describes in EGU; default 1.0 */
+        const char *portName,                      /* ZaberMotion Motor Asyn Port name */
+        int numAxes,                               /* Number of axes this controller supports */
+        int movingPollPeriod,                      /* Time to poll (msec) when an axis is in motion */
+        int idlePollPeriod,                        /* Time to poll (msec) when an axis is idle. 0 for no polling */
+        const char *zaberPort,                     /* Zaber Device TCP address or serial port name (prefixed with tcp:// or serial://) */
+        int zaberDeviceNumber,                     /* Zaber Device number on the port (1-indexed) */
+        const std::vector<double> &stepScaleFactor /* Optional per-axis scaling factor applied to default step size: um (linear) or deg (rotary) -- defaults to  1.0 */
 ) {
-    zaberController *pController = new zaberController(portName, numAxes, static_cast<double>(movingPollPeriod), static_cast<double>(idlePollPeriod), zaberPort, zaberDeviceNumber, unitsPerStep);
+    zaberController *pController = new zaberController(portName, numAxes, static_cast<double>(movingPollPeriod), static_cast<double>(idlePollPeriod), zaberPort, zaberDeviceNumber, stepScaleFactor);
     (void)pController;
     return (asynSuccess);
 }
@@ -33,7 +33,7 @@ static const iocshArg zaberMotionConfigArg2 = {"moving poll rate", iocshArgInt};
 static const iocshArg zaberMotionConfigArg3 = {"idle poll rate", iocshArgInt};
 static const iocshArg zaberMotionConfigArg4 = {"zaber serial/tcp port", iocshArgString};
 static const iocshArg zaberMotionConfigArg5 = {"zaber device number", iocshArgInt};
-static const iocshArg zaberMotionConfigArg6 = {"optional per-axis units-per-step (um for linear devices, deg for rotary)", iocshArgArgv};
+static const iocshArg zaberMotionConfigArg6 = {"optional per-axis step scale factor (um for linear devices, deg for rotary)", iocshArgArgv};
 
 static const iocshArg *const zaberMotionConfigArgs[7] = {&zaberMotionConfigArg0, &zaberMotionConfigArg1,
     &zaberMotionConfigArg2, &zaberMotionConfigArg3, &zaberMotionConfigArg4, &zaberMotionConfigArg5,
@@ -42,17 +42,17 @@ static const iocshArg *const zaberMotionConfigArgs[7] = {&zaberMotionConfigArg0,
 static const iocshFuncDef zaberMotionControllerDef = {"ZaberMotionCreateController", 7, zaberMotionConfigArgs};
 
 static void zaberMotionCreateControllerCallFunc(const iocshArgBuf *args) {
-    std::vector<double> unitsPerStep;
+    std::vector<double> stepScaleFactor;
     for (int i = 1; i < args[6].aval.ac; i++) {
         try {
-            unitsPerStep.push_back(std::stod(args[6].aval.av[i]));
+            stepScaleFactor.push_back(std::stod(args[6].aval.av[i]));
         } catch (const std::exception &) {
-            printf("ZaberMotionCreateController: could not parse units-per-step '%s' for axis %d; using 1.0\n",
+            printf("ZaberMotionCreateController: could not parse step scale factor '%s' for axis %d; using 1.0\n",
                    args[6].aval.av[i], i - 1);
-            unitsPerStep.push_back(1.0);
+            stepScaleFactor.push_back(1.0);
         }
     }
-    zaberMotionCreateController(args[0].sval, args[1].ival, args[2].ival, args[3].ival, args[4].sval, args[5].ival, unitsPerStep);
+    zaberMotionCreateController(args[0].sval, args[1].ival, args[2].ival, args[3].ival, args[4].sval, args[5].ival, stepScaleFactor);
 }
 
 // Create Profile

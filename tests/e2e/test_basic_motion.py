@@ -8,7 +8,7 @@ import pytest
 from zaber_ascii_mock import MockDevice
 
 from tests.e2e.ca_helpers import get_float, get_int, put
-from tests.e2e.profile_helpers import STEPS_PER_MM
+from tests.e2e.mock_helpers import completing_moves, microsteps
 
 _AXIS = "LINEAR_TEST:axis1"
 """LINEAR_TEST:axis1 motor record from motor.substitutions.xy-stage.zaber (EGU = mm)."""
@@ -22,31 +22,6 @@ _MSTA_HIGH_LIMIT = 0x4        # RA_PLUS_LS
 _MSTA_FOLLOWING_ERROR = 0x40  # EA_SLIP_STALL
 _MSTA_PROBLEM = 0x200         # RA_PROBLEM
 _MSTA_LOW_LIMIT = 0x2000      # RA_MINUS_LS
-
-@contextlib.asynccontextmanager
-async def _completing_moves(mock: MockDevice) -> AsyncIterator[None]:
-    """Complete in-progress mock moves so blocking motions finish."""
-    stop = asyncio.Event()
-
-    async def run() -> None:
-        while not stop.is_set():
-            for ax in mock._axes.values():  # noqa: SLF001
-                if ax.is_busy:
-                    ax.complete_move()
-            await asyncio.sleep(0.02)
-
-    task = asyncio.create_task(run())
-    try:
-        yield
-    finally:
-        stop.set()
-        await task
-
-
-def _microsteps(position_mm: float) -> int:
-    """Return the native microstep target the driver sends for a position in mm."""
-    return round(position_mm * STEPS_PER_MM)
-
 
 async def _wait_until(check: Callable[[], bool], *, timeout: float = 10.0) -> None:
     """Poll a synchronous predicate until true, raising TimeoutError past the deadline."""
@@ -93,10 +68,10 @@ async def _active_warnings(mock: MockDevice, flags: set[str]) -> AsyncIterator[N
 @pytest.mark.usefixtures("ioc_process")
 async def test_absolute_move(mock_device: MockDevice) -> None:
     """Writing to VAL performs an absolute move."""
-    async with _completing_moves(mock_device):
+    async with completing_moves(mock_device):
         await put(f"{_AXIS}.VAL", 5.0, wait=True, timeout=30)
 
-    assert mock_device.axis(1).position == _microsteps(5.0)
+    assert mock_device.axis(1).position == microsteps(5.0)
     assert abs(await get_float(f"{_AXIS}.RBV") - 5.0) < 1e-9
     assert await get_int(f"{_AXIS}.DMOV") == 1
 
@@ -105,11 +80,11 @@ async def test_absolute_move(mock_device: MockDevice) -> None:
 @pytest.mark.usefixtures("ioc_process")
 async def test_relative_move(mock_device: MockDevice) -> None:
     """Writing to RLV performs a relative move."""
-    async with _completing_moves(mock_device):
+    async with completing_moves(mock_device):
         await put(f"{_AXIS}.VAL", 5.0, wait=True, timeout=30)   # start at 5 mm
         await put(f"{_AXIS}.RLV", 2.0, wait=True, timeout=30)   # end at 7 mm
 
-    assert mock_device.axis(1).position == _microsteps(7.0)
+    assert mock_device.axis(1).position == microsteps(7.0)
     assert abs(await get_float(f"{_AXIS}.RBV") - 7.0) < 1e-9
 
 
@@ -117,9 +92,9 @@ async def test_relative_move(mock_device: MockDevice) -> None:
 @pytest.mark.usefixtures("ioc_process")
 async def test_home(mock_device: MockDevice) -> None:
     """Writing to HOMF homes the axis and sets the homed status bit."""
-    mock_device.axis(1).position = _microsteps(5.0) # start away from home
+    mock_device.axis(1).position = microsteps(5.0) # start away from home
 
-    async with _completing_moves(mock_device):
+    async with completing_moves(mock_device):
         await put(f"{_AXIS}.HOMF", 1, wait=True, timeout=30)
 
     assert mock_device.axis(1).position == 0

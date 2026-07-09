@@ -19,7 +19,7 @@ namespace zml = zaber::motion;
 
 class epicsShareClass zaberController : public asynMotorController {
     public:
-    zaberController(const char *portName, int numAxes, double movingPollPeriod, double idlePollPeriod, const char *devicePort, int deviceNumber, const std::vector<double> &unitsPerStep);
+    zaberController(const char *portName, int numAxes, double movingPollPeriod, double idlePollPeriod, const char *devicePort, int deviceNumber, const std::vector<double> &stepScaleFactor);
     void report(FILE *fp, int level) override;
 
     zaberAxis *getAxis(asynUser *pasynUser) override;

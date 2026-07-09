@@ -9,9 +9,6 @@ P = "IOC:MyProfile:"
 M1 = "M1"
 M2 = "M2"
 
-STEPS_PER_MM = 8062.992125984
-"""Steps per mm for the mock's X-LHM linear peripheral at resolution 64."""
-
 # Profile move status codes (from asynMotorController.h: ProfileStatus enum).
 STATUS_SUCCESS = 1
 STATUS_FAILURE = 2

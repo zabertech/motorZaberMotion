@@ -69,7 +69,6 @@ async def command_log(mock_device: MockDevice) -> list[str]:
 @pytest_asyncio.fixture(scope="session")
 async def rotary_mock_device() -> AsyncGenerator[MockDevice, None]:
     """Provide a MockDevice posing as an X-MCC4 with four rotary axes."""
-    # Distinct port from the session mock_device (which uses the default) so both coexist.
     async with MockDevice(
         device_number=1, info=xmcc4.FW7_38_FOUR_ROTARY, port=_default_port() + 1
     ) as mock:
