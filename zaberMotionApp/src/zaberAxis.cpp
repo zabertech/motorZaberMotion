@@ -227,7 +227,7 @@ asynStatus zaberAxis::setPosition(double position) {
 }
 
 /**
- * Clear the axis's warning flags. Wired to the $(P)$(M)-CLEAR-WARNINGS record;
+ * Clear the axis's warning flags. Wired to the $(P)$(M):ClearWarnings record;
  */
 asynStatus zaberAxis::clearWarnings() {
     std::function<asynStatus()> action = [this]() {
