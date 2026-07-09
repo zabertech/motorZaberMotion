@@ -16,10 +16,11 @@ MICROSTEPS_PER_DEG = 6400
 A 0.5 deg move lands at 3200 microsteps, i.e. 6400 microsteps/deg.
 """
 
-_DEG_AXIS = "ROTARY_TEST:axis1"
-_MDEG_AXIS = "ROTARY_TEST:axis2"
-_RAD_AXIS = "ROTARY_TEST:axis3"
-_ARCSEC_AXIS = "ROTARY_TEST:axis4"
+# All rotary axes use stepScaleFactor = 1e-6 -> udeg precision
+_DEG_AXIS = "ROTARY_TEST:axis1"     # EGU = deg,      MRES = 1e-6,     stepScaleFactor = 1e-6
+_MDEG_AXIS = "ROTARY_TEST:axis2"    # EGU = millideg, MRES = 1e-3,     stepScaleFactor = 1e-6
+_RAD_AXIS = "ROTARY_TEST:axis3"     # EGU = rad,      MRES = 1.745e-8, stepScaleFactor = 1e-6
+_ARCSEC_AXIS = "ROTARY_TEST:axis4"  # EGU = arcsec,   MRES = 3.6e-3,   stepScaleFactor = 1e-6
 
 _HALF_DEGREE_CASES = [
     (_DEG_AXIS, 1, 0.5),
@@ -37,7 +38,7 @@ async def test_rotary_egu_reaches_half_degree(
     await move(pv, value, rotary_mock_device)
 
     assert rotary_mock_device.axis(axis).position == round(0.5 * MICROSTEPS_PER_DEG)
-    assert abs(await get_float(f"{pv}.RBV") - value) < 1e-12
+    assert abs(await get_float(f"{pv}.RBV") - value) < 1e-14
 
 
 async def test_rotary_sub_degree_move_resolves(rotary_mock_device: MockDevice) -> None:
@@ -45,7 +46,7 @@ async def test_rotary_sub_degree_move_resolves(rotary_mock_device: MockDevice) -
     await move(_DEG_AXIS, 0.005, rotary_mock_device)
 
     assert rotary_mock_device.axis(1).position == round(0.005 * MICROSTEPS_PER_DEG)
-    assert abs(await get_float(f"{_DEG_AXIS}.RBV") - 0.005) < 1e-6
+    assert abs(await get_float(f"{_DEG_AXIS}.RBV") - 0.005) < 1e-16
 
 
 async def test_rotary_axes_independent_egus(rotary_mock_device: MockDevice) -> None:
@@ -56,5 +57,5 @@ async def test_rotary_axes_independent_egus(rotary_mock_device: MockDevice) -> N
 
     assert rotary_mock_device.axis(1).position == round(1.0 * MICROSTEPS_PER_DEG)
     assert rotary_mock_device.axis(4).position == round(0.5 * MICROSTEPS_PER_DEG)
-    assert abs(await get_float(f"{_DEG_AXIS}.RBV") - 1.0) < 1e-6
-    assert abs(await get_float(f"{_ARCSEC_AXIS}.RBV") - 1800.0) < 1e-3
+    assert abs(await get_float(f"{_DEG_AXIS}.RBV") - 1.0) < 1e-16
+    assert abs(await get_float(f"{_ARCSEC_AXIS}.RBV") - 1800.0) < 1e-16
