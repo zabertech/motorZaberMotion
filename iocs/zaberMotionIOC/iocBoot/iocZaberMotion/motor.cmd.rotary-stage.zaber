@@ -7,7 +7,8 @@ dbLoadTemplate("motor.substitutions.rotary-stage.zaber")
 #    moving poll period (ms),
 #    idle poll period (ms),
 #    address or serial port name of zaber device (prefixed with tcp:// or serial://),
-#    zaber device number (1-indexed)
+#    zaber device number (1-indexed),
+#    (optional) per-axis step scale factor: um for linear, deg for rotary -- defaults to 1
 # )
 ###
-ZaberMotionCreateController("X-RSW", 1, 100, 5000, "serial:///dev/ttyUSB0", 1)
+ZaberMotionCreateController("X-RSW", 1, 100, 5000, "serial:///dev/ttyUSB0", 1, 1e-6)
