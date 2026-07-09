@@ -31,10 +31,14 @@ zaberMotion_registerRecordDeviceDriver pdbbase
 dbLoadRecords("${{MOTOR}}/db/motorUtil.db", "P=zaberMotion:")
 dbLoadTemplate("{linear_substitutions}")
 # Fast idle poll (100 ms) so status/warning-flag tests don't wait on a slow poll cycle.
-ZaberMotionCreateController("XMCC_LINEAR", 4, 50, 100, "tcp://127.0.0.1:{port}", 1, 1.0 1.0 1.0 0.001)
+ZaberMotionCreateController( \
+    "XMCC_LINEAR", 4, 50, 100, "tcp://127.0.0.1:{linear_port}", 1, 1.0 1.0 1.0 0.001 \
+)
 ZaberControllerCreateProfile("XMCC_LINEAR", 50)
 dbLoadTemplate("{rotary_substitutions}")
-ZaberMotionCreateController("XMCC_ROTARY", 4, 50, 100, "tcp://127.0.0.1:{rotary_port}", 1, 1e-6 1e-6 1e-6 1e-6)
+ZaberMotionCreateController( \
+    "XMCC_ROTARY", 4, 50, 100, "tcp://127.0.0.1:{rotary_port}", 1, 1e-6 1e-6 1e-6 1e-6 \
+)
 iocInit
 motorUtilInit("zaberMotion:")
 """
@@ -44,11 +48,11 @@ _LINEAR_SUBSTITUTIONS = _SUBSTITUTIONS_DIR / "motor.substitutions.linear-test.za
 _ROTARY_SUBSTITUTIONS = _SUBSTITUTIONS_DIR / "motor.substitutions.rotary-test.zaber"
 
 
-def render_st_cmd(tmp_path: Path, port: int, rotary_port: int) -> Path:
-    """Write a startup script (linear XMCC_LINEAR + mixed XMCC_ROTARY controllers) and return its path."""
+def render_st_cmd(tmp_path: Path, linear_port: int, rotary_port: int) -> Path:
+    """Write a startup script (linear + rotary controllers) and return its path."""
     content = _ST_CMD_TEMPLATE.format(
         envpaths=_ENV_PATHS,
-        port=port,
+        linear_port=linear_port,
         rotary_port=rotary_port,
         linear_substitutions=_LINEAR_SUBSTITUTIONS,
         rotary_substitutions=_ROTARY_SUBSTITUTIONS,
