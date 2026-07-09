@@ -152,6 +152,15 @@ The following is an overview of which status flags are set during polling, and w
 - `MINUS_LS`: 1 if `FE` flag is observed ([docs](https://www.zaber.com/protocol-manual?protocol=ASCII#topic_message_format_warning_flags))
 - `HOMED`: value returned from `zaber::motion::Axis::isHomed()` ([docs](https://software.zaber.com/motion-library/api/matlab/ascii/axis#ishomed))
 
+##### Clearing Warnings
+
+Warning flags will persist until cleared. In order to clear warnings, the user must set the `$(P)$(M):ClearWarnings` record to a non-zero value:
+
+```bash
+caput XY_STAGE:axis1:ClearWarnings 1
+```
+
+**Please note**: some warnings cannot be cleared this way. If a warning persists after the call to clear, please refer to the Zaber ASCII protocol manual section on warning flags ([docs](https://www.zaber.com/protocol-manual?protocol=ASCII#topic_message_format_warning_flags)).
 
 ### zaberController
 
