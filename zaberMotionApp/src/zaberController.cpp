@@ -45,8 +45,8 @@ static void zaberProfileThreadC(void *pPvt) {
  * \param[in] idlePollPeriod    The time between polls when no axis is moving
  * \param[in] devicePort        The tcp or serial port that the zaber device is connected to
  * \param[in] deviceNumber      The number of the device on the port (1-indexed)
- * \param[in] stepScaleFactor      The per-axis step size, expressed as a fraction of the driver's default motion units
- *                              (microns for linear devices and degrees for rotary).
+ * \param[in] stepScaleFactor   The per-axis step size, expressed as a fraction of the driver's default motion units
+ *                              (um for linear devices and degrees for rotary).
  */
 zaberController::zaberController(const char *portName, int numAxes, double movingPollPeriod, double idlePollPeriod, const char *devicePort, int deviceNumber, const std::vector<double> &stepScaleFactor) :
         asynMotorController(portName, numAxes, 1, 0, 0, ASYN_CANBLOCK | ASYN_MULTIDEVICE, 1 /* autoconnect */, 0, 0) {
