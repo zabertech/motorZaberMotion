@@ -2,6 +2,7 @@
 #define ZABER_BASE_CONTROLLER_H
 
 #include <memory>
+#include <vector>
 
 #include "zaberAxis.h"
 #include <asynMotorController.h>
@@ -18,7 +19,7 @@ namespace zml = zaber::motion;
 
 class epicsShareClass zaberController : public asynMotorController {
     public:
-    zaberController(const char *portName, int numAxes, double movingPollPeriod, double idlePollPeriod, const char *devicePort, int deviceNumber);
+    zaberController(const char *portName, int numAxes, double movingPollPeriod, double idlePollPeriod, const char *devicePort, int deviceNumber, const std::vector<double> &unitsPerStep);
     void report(FILE *fp, int level) override;
 
     zaberAxis *getAxis(asynUser *pasynUser) override;

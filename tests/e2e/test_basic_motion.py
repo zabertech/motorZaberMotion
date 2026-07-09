@@ -10,8 +10,8 @@ from zaber_ascii_mock import MockDevice
 from tests.e2e.ca_helpers import get_float, get_int, put
 from tests.e2e.profile_helpers import STEPS_PER_MM
 
-_AXIS = "XY_STAGE:axis1"
-"""XY_STAGE:axis1 motor record from motor.substitutions.xy-stage.zaber (EGU = mm)."""
+_AXIS = "LINEAR_TEST:axis1"
+"""LINEAR_TEST:axis1 motor record from motor.substitutions.xy-stage.zaber (EGU = mm)."""
 
 # MSTA status bits (from motor.h msta_field), set by zaberAxis::poll from ZML warning flags.
 #

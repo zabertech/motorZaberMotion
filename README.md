@@ -105,10 +105,11 @@ This module provides a single implementation of both `asynMotorController` and `
 
 ### IOC Shell Functions
 
-__ZaberMotionCreateController(port, numAxes, movingPollPeriod, idlePollPeriod, zaberPort, zaberDeviceNum)__
-Instantiates `zaberController` with typical `asynMotorController` params and two zaber device-specific params:
+__ZaberMotionCreateController(port, numAxes, movingPollPeriod, idlePollPeriod, zaberPort, zaberDeviceNum, [unitsPerStep ...])__
+Instantiates `zaberController` with typical `asynMotorController` params and some zaber device-specific params:
 - `zaberPort`: Address or serial port name of zaber device (prefixed with `tcp://` or `serial://`). A serial port can have multiple devices chained together.
 - `zaberDeviceNum`: Number (1-indexed) of the controller device on a device chain. This number is stable unless the device chain is modified. It can be found using [Zaber Launcher](https://software.zaber.com/zaber-launcher/download).
+- `unitsPerStep` (optional): A space-separated list of per-axis values, one per axis in axis order, giving the physical size of one motor-record step in micrometres (linear axes) or degrees (rotary axes). Omitted or short entries default to `1.0`.
 
 __ZaberMotionSetDbPath(path)__
 Allows user to specify the path to a local copy of the [Zaber device database](https://software.zaber.com/motion-library/docs/guides/device_db). This is only necessary if the IOC does not have access to the internet. Download link for current version of device database [here](https://www.zaber.com/software/device-database/devices-public.sqlite.lzma).
@@ -118,7 +119,7 @@ Allows user to specify the path to a local copy of the [Zaber device database](h
 This section is intended to clarify implementation-specific details and limitations for `zaberAxis` and `zaberController`
 
 #### zaberAxis
-Can control either a linear or rotary axis. The units for all motion commands are microns for linear devices and degrees for rotary. Please keep this in mind when configuring motor records.
+Can control either a linear or rotary axis. Motion commands are sent to ZML in micrometres (linear) or degrees (rotary); one motor-record step is `unitsPerStep` of these units. See [Units and resolution](#units-and-resolution) for how this interacts with the record's `MRES` and `EGU` fields.
 
 __setPosition(position)__:
 Implemented as specified. Performs unit conversion and calls `set pos <native_units>` as defined [here](https://www.zaber.com/protocol-manual#topic_setting_pos) in Zaber ASCII protocol

@@ -35,17 +35,18 @@ const std::unordered_map<std::string, std::string> zaberAxis::ZML_FAULT_TO_MESSA
     {zml::ascii::warning_flags::EXCESSIVE_TWIST, "Excessive twist"},
 };
 
-zaberAxis::zaberAxis(zaberController *pC, int axisNo) :
+zaberAxis::zaberAxis(zaberController *pC, int axisNo, double unitsPerStep) :
         asynMotorAxis(pC, axisNo) {
     pC_ = pC;
     axis_ = pC->getDeviceAxis(axisNo);
+    unitsPerStep_ = unitsPerStep;
     std::function<asynStatus()> action = [this]() {
         asynStatus status = asynSuccess;
         switch (axis_.getAxisType()) {
             case zml::ascii::AxisType::LINEAR:
-                positionUnit_ = zml::Units::LENGTH_MILLIMETRES;
-                velocityUnit_ = zml::Units::VELOCITY_MILLIMETRES_PER_SECOND;
-                accelUnit_ = zml::Units::ACCELERATION_MILLIMETRES_PER_SECOND_SQUARED;
+                positionUnit_ = zml::Units::LENGTH_MICROMETRES;
+                velocityUnit_ = zml::Units::VELOCITY_MICROMETRES_PER_SECOND;
+                accelUnit_ = zml::Units::ACCELERATION_MICROMETRES_PER_SECOND_SQUARED;
                 break;
             case zml::ascii::AxisType::ROTARY:
                 positionUnit_ = zml::Units::ANGLE_DEGREES;
@@ -120,7 +121,7 @@ asynStatus zaberAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
     (void)minVelocity;
 
     std::function<asynStatus()> action = [this, maxVelocity, acceleration]() {
-        double scale = getStepScale(/*warnIfUnset=*/true);
+        double scale = unitsPerStep_;
         zml::ascii::Axis::MoveVelocityOptions options{
             .acceleration = acceleration * scale,
             .accelerationUnit = accelUnit_};
@@ -161,7 +162,7 @@ asynStatus zaberAxis::home(double minVelocity, double maxVelocity, double accele
  */
 asynStatus zaberAxis::stop(double acceleration) {
     std::function<asynStatus()> action = [this, acceleration]() {
-        double scale = getStepScale(/*warnIfUnset=*/true);
+        double scale = unitsPerStep_;
         zml::ascii::Axis::MoveVelocityOptions options{
             .acceleration = acceleration * scale,
             .accelerationUnit = accelUnit_};
@@ -183,7 +184,7 @@ asynStatus zaberAxis::poll(bool *moving) {
         setIntegerParam(pC_->motorStatusMoving_, static_cast<int>(*moving));
         setIntegerParam(pC_->motorStatusHomed_, static_cast<int>(axis_.isHomed()));
 
-        double pos = axis_.getPosition(positionUnit_) / getStepScale();
+        double pos = axis_.getPosition(positionUnit_) / unitsPerStep_;
         setDoubleParam(pC_->motorPosition_, pos);
         setIntegerParam(pC_->motorStatusCommsError_, 0);
 
@@ -221,7 +222,7 @@ asynStatus zaberAxis::poll(bool *moving) {
  */
 asynStatus zaberAxis::setPosition(double position) {
     std::function<asynStatus()> action = [this, position]() {
-        double scale = getStepScale(/*warnIfUnset=*/true);
+        double scale = unitsPerStep_;
         axis_.getSettings().set("pos", position * scale, positionUnit_);
         return asynSuccess;
     };
@@ -231,29 +232,9 @@ asynStatus zaberAxis::setPosition(double position) {
 /* Private member functions */
 
 
-/**
- * Get physical units (positionUnit_) per motor-record step.
- *
- * @param warnIfUnset Log a warning message if resolution has not yet been set for this axis.
- */
-double zaberAxis::getStepScale(bool warnIfUnset) const {
-    double mres = 0.0;
-    pC_->getDoubleParam(axisNo_, pC_->motorRecResolution_, &mres);
-    if (mres != 0.0) {
-        return mres;
-    }
-    if (warnIfUnset) {
-        asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR,
-            "zaberAxis::getStepScale: axis %d MRES record has no value (MOTOR_REC_RESOLUTION is 0). "
-            "Defaulting to unit scale of 1.0. Ensure the record's resolution ao is set.\n",
-            axisNo_);
-    }
-    return 1.0;
-}
-
 asynStatus zaberAxis::doAbsoluteMove(double position, double velocity, double acceleration) {
     std::function<asynStatus()> action = [this, position, velocity, acceleration]() {
-        double scale = getStepScale(/*warnIfUnset=*/true);
+        double scale = unitsPerStep_;
         zml::ascii::Axis::MoveAbsoluteOptions options{
             .waitUntilIdle = false,
             .velocity = velocity * scale,
@@ -268,7 +249,7 @@ asynStatus zaberAxis::doAbsoluteMove(double position, double velocity, double ac
 
 asynStatus zaberAxis::doRelativeMove(double distance, double velocity, double acceleration) {
     std::function<asynStatus()> action = [this, distance, velocity, acceleration]() {
-        double scale = getStepScale(/*warnIfUnset=*/true);
+        double scale = unitsPerStep_;
         zml::ascii::Axis::MoveRelativeOptions options{
             .waitUntilIdle = false,
             .velocity = velocity * scale,

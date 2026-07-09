@@ -73,7 +73,7 @@ dev = [
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "ruff", specifier = "~=0.14.0" },
-    { name = "zaber-ascii-mock", specifier = "~=0.1.2", index = "https://gitlab.izaber.com/api/v4/projects/1245/packages/pypi/simple" },
+    { name = "zaber-ascii-mock", specifier = "~=0.2.0", index = "https://gitlab.izaber.com/api/v4/projects/1245/packages/pypi/simple" },
 ]
 
 [[package]]
@@ -231,9 +231,9 @@ wheels = [
 
 [[package]]
 name = "zaber-ascii-mock"
-version = "0.1.2"
+version = "0.2.0"
 source = { registry = "https://gitlab.izaber.com/api/v4/projects/1245/packages/pypi/simple" }
-sdist = { url = "https://gitlab.izaber.com/api/v4/projects/1245/packages/pypi/files/d1475dd14096369d57a451a53d1752d6939ccb1b1ba5c865d9640daee739e3c3/zaber_ascii_mock-0.1.2.tar.gz", hash = "sha256:d1475dd14096369d57a451a53d1752d6939ccb1b1ba5c865d9640daee739e3c3" }
+sdist = { url = "https://gitlab.izaber.com/api/v4/projects/1245/packages/pypi/files/146c1f23ac9e6a0b3197198be65ac97dfca6daf5994dfa1197624280fc32ecbf/zaber_ascii_mock-0.2.0.tar.gz", hash = "sha256:146c1f23ac9e6a0b3197198be65ac97dfca6daf5994dfa1197624280fc32ecbf" }
 wheels = [
-    { url = "https://gitlab.izaber.com/api/v4/projects/1245/packages/pypi/files/b57a4e041e4cc677b1649057ca2b50503a82744bc0d50ec243df75af88c031d9/zaber_ascii_mock-0.1.2-py3-none-any.whl", hash = "sha256:b57a4e041e4cc677b1649057ca2b50503a82744bc0d50ec243df75af88c031d9" },
+    { url = "https://gitlab.izaber.com/api/v4/projects/1245/packages/pypi/files/60fa318259695fa47d6aad68ef6cedaa845612175852e11d9ab60943c7ecedc3/zaber_ascii_mock-0.2.0-py3-none-any.whl", hash = "sha256:60fa318259695fa47d6aad68ef6cedaa845612175852e11d9ab60943c7ecedc3" },
 ]

@@ -1,0 +1,31 @@
+file "$(MOTOR)/motorApp/Db/asyn_motor.db"
+{
+  pattern
+  {P,            N, M,          DTYP,        PORT,        ADDR, DESC,        EGU, DIR, VELO,  VBAS, ACCL, BDST, BVEL, BACC, MRES,  PREC, DLLM, DHLM,   INIT}
+  {LINEAR_TEST:, 1, "axis$(N)", "asynMotor", XMCC_LINEAR, 0,    "Axis 1 mm", mm,  Pos, 20,    5,    0.5,  0,    1,    0.2,  0.001, 3,    0,    100,    ""}
+  {LINEAR_TEST:, 2, "axis$(N)", "asynMotor", XMCC_LINEAR, 1,    "Axis 2 mm", mm,  Pos, 20,    5,    0.5,  0,    1,    0.2,  0.001, 3,    0,    120,    ""}
+  {LINEAR_TEST:, 3, "axis$(N)", "asynMotor", XMCC_LINEAR, 2,    "Axis 3 um", um,  Pos, 20000, 5000, 0.5,  0,    1,    0.2,  1.0,   1,    0,    100000, ""}
+  {LINEAR_TEST:, 4, "axis$(N)", "asynMotor", XMCC_LINEAR, 3,    "Axis 4 nm", mm,  Pos, 20,    5,    0.5,  0,    1,    0.2,  1e-6,  6,    0,    100,    ""}
+}
+
+file "$(TOP)/db/profileMoveController.template"
+{
+  pattern
+  {P,     R,          PORT,  NAXES, NPOINTS, NPULSES, TIMEOUT}
+  {IOC:, MyProfile:, XMCC_LINEAR,      2,      50,      50,     120}
+}
+
+file "$(TOP)/db/profileMoveControllerZaber.template"
+{
+  pattern
+  {P,     R,          PORT, TIMEOUT}
+  {IOC:, MyProfile:, XMCC_LINEAR,     120}
+}
+
+file "$(TOP)/db/profileMoveAxis.template"
+{
+  pattern
+  {P,     R,         M,  PORT,  ADDR, NPOINTS, NREADBACK,              MOTOR, PREC, TIMEOUT}
+  {IOC:, MyProfile:, 1, XMCC_LINEAR,    0,       50,        50,  LINEAR_TEST:axis1,    3,     120}
+  {IOC:, MyProfile:, 2, XMCC_LINEAR,    1,       50,        50,  LINEAR_TEST:axis2,    3,     120}
+}
