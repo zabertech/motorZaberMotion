@@ -8,8 +8,8 @@ from zaber_ascii_mock import MockDevice
 
 from tests.e2e.ca_helpers import put
 
-# Linear resolution of the mock's stage (native microsteps per mm).
 STEPS_PER_MM = 8062.992125984
+"""Linear resolution of the mock's stage (native microsteps per mm)."""
 
 
 def microsteps(position_mm: float) -> int:

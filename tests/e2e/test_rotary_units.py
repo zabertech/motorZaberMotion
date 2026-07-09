@@ -10,22 +10,24 @@ from tests.e2e.mock_helpers import completing_moves, move
 
 pytestmark = pytest.mark.usefixtures("ioc_process", "reset_rotary_state")
 
-# Native microsteps per degree for the mock's rotary peripheral (46657): a 0.5 deg
-# move lands at 3200 microsteps, i.e. 6400 microsteps/deg.
 MICROSTEPS_PER_DEG = 6400
+"""Native microsteps per degree for the mock's rotary peripheral (46657).
+
+A 0.5 deg move lands at 3200 microsteps, i.e. 6400 microsteps/deg.
+"""
 
 _DEG_AXIS = "ROTARY_TEST:axis1"
 _MDEG_AXIS = "ROTARY_TEST:axis2"
 _RAD_AXIS = "ROTARY_TEST:axis3"
 _ARCSEC_AXIS = "ROTARY_TEST:axis4"
 
-# The same physical angle (0.5 deg) expressed in each axis's EGU
 _HALF_DEGREE_CASES = [
     (_DEG_AXIS, 1, 0.5),
     (_MDEG_AXIS, 2, 500.0),
     (_RAD_AXIS, 3, 0.5 * math.pi / 180.0),
     (_ARCSEC_AXIS, 4, 1800.0),
 ]
+"""The same physical angle (0.5°) expressed in each axis's EGU."""
 
 @pytest.mark.parametrize(("pv", "axis", "value"), _HALF_DEGREE_CASES)
 async def test_rotary_egu_reaches_half_degree(
