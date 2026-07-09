@@ -19,7 +19,7 @@ int zaberMotionCreateController(
         int idlePollPeriod,                     /* Time to poll (msec) when an axis is idle. 0 for no polling */
         const char *zaberPort,                  /* Zaber Device TCP address or serial port name (prefixed with tcp:// or serial://) */
         int zaberDeviceNumber,                  /* Zaber Device number on the port (1-indexed) */
-        const std::vector<double> &unitsPerStep /* Per-axis physical units (um linear / deg rotary) per motor-record step; default 1.0 */
+        const std::vector<double> &unitsPerStep /* Per-axis size of one motor step in um (linear) or deg (rotary) -- the step the record MRES describes in EGU; default 1.0 */
 ) {
     zaberController *pController = new zaberController(portName, numAxes, static_cast<double>(movingPollPeriod), static_cast<double>(idlePollPeriod), zaberPort, zaberDeviceNumber, unitsPerStep);
     (void)pController;

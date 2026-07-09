@@ -32,6 +32,8 @@ class epicsShareClass zaberAxis : public asynMotorAxis {
     zml::Units positionUnit_;
     zml::Units velocityUnit_;
     zml::Units accelUnit_;
+    // Size of one motor-record step in positionUnit_ (um/deg) -- the same step the
+    // record's MRES describes in EGU. Defaults to 1.0 (1 um or 1 deg per step).
     double unitsPerStep_ = 1.0;
 
     asynStatus doAbsoluteMove(double position, double velocity, double acceleration);
