@@ -6,8 +6,8 @@
 #   $(PORT)  - asyn port for this controller
 #   $(ADDR)  - asyn address (axis index)
 
-# Acknowledges and clears the warning flags on the specified axis. Write a
-# non-zero value to clear; a zero write is ignored.
+# Acknowledges and clears the warning flags on the specified axis.
+# Write a non-zero value to clear.
 record(bo, "$(P)$(M):ClearWarnings") {
     field(DESC, "Clear axis warning flags")
     field(DTYP, "asynInt32")
