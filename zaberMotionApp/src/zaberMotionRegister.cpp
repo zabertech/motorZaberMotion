@@ -33,7 +33,7 @@ static const iocshArg zaberMotionConfigArg2 = {"moving poll rate", iocshArgInt};
 static const iocshArg zaberMotionConfigArg3 = {"idle poll rate", iocshArgInt};
 static const iocshArg zaberMotionConfigArg4 = {"zaber serial/tcp port", iocshArgString};
 static const iocshArg zaberMotionConfigArg5 = {"zaber device number", iocshArgInt};
-static const iocshArg zaberMotionConfigArg6 = {"per-axis units-per-step (um linear / deg rotary), optional", iocshArgArgv};
+static const iocshArg zaberMotionConfigArg6 = {"optional per-axis units-per-step (um for linear devices, deg for rotary)", iocshArgArgv};
 
 static const iocshArg *const zaberMotionConfigArgs[7] = {&zaberMotionConfigArg0, &zaberMotionConfigArg1,
     &zaberMotionConfigArg2, &zaberMotionConfigArg3, &zaberMotionConfigArg4, &zaberMotionConfigArg5,
