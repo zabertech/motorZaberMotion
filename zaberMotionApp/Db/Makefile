@@ -12,6 +12,7 @@ include $(TOP)/configure/CONFIG
 # databases, templates, substitutions like this
 #DB += xxx.db
 DB += profileMoveControllerZaber.template
+DB += zaberAxis.db
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add

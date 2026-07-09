@@ -6,6 +6,14 @@ file "$(MOTOR)/motorApp/Db/asyn_motor.db"
   {XY_STAGE:, 2, "axis$(N)", "asynMotor", XMCC2,    1, "Axis 2",  mm, Pos,  20.0,  5.0,  0.5,    0,    1,  0.2, 0.001,    3,    0,  120,   ""}
 }
 
+file "$(TOP)/db/zaberAxis.db"
+{
+  pattern
+  {P,         N, M,          PORT,  ADDR}
+  {XY_STAGE:, 1, "axis$(N)", XMCC2, 0}
+  {XY_STAGE:, 2, "axis$(N)", XMCC2, 1}
+}
+
 file "$(TOP)/db/profileMoveController.template"
 {
   pattern

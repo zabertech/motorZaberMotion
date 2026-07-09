@@ -24,6 +24,7 @@ class epicsShareClass zaberAxis : public asynMotorAxis {
     asynStatus stop(double acceleration) override;
     asynStatus poll(bool *moving) override;
     asynStatus setPosition(double position) override;
+    asynStatus clearWarnings();
 
     private:
     static const std::unordered_map<std::string, std::string> ZML_FAULT_TO_MESSAGE;

@@ -71,24 +71,6 @@ async def _wait_msta(mask: int, *, present: bool = True, timeout: float = 10.0) 
         await asyncio.sleep(0.05)
 
 
-@contextlib.asynccontextmanager
-async def _active_warnings(mock: MockDevice, flags: set[str]) -> AsyncIterator[None]:
-    """Keep warning flags asserted on axis 1 despite the driver clearing them each poll."""
-    stop = asyncio.Event()
-
-    async def run() -> None:
-        while not stop.is_set():
-            mock.axis(1).warnings |= flags
-            await asyncio.sleep(0.02)
-
-    task = asyncio.create_task(run())
-    try:
-        yield
-    finally:
-        stop.set()
-        await task
-
-
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("ioc_process")
 async def test_absolute_move(mock_device: MockDevice) -> None:
@@ -163,19 +145,21 @@ async def test_stop_commands_zero_velocity(
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("ioc_process")
 async def test_stall_flag_sets_following_error(mock_device: MockDevice) -> None:
-    """A stall warning (FS) sets the MSTA following-error bit, which clears when resolved."""
-    async with _active_warnings(mock_device, {"FS"}):
-        await _wait_msta(_MSTA_FOLLOWING_ERROR)
+    """A stall warning (FS) sets the MSTA following-error bit; poll clears it when it resolves."""
+    mock_device.axis(1).warnings.add("FS")
+    await _wait_msta(_MSTA_FOLLOWING_ERROR)
+    mock_device.axis(1).warnings.discard("FS")
     await _wait_msta(_MSTA_FOLLOWING_ERROR, present=False)
 
 
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("ioc_process")
 async def test_limit_flag_sets_limit_bits(mock_device: MockDevice) -> None:
-    """A limit-error warning (FE) sets both MSTA limit bits, which clear when resolved."""
-    async with _active_warnings(mock_device, {"FE"}):
-        await _wait_msta(_MSTA_HIGH_LIMIT)
-        await _wait_msta(_MSTA_LOW_LIMIT)
+    """A limit-error warning (FE) sets both MSTA limit bits; poll clears them when it resolves."""
+    mock_device.axis(1).warnings.add("FE")
+    await _wait_msta(_MSTA_HIGH_LIMIT)
+    await _wait_msta(_MSTA_LOW_LIMIT)
+    mock_device.axis(1).warnings.discard("FE")
     await _wait_msta(_MSTA_HIGH_LIMIT, present=False)
     await _wait_msta(_MSTA_LOW_LIMIT, present=False)
 
@@ -184,22 +168,72 @@ async def test_limit_flag_sets_limit_bits(mock_device: MockDevice) -> None:
 @pytest.mark.usefixtures("ioc_process")
 async def test_fault_flag_sets_problem(mock_device: MockDevice) -> None:
     """A device fault flag sets the MSTA problem bit."""
-    async with _active_warnings(mock_device, {"FF"}):
-        await _wait_msta(_MSTA_PROBLEM)
+    mock_device.axis(1).warnings.add("FF")
+    await _wait_msta(_MSTA_PROBLEM)
 
 
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("ioc_process")
 async def test_unexpected_limit_warning_sets_problem(mock_device: MockDevice) -> None:
     """An unexpected-limit warning (WL) sets the MSTA problem bit."""
-    async with _active_warnings(mock_device, {"WL"}):
-        await _wait_msta(_MSTA_PROBLEM)
+    mock_device.axis(1).warnings.add("WL")
+    await _wait_msta(_MSTA_PROBLEM)
 
 
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("ioc_process")
-async def test_problem_clears_when_warnings_resolve(mock_device: MockDevice) -> None:
-    """The problem bit clears once the device stops reporting warnings."""
-    async with _active_warnings(mock_device, {"FF"}):
+async def test_poll_does_not_clear_warnings(mock_device: MockDevice) -> None:
+    """poll() reports warnings but does not clear them: a device flag persists across polls."""
+    mock_device.axis(1).warnings.add("FE")
+    await _wait_msta(_MSTA_PROBLEM)
+
+    # Several idle-poll cycles (100 ms each) must leave the device flag in place.
+    await asyncio.sleep(0.5)
+    assert "FE" in mock_device.axis(1).warnings
+    assert await get_int(f"{_AXIS}.MSTA") & _MSTA_PROBLEM
+
+
+@pytest.mark.asyncio
+@pytest.mark.usefixtures("ioc_process")
+async def test_clear_warnings_record_clears_flags(mock_device: MockDevice) -> None:
+    """Processing $(P)$(M):ClearWarnings clears the device flags and drops the problem bit."""
+    mock_device.axis(1).warnings.add("FE")
+    await _wait_msta(_MSTA_PROBLEM)
+
+    await put(f"{_AXIS}:ClearWarnings", 1)
+
+    await _wait_until(lambda: "FE" not in mock_device.axis(1).warnings)
+    await _wait_msta(_MSTA_PROBLEM, present=False)
+
+
+@pytest.mark.asyncio
+@pytest.mark.usefixtures("ioc_process")
+async def test_clear_warnings_repeats_without_reset(mock_device: MockDevice) -> None:
+    """Clearing works repeatedly with no reset: each non-zero put clears again."""
+    for _ in range(2):
+        mock_device.axis(1).warnings.add("FE")
         await _wait_msta(_MSTA_PROBLEM)
+
+        await put(f"{_AXIS}:ClearWarnings", 1)
+
+        await _wait_until(lambda: "FE" not in mock_device.axis(1).warnings)
+        await _wait_msta(_MSTA_PROBLEM, present=False)
+
+
+@pytest.mark.asyncio
+@pytest.mark.usefixtures("ioc_process")
+async def test_clear_warnings_ignores_zero(mock_device: MockDevice) -> None:
+    """A zero write is a no-op."""
+    mock_device.axis(1).warnings.add("FE")
+    await _wait_msta(_MSTA_PROBLEM)
+
+    await put(f"{_AXIS}:ClearWarnings", 0)
+    # A zero write doesn't clear.
+    await asyncio.sleep(0.5)
+    assert "FE" in mock_device.axis(1).warnings
+    assert await get_int(f"{_AXIS}.MSTA") & _MSTA_PROBLEM
+
+    # A non-zero write clears it.
+    await put(f"{_AXIS}:ClearWarnings", 1)
+    await _wait_until(lambda: "FE" not in mock_device.axis(1).warnings)
     await _wait_msta(_MSTA_PROBLEM, present=False)

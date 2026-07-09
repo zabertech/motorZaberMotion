@@ -6,3 +6,10 @@ file "$(MOTOR)/motorApp/Db/asyn_motor.db"
   {P,             N,          M,        DTYP,    PORT, ADDR,            DESC, EGU, DIR,  VELO, VBAS, ACCL, BDST, BVEL, BACC,  MRES, PREC, DLLM, DHLM, INIT}
   {ROTARY_STAGE:, 1, "axis$(N)", "asynMotor",   X-RSW,    0, "Rotary Axis 1", deg, Pos,  10.0,  1.0,  0.5,    0,    1,  0.2, 0.001,    4, -360,  360,   ""}
 }
+
+file "$(TOP)/db/zaberAxis.db"
+{
+  pattern
+  {P,             N, M,          PORT,  ADDR}
+  {ROTARY_STAGE:, 1, "axis$(N)", X-RSW, 0}
+}

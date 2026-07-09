@@ -191,10 +191,8 @@ asynStatus zaberAxis::poll(bool *moving) {
         setIntegerParam(pC_->motorStatusAtHome_, 0);
         setIntegerParam(pC_->motorStatusHome_, 0);
 
-        // check and clear all flags
         zml::ascii::Warnings warnings = axis_.getWarnings();
         std::unordered_set<std::string> flags = warnings.getFlags();
-        warnings.clearFlags();
 
         if (checkAllFlags(flags)) {
             setIntegerParam(pC_->motorStatusProblem_, 1);
@@ -223,6 +221,17 @@ asynStatus zaberAxis::setPosition(double position) {
     std::function<asynStatus()> action = [this, position]() {
         double scale = getStepScale(/*warnIfUnset=*/true);
         axis_.getSettings().set("pos", position * scale, positionUnit_);
+        return asynSuccess;
+    };
+    return zaber::epics::handleException(pC_->pasynUserSelf, action);
+}
+
+/**
+ * Clear the axis's warning flags. Wired to the $(P)$(M)-CLEAR-WARNINGS record;
+ */
+asynStatus zaberAxis::clearWarnings() {
+    std::function<asynStatus()> action = [this]() {
+        axis_.getWarnings().clearFlags();
         return asynSuccess;
     };
     return zaber::epics::handleException(pC_->pasynUserSelf, action);

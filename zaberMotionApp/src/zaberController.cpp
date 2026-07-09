@@ -49,6 +49,7 @@ static void zaberProfileThreadC(void *pPvt) {
 zaberController::zaberController(const char *portName, int numAxes, double movingPollPeriod, double idlePollPeriod, const char *devicePort, int deviceNumber) :
         asynMotorController(portName, numAxes, 1, 0, 0, ASYN_CANBLOCK | ASYN_MULTIDEVICE, 1 /* autoconnect */, 0, 0) {
     createParam(ZaberPulseWidthMsString, asynParamFloat64, &zaberPulseWidthMs_);
+    createParam(ZaberClearWarningsString, asynParamInt32, &zaberClearWarnings_);
     try {
         connection_ = ze::zaberConnectionManager::singleton().tryGetConnection(devicePort);
         device_ = connection_->getDevice(deviceNumber);
@@ -87,6 +88,20 @@ zaberAxis *zaberController::getAxis(asynUser *pasynUser) {
 
 zaberAxis *zaberController::getAxis(int axisNo) {
     return static_cast<zaberAxis*>(asynMotorController::getAxis(axisNo));
+}
+
+asynStatus zaberController::writeInt32(asynUser *pasynUser, epicsInt32 value) {
+    if (pasynUser->reason == zaberClearWarnings_) {
+        if (value == 0) {
+            return asynSuccess;
+        }
+        zaberAxis *axis = getAxis(pasynUser);
+        if (axis == nullptr) {
+            return asynError;
+        }
+        return axis->clearWarnings();
+    }
+    return asynMotorController::writeInt32(pasynUser, value);
 }
 
 asynStatus zaberController::initializeProfile(size_t maxPoints) {

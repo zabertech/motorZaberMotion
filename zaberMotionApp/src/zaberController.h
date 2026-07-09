@@ -15,11 +15,13 @@ class zaberAxis;
 namespace zml = zaber::motion;
 
 #define ZaberPulseWidthMsString "ZABER_PULSE_WIDTH_MS"
+#define ZaberClearWarningsString "ZABER_CLEAR_WARNINGS"
 
 class epicsShareClass zaberController : public asynMotorController {
     public:
     zaberController(const char *portName, int numAxes, double movingPollPeriod, double idlePollPeriod, const char *devicePort, int deviceNumber);
     void report(FILE *fp, int level) override;
+    asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value) override;
 
     zaberAxis *getAxis(asynUser *pasynUser) override;
     zaberAxis *getAxis(int axisNo) override;
@@ -37,6 +39,7 @@ class epicsShareClass zaberController : public asynMotorController {
     std::shared_ptr<zml::ascii::Connection> connection_;
     zml::ascii::Device device_;
     int zaberPulseWidthMs_;
+    int zaberClearWarnings_;
     epicsEventId profileExecuteEvent_;
 
     friend zaberAxis;

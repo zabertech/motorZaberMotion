@@ -1,0 +1,15 @@
+# Zaber-specific per-axis records.
+#
+# Macro parameters:
+#   $(P)     - PV name prefix
+#   $(M)     - motor record name
+#   $(PORT)  - asyn port for this controller
+#   $(ADDR)  - asyn address (axis index)
+
+# Acknowledges and clears the warning flags on the specified axis. Write a
+# non-zero value to clear; a zero write is ignored.
+record(bo, "$(P)$(M):ClearWarnings") {
+    field(DESC, "Clear axis warning flags")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR))ZABER_CLEAR_WARNINGS")
+}
