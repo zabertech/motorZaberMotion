@@ -22,7 +22,7 @@ Additionally, this driver's profile move implementation only supports Zaber devi
 
 ### Build
 
-If this is your first time building an EPICS motor module, you can refer to the build instructions in [SETUP.md](SETUP.md), ignoring the npm-related instructions and instead using the explicit build steps.
+If this is your first time building an EPICS motor module, you can refer to the build instructions in [SETUP.md](SETUP.md), ignoring the uv-related instructions and instead using the explicit build steps.
 
 ### Downloading the ZML Support Package
 

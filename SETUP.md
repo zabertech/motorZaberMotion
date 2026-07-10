@@ -3,10 +3,9 @@
 This documentation is for developers who wish to contribute to this module.
 
 ## Updating ZML cpp support package version
-Make sure that aws cli is installed. Open `gulpfile.js` and change `ZML_VERSION` to version which you'd like to update to, then on the command line:
+Make sure that aws cli is installed. Open `tasks.py` and change `ZML_VERSION` to version which you'd like to update to, then on the command line:
 ```
-npm install
-npx gulp update_support_package_version
+uv run tasks.py update_support_package_version
 ```
 This will update the support package version in [zaberMotionSupport/Makefile](zaberMotionSupport/Makefile). Please note that the support package was added in version `7.2.0`, so is not available for earlier versions.
 
@@ -39,13 +38,13 @@ your-workfolder
 - install `libtirpc-dev` and `re2c` (check `images/epics_ubuntu.Dockerfile` for any other dependencies you might not have)
 - In the motor repository, add this repo as a submodule at the path: `modules/motorZaberMotion`.
 
-__Automated Configuration with NPM__
-- Install node and npm
-- Open the motorZaberMotion folder in a shell and run: `npm install` and then `npx gulp build`. This will perform the steps listed in explicit configuration steps below.
-- You can run unit tests with `npx gulp test`
+__Automated Configuration with uv__
+- Install [uv](https://docs.astral.sh/uv/)
+- Open the motorZaberMotion folder in a shell and run: `uv run tasks.py build`. This will perform the steps listed in explicit configuration steps below.
+- You can run Python type checks and linting, C++ unit tests and Python end-to-end tests with `uv run tasks.py test`
 
 __Explicit Configuration Steps__
-For documentation's sake, or for users who do not wish to install node and npm, below are the configuration and build steps performed by the `npx gulp build` command.
+For documentation's sake, or for users who do not wish to install uv, below are the configuration and build steps performed by the `uv run tasks.py build` command.
 
 - In the asyn, motor and sequencer repositories, navigate to the file `./configure/RELEASE`, and set `SUPPORT` and `EPICS_BASE` to their respective global filesystem paths (ie. path to support and epics-base folders). Additionally, in the motor repo, set `ASYN` and `SNCSEQ` env variables to the global paths of `asyn` and `sequencer` folders.
 - __Linux only__: In asyn repository, go to `./configure/CONFIG_SITE` and uncomment the line: `# TIRPC=YES`
@@ -57,8 +56,8 @@ For documentation's sake, or for users who do not wish to install node and npm, 
 ### Building with Docker
 - Grab either `registry.izaber.com/software-public/zaber-motion-epics/linux_amd64` or `registry.izaber.com/software-public/zaber-motion-epics/linux_arm64`
 - Run the container and navigate to `~/EPICS/support/motor` and run `git submodule add https://gitlab.izaber.com/software-public/zaber-motion-epics.git modules/motorZaberMotion`
-- Navigate to `modules/motorZaberMotion` and run `npm install` then `npx gulp build`
-- Run tests with `npx gulp test`
+- Navigate to `modules/motorZaberMotion` and run `uv run tasks.py build`
+- Run tests with `uv run tasks.py test`
 
 ## motorZaberMotion Example IOC
 
