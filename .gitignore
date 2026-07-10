@@ -18,7 +18,6 @@ auto_positions.sav*
 *.local
 .vscode/
 
-node_modules/
 **/.DS_Store
 **/.iocsh_history
 

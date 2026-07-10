@@ -9,9 +9,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y bash curl wget unzip
 RUN apt-get install -y build-essential cmake git libreadline-dev re2c
 
-# js
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && apt-get install -y nodejs
-RUN npm install -g npm@8.19.4
 RUN apt-get install -y firefox
 
 # add user and set home directory

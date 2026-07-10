@@ -9,10 +9,9 @@ build_linux_amd64:
     - mv * $HOME/EPICS/support/motor/modules/motorZaberMotion
     - cd $HOME/EPICS/support/motor/modules/motorZaberMotion
     - uv sync
-    - npm install
     - echo "===== Running build"
-    - npm exec gulp -- build
+    - uv run tasks.py build
     - echo "===== Running test"
-    - npm exec gulp -- test
+    - uv run tasks.py test
   tags:
   - docker-executor-multicore
