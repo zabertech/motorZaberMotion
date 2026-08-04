@@ -15,7 +15,7 @@ class zaberController;
 
 class epicsShareClass zaberAxis : public asynMotorAxis {
     public:
-    zaberAxis(zaberController *pC, int axisNo);
+    zaberAxis(zaberController *pC, int axisNo, double stepScaleFactor);
     ~zaberAxis();
     void report(FILE *fp, int details) override;
     asynStatus move(double position, int relative, double minVelocity, double maxVelocity, double acceleration) override;
@@ -32,11 +32,11 @@ class epicsShareClass zaberAxis : public asynMotorAxis {
     zml::Units positionUnit_;
     zml::Units velocityUnit_;
     zml::Units accelUnit_;
+    double stepScaleFactor_ = 1.0;
 
     asynStatus doAbsoluteMove(double position, double velocity, double acceleration);
     asynStatus doRelativeMove(double distance, double velocity, double acceleration);
 
-    double getStepScale(bool warnIfUnset = false) const;
     inline bool checkAllFlags(const std::unordered_set<std::string> &flags);
 
     friend class zaberController;

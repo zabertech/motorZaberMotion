@@ -1,8 +1,6 @@
 file "$(MOTOR)/motorApp/Db/asyn_motor.db"
 {
   pattern
-  # MRES sets the readback/command resolution in degrees (the driver scales
-  # ZML moves by MRES). 0.001 => millidegree resolution; lower it for finer.
   {P,             N,          M,        DTYP,    PORT, ADDR,            DESC, EGU, DIR,  VELO, VBAS, ACCL, BDST, BVEL, BACC,  MRES, PREC, DLLM, DHLM, INIT}
-  {ROTARY_STAGE:, 1, "axis$(N)", "asynMotor",   X-RSW,    0, "Rotary Axis 1", deg, Pos,  10.0,  1.0,  0.5,    0,    1,  0.2, 0.001,    4, -360,  360,   ""}
+  {ROTARY_STAGE:, 1, "axis$(N)", "asynMotor",   X-RSW,    0, "Rotary Axis 1", deg, Pos,  10.0,  1.0,  0.5,    0,    1,  0.2, 1e-6,    4, -360,  360,   ""}
 }
