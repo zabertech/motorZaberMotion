@@ -1,5 +1,21 @@
 # motorZaberMotion Releases
 
+## __R2-2-0 (2026-08-04)__
+R2-2-0 is a tagged release (git tag v2.2.0)
+
+### Changes since R2-1-0
+
+#### Bugfixes and Improvements
+* Commit [8fb2265c](https://github.com/zabertech/motorZaberMotion/commit/8fb2265c4ec2f6069f9259e4bfe48e95e8ac11fb)
+    * Fixes bug introduced by [variable MRES change](https://github.com/zabertech/motorZaberMotion/commit/94099d062cc42312cb7d1ee0eee2a08971f2b1ca).
+        * The previous behaviour used the EPICS Motor MRES field in a non-standard way and caused an issue where the VAL field showed an incorrectly scaled value on startup.
+        * The fix allows the user to pass an optional per-axis scaling factor to the ZaberMotionCreateController ioc shell function. Please see the IOC shell function documentation in the [README](../README.md) for more information.
+
+#### New Features
+* This version adds official support for profile moves.
+    * Beta version of feature released in commit [52c066cb](https://github.com/zabertech/motorZaberMotion/commit/52c066cb9f63b7bd29c9f6aea8e2a294299ddbf9).
+    * Digital output pulse behaviour fixed in commit [32118304](https://github.com/zabertech/motorZaberMotion/commit/3211830450064da9fd112f84cdb5a3aea25518ca).
+
 ## __R2-1-0 (2026-07-02)__
 R2-1-0 is a tagged release (git tag v2.1.0)
 
