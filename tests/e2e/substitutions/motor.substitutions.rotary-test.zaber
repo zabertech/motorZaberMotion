@@ -1,0 +1,9 @@
+file "$(MOTOR)/motorApp/Db/asyn_motor.db"
+{
+  pattern
+  {P,            N, M,          DTYP,        PORT,      ADDR,   DESC,          EGU,    DIR, VELO,   VBAS,  ACCL, BDST, BVEL, BACC, MRES,                PREC, DLLM,        DHLM,       INIT}
+  {ROTARY_TEST:, 1, "axis$(N)", "asynMotor", XMCC_ROTARY, 0,    "deg",         deg,    Pos, 20,     5,     0.5,  0,    1,    0.2,  1e-6,                4,    -360,        360,        ""}
+  {ROTARY_TEST:, 2, "axis$(N)", "asynMotor", XMCC_ROTARY, 1,    "millideg",    mdeg,   Pos, 20000,  5000,  0.5,  0,    1,    0.2,  1e-3,                1,    -360000,     360000,     ""}
+  {ROTARY_TEST:, 3, "axis$(N)", "asynMotor", XMCC_ROTARY, 2,    "radian",      rad,    Pos, 0.35,   0.087, 0.5,  0,    1,    0.2,  1.7453292519943e-8,  8,    -6.2831853,  6.2831853,  ""}
+  {ROTARY_TEST:, 4, "axis$(N)", "asynMotor", XMCC_ROTARY, 3,    "arcsec",      arcsec, Pos, 72000,  18000, 0.5,  0,    1,    0.2,  3.6e-3,              1,    -1296000,    1296000,    ""}
+}
