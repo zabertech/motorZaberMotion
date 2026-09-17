@@ -2,7 +2,13 @@
 
 #include <regex>
 
+#include "zaber/motion/library.h"
+
 using namespace zaber::epics;
+
+zaberConnectionManager::zaberConnectionManager() {
+    zml::Library::setHostApplication("epics");
+}
 
 zaberConnectionManager& zaberConnectionManager::singleton() {
     static zaberConnectionManager instance;

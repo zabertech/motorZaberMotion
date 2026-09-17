@@ -24,7 +24,7 @@ public:
 private:
     std::mutex _mutex;
     std::unordered_map<std::string, std::weak_ptr<zml::ascii::Connection>> _connections;
-    zaberConnectionManager() = default;
+    zaberConnectionManager();
 };
 
 } // namespace epics
