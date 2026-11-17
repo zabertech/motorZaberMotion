@@ -8,7 +8,7 @@ ifndef ZML_HOST_ARCH
 $(error "motorZaberMotion: Unsupported architecture: $(EPICS_HOST_ARCH)")
 endif
 
-ZML_VERSION     = 9.0.0
+ZML_VERSION     = 10.3.1
 ZML_SUPPORT_DIR = $(TOP)/zaberMotionSupport/ZaberMotionCppSupport
 ZML_ZIP         = $(TOP)/zaberMotionSupport/ZaberMotionCppSupport-$(ZML_VERSION).zip
 ZML_URL         = https://www.zaber.com/support/software-downloads.php?product=zml_cpp_support&version=$(ZML_VERSION)
@@ -23,12 +23,16 @@ $(if $(wildcard $(ZML_SUPPORT_DIR)),,$(shell \
      rm -f "$(ZML_ZIP)" 2>/dev/null)))
 
 LIB_INSTALLS += $(wildcard $(ZML_SUPPORT_DIR)/lib/$(ZML_HOST_ARCH)/*)
+LIB_INSTALLS += libzaber-motion.LICENSE.txt
 
 #=============================
 
 include $(TOP)/configure/RULES
 #----------------------------------------
 #  ADD RULES AFTER THIS LINE
+
+libzaber-motion.LICENSE.txt: $(ZML_SUPPORT_DIR)/LICENSE.txt
+	$(CP) $< $@
 
 .PHONY: download-zml-support clean-zml-support
 

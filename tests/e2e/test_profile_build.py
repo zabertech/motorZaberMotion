@@ -46,9 +46,9 @@ async def test_build_profile_no_pulses(
     await pvt_handler.expect_pvt("pvt 1 setup store 1 2")
 
     # Verify points 1-3
-    await pvt_handler.expect_pvt("pvt 1 point abs p 88693 161260 v 31705 0 t 500.0")
-    await pvt_handler.expect_pvt("pvt 1 point abs p 96756 161260 v 31705 0 t 500.0")
-    await pvt_handler.expect_pvt("pvt 1 point abs p 104819 161260 v 0 0 t 500.0")
+    await pvt_handler.expect_pvt("pvt 1 point abs p 88693 161260 v 31705 0 t 500")
+    await pvt_handler.expect_pvt("pvt 1 point abs p 96756 161260 v 31705 0 t 500")
+    await pvt_handler.expect_pvt("pvt 1 point abs p 104819 161260 v 0 0 t 500")
 
     await pvt_handler.expect_pvt("pvt 1 setup disable")
 
@@ -74,13 +74,13 @@ async def test_build_profile_with_pulses(
     await pvt_handler.expect_pvt("pvt 1 setup store 1 2")
 
     # Point idx 1 + pulse.
-    await pvt_handler.expect_pvt("pvt 1 point abs p 88693 161260 v 31705 0 t 500.0")
-    await pvt_handler.expect_pvt("pvt 1 io set do 1 1 schedule 10.0 0")
+    await pvt_handler.expect_pvt("pvt 1 point abs p 88693 161260 v 31705 0 t 500")
+    await pvt_handler.expect_pvt("pvt 1 io set do 1 1 schedule 10 0")
     # Point idx 2 + pulse.
-    await pvt_handler.expect_pvt("pvt 1 point abs p 96756 161260 v 31705 0 t 500.0")
-    await pvt_handler.expect_pvt("pvt 1 io set do 1 1 schedule 10.0 0")
+    await pvt_handler.expect_pvt("pvt 1 point abs p 96756 161260 v 31705 0 t 500")
+    await pvt_handler.expect_pvt("pvt 1 io set do 1 1 schedule 10 0")
     # Point idx 3 has no pulse.
-    await pvt_handler.expect_pvt("pvt 1 point abs p 104819 161260 v 0 0 t 500.0")
+    await pvt_handler.expect_pvt("pvt 1 point abs p 104819 161260 v 0 0 t 500")
 
     await pvt_handler.expect_pvt("pvt 1 setup disable")
 
