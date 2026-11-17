@@ -1,5 +1,16 @@
 # motorZaberMotion Releases
 
+## __R2-3-0 (2026-11-17)__
+R2-3-0 is a tagged release (git tag v2.3.0)
+
+### Changes since R2-2-0
+
+#### Bugfixes and Improvements
+* Commit [6719c30](https://github.com/zabertech/motorZaberMotion/commit/6719c300c5a6c305467e2506b92128b2b65414b3)
+    * Bumps `ZaberMotionCppSupport` package version from 9.0.0 to 10.3.1.
+    * Adds MIT license to repository.
+    * Installs the Zaber Motion Library license file (`libzaber-motion.LICENSE.txt`) alongside its native binaries.
+
 ## __R2-2-0 (2026-08-04)__
 R2-2-0 is a tagged release (git tag v2.2.0)
 
